@@ -1,0 +1,23 @@
+// MUI Imports
+'use client'
+
+import Grid from '@mui/material/Grid'
+
+import Typography from '@mui/material/Typography'
+
+import TabsSettingAffiliate from '@/components/tabs/TabsSettingAffiliate'
+
+const AffiliateComponent = () => {
+  return (
+    <Grid container spacing={6}>
+      <Grid item xs={12}>
+        <Typography variant='h4'>ตั้งค่าระบบแนะนำ</Typography>
+      </Grid>
+      <Grid item xs={12} sm>
+        <TabsSettingAffiliate />
+      </Grid>
+    </Grid>
+  )
+}
+
+export default AffiliateComponent
