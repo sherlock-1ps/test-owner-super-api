@@ -9,8 +9,8 @@ const colorSchemes = (skin: Skin): Theme['colorSchemes'] => {
     light: {
       palette: {
         primary: {
-          main: '#7367F0',
-          light: '#8F85F3',
+          main: '#5783F2',
+          light: '#5783F2',
           dark: '#675DD8',
           lighterOpacity: 'rgb(var(--mui-palette-primary-mainChannel) / 0.08)',
           lightOpacity: 'rgb(var(--mui-palette-primary-mainChannel) / 0.16)',

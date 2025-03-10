@@ -54,10 +54,10 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: 'Back Office V.2',
+  templateName: 'Super API Oneplaybet',
   homePageUrl: '/dashboard/finance',
   settingsCookieName: 'vuexy-mui-next-demo-1',
-  mode: 'system', // 'system', 'light', 'dark'
+  mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
   semiDark: false, // true, false
   layout: 'vertical', // 'vertical', 'collapsed', 'horizontal'

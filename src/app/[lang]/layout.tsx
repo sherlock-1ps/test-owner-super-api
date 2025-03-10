@@ -24,8 +24,8 @@ import '@/app/globals.css'
 import '@assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'BO ONEPLAYBET',
-  description: 'Backoffice Oneplaybet No.1',
+  title: 'BO SUPER-API',
+  description: 'Backoffice SUPER-API No.1 of the galaxy',
   icons: {
     icon: '../favicon.ico'
   }
