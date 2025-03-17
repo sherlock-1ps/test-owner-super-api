@@ -5,7 +5,7 @@ import axios from 'axios'
  * Create axios instance.
  */
 const Axios: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8100',
+  baseURL: `https://api-dev.arawanglobal.com/backend-api-gateway-test`,
   timeout: 15100
 })
 
@@ -26,8 +26,8 @@ Axios.interceptors.request.use(
     //   if (accessToken) config.headers['Authorization'] = `Bearer ${accessToken}`
     // }
 
-    config.headers['Authorization'] =
-      `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZV9udW1iZXIiOiIxOTEiLCJ1c2VybmFtZSI6ImFkbWluIn0._JcH25k1zAW9JUIYwSvwMga2NMfAngQ0N1bHPp7S1D4`
+    // config.headers['Authorization'] =
+    //   `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZV9udW1iZXIiOiIxOTEiLCJ1c2VybmFtZSI6ImFkbWluIn0._JcH25k1zAW9JUIYwSvwMga2NMfAngQ0N1bHPp7S1D4`
 
     return config
   },

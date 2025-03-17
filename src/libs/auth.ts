@@ -5,6 +5,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { PrismaClient } from '@prisma/client'
 import type { NextAuthOptions } from 'next-auth'
 import type { Adapter } from 'next-auth/adapters'
+import Axios from './axios/axios'
 
 const prisma = new PrismaClient()
 
@@ -20,6 +21,33 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text", placeholder: "Enter email" },
         password: { label: "Password", type: "password", placeholder: "Enter password" }
       },
+      // async authorize(credentials) {
+      //   try {
+      //     console.log("hello");
+
+      //     const { email, password } = credentials as { email: string; password: string }
+      //     // Send request to your backend login API
+      //     const response = await Axios.post(`https://api-dev.arawanglobal.com/backend-api-gateway-test/login`, {
+      //       email,
+      //       password,
+      //     });
+
+      //     const user = response.data; // Assuming the API returns user data
+
+      //     if (user && user.token) {
+      //       return {
+      //         id: user.id,
+      //         name: user.name,
+      //         email: user.email,
+      //         token: user.token, // Store token for session
+      //       };
+      //     } else {
+      //       return null;
+      //     }
+      //   } catch (error) {
+      //     throw new Error("Invalid credentials"); // Will be caught in `signIn`
+      //   }
+      // },
       async authorize(credentials) {
         const { email, password } = credentials as { email: string; password: string }
 

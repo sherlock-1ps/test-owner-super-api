@@ -108,27 +108,31 @@ const NavbarContent = () => {
 
         {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' && <NavSearch />}
       </div>
-
+      <LanguageDropdown />
       <div className='flex-1 overflow-hidden'>
         <Marquee gradient={false} speed={40} pauseOnHover={true} delay={0}>
           <div style={{ width: '48px' }}></div>
           <div className='flex gap-3'>
             <Typography variant='h6' className='text'>
-              ประกาศ:
+              Annouce:
             </Typography>
             <Typography color={'success.main'} className='whitespace-nowrap'>
-              ยินดีตอนรับเข้าสู่ Back Office V2 - Oneplaybet no1{' '}
+              Welcome to Backoffice Super API Owner Oneplaybet!
             </Typography>
           </div>
           <div style={{ width: '120px' }}></div>
         </Marquee>
       </div>
+      <div className='flex gap-1 items-center'>
+        <img alt='timezone' src='/images/icons/timezoneIcon.png' className='w-[24px] h-[24px]' />
+        <Typography variant='h6'>GMT+7</Typography>
+      </div>
       <div className='flex items-center'>
-        <LanguageDropdown />
-        <ModeDropdown />
+        {/* <LanguageDropdown /> */}
+        {/* <ModeDropdown /> */}
         {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' && <ShortcutsDropdown shortcuts={shortcuts} />}
 
-        <NotificationsDropdown notifications={notifications} />
+        {/* <NotificationsDropdown notifications={notifications} /> */}
         <UserDropdown />
       </div>
     </div>

@@ -20,7 +20,6 @@ import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
 // Third-party Imports
-import { signIn } from 'next-auth/react'
 import { Controller, useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { email, object, minLength, string, pipe, nonEmpty } from 'valibot'
@@ -45,6 +44,8 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
+import Axios from '@/libs/axios/axios'
+import { signIn } from '@/app/actions/auth/authAction'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -143,23 +144,38 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-    const res = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false
-    })
+    const ip = await getPublicIP()
 
-    if (res && res.ok && res.error === null) {
-      // Vars
-      const redirectURL = searchParams.get('redirectTo') ?? '/'
+    const res = await signIn(data)
 
-      router.replace(getLocalizedUrl(redirectURL, locale as Locale))
-    } else {
-      if (res?.error) {
-        const error = JSON.parse(res.error)
+    console.log(res)
 
-        setErrorState(error)
-      }
+    // const res = await signIn('credentials', {
+    //   email: data.email,
+    //   password: data.password,
+    //   redirect: false
+    // })
+    // if (res && res.ok && res.error === null) {
+    //   // Vars
+    //   const redirectURL = searchParams.get('redirectTo') ?? '/'
+    //   router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+    // } else {
+    //   if (res?.error) {
+    //     const error = JSON.parse(res.error)
+    //     setErrorState(error)
+    //   }
+    // }
+  }
+
+  const getPublicIP = async () => {
+    try {
+      const res = await Axios.get('https://api64.ipify.org?format=json')
+
+      return res.data.ip
+    } catch (error) {
+      console.error('Failed to fetch IP:', error)
+
+      return null
     }
   }
 

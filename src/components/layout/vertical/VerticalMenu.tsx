@@ -83,10 +83,67 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
+        <MenuItem
+          href={`/${locale}/providers`}
+          icon={<i className='tabler-crown' />}
+          exactMatch={false}
+          activeUrl='/providers'
+        >
+          {dictionary['navigation'].providers}
+        </MenuItem>
+        <MenuItem
+          href={`/${locale}/operators`}
+          icon={<i className='tabler-building-skyscraper' />}
+          exactMatch={false}
+          activeUrl='/operators'
+        >
+          {dictionary['navigation'].operators}
+        </MenuItem>
+        <MenuItem
+          href={`/${locale}/auditlog`}
+          icon={<i className='tabler-logs' />}
+          exactMatch={false}
+          activeUrl='/auditlog'
+        >
+          {dictionary['navigation'].auditLog}
+        </MenuItem>
+        <MenuItem
+          href={`/${locale}/invoice/invoicelist`}
+          icon={<i className='tabler-file-invoice' />}
+          exactMatch={false}
+          activeUrl='/invoice'
+        >
+          {dictionary['navigation'].invoice}
+        </MenuItem>
+
+        <SubMenu label={dictionary['navigation'].account} icon={<i className='tabler-user-circle' />}>
+          <MenuItem href={`/${locale}/account/owner`}>{dictionary['navigation'].accountOwner}</MenuItem>
+          <MenuItem href={`/${locale}/account/operator`}>{dictionary['navigation'].accountOperator}</MenuItem>
+        </SubMenu>
+
+        <MenuItem
+          href={`/${locale}/role`}
+          icon={<i className='tabler-shield-chevron' />}
+          exactMatch={false}
+          activeUrl='/role'
+        >
+          {dictionary['navigation'].rolesPermissions}
+        </MenuItem>
+        <MenuItem
+          href={`/${locale}/faq`}
+          icon={<i className='tabler-bubble-text' />}
+          exactMatch={false}
+          activeUrl='/faq'
+        >
+          {dictionary['navigation'].faq}
+        </MenuItem>
+        <SubMenu label={dictionary['navigation'].settings} icon={<i className='tabler-settings' />}>
+          <MenuItem href={`/${locale}/settings/smtp`}>{dictionary['navigation'].settingSmtp}</MenuItem>
+        </SubMenu>
+
         <SubMenu label={dictionary['navigation'].dashboards} icon={<i className='tabler-layout-dashboard' />}>
           <MenuItem href={`/${locale}/dashboard/finance`}>{dictionary['navigation'].crm}</MenuItem>
         </SubMenu>
-
         <SubMenu label={dictionary['navigation'].report} icon={<i className='tabler-report-search' />}>
           <MenuItem href={`/${locale}/report/user`}>{dictionary['navigation'].userReport}</MenuItem>
           <MenuItem href={`/${locale}/report/bankaccount`}>{dictionary['navigation'].bankAccountReport}</MenuItem>

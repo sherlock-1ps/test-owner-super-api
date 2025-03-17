@@ -31,21 +31,21 @@ const Providers = (props: Props) => {
   const systemMode = getSystemMode()
 
   return (
-    <NextAuthProvider basePath={process.env.NEXTAUTH_BASEPATH}>
-      <VerticalNavProvider>
-        <SettingsProvider settingsCookie={settingsCookie} mode={mode}>
-          <ThemeProvider direction={direction} systemMode={systemMode}>
-            <ReduxProvider>
-              <DialogProvider>
-                {children}
-                <DialogManager />
-              </DialogProvider>
-            </ReduxProvider>
-            <AppReactToastify direction={direction} hideProgressBar />
-          </ThemeProvider>
-        </SettingsProvider>
-      </VerticalNavProvider>
-    </NextAuthProvider>
+    // <NextAuthProvider basePath={process.env.NEXTAUTH_BASEPATH}>
+    <VerticalNavProvider>
+      <SettingsProvider settingsCookie={settingsCookie} mode={mode}>
+        <ThemeProvider direction={direction} systemMode={systemMode}>
+          <ReduxProvider>
+            <DialogProvider>
+              {children}
+              <DialogManager />
+            </DialogProvider>
+          </ReduxProvider>
+          <AppReactToastify direction={direction} hideProgressBar />
+        </ThemeProvider>
+      </SettingsProvider>
+    </VerticalNavProvider>
+    // </NextAuthProvider>
   )
 }
 

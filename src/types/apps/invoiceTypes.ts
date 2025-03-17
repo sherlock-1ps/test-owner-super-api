@@ -14,7 +14,7 @@ export type InvoiceClientType = {
 }
 
 export type InvoiceType = {
-  id: string
+  id: string | number
   userID?: string
   name: string
   total: number

@@ -22,7 +22,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 
 // Third-party Imports
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
@@ -48,11 +48,10 @@ const UserDropdown = () => {
   const [open, setOpen] = useState(false)
 
   // Refs
-  const anchorRef = useRef<HTMLDivElement>(null)
+  const anchorRef = useRef<HTMLButtonElement>(null)
 
   // Hooks
   const router = useRouter()
-  const { data: session } = useSession()
   const { settings } = useSettings()
   const { lang: locale } = useParams()
 
@@ -89,18 +88,28 @@ const UserDropdown = () => {
       <Badge
         ref={anchorRef}
         overlap='circular'
-        badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
+        // badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         className='mis-2'
       >
-        <Avatar
+        {/* <Avatar
           ref={anchorRef}
           alt={session?.user?.name || ''}
           src={'/images/setting-website/provider/provider8.png'}
-          // src={session?.user?.image || ''}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
-        />
+        /> */}
+        <Button ref={anchorRef} onClick={handleDropdownOpen} className='flex gap-2 items-center justify-center'>
+          AdminSuperAPI{' '}
+          <div className={`${open ? 'rotate-180' : ''}rotate-180 flex items-center`}>
+            <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'>
+              <path
+                d='M13.5306 6.53061L8.5306 11.5306C8.46092 11.6005 8.37813 11.656 8.28696 11.6939C8.1958 11.7317 8.09806 11.7512 7.99935 11.7512C7.90064 11.7512 7.8029 11.7317 7.71173 11.6939C7.62057 11.656 7.53778 11.6005 7.4681 11.5306L2.4681 6.53061C2.3272 6.38972 2.24805 6.19862 2.24805 5.99936C2.24805 5.80011 2.3272 5.60901 2.4681 5.46811C2.60899 5.32722 2.80009 5.24806 2.99935 5.24806C3.19861 5.24806 3.3897 5.32722 3.5306 5.46811L7.99997 9.93749L12.4693 5.46749C12.6102 5.32659 12.8013 5.24744 13.0006 5.24744C13.1999 5.24744 13.391 5.32659 13.5318 5.46749C13.6727 5.60838 13.7519 5.79948 13.7519 5.99874C13.7519 6.198 13.6727 6.38909 13.5318 6.52999L13.5306 6.53061Z'
+                fill='#404550'
+              />
+            </svg>
+          </div>
+        </Button>
       </Badge>
       <Popper
         open={open}
@@ -120,25 +129,22 @@ const UserDropdown = () => {
             <Paper className={settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg'}>
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
-                  <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
+                  {/* <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
                     <Avatar
                       alt={session?.user?.name || ''}
                       src={'/images/setting-website/provider/provider8.png'}
 
-                      // src={session?.user?.image || ''}
                     />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
                         Oneplaybet No.1
-                        {/* {session?.user?.name || ''} */}
                       </Typography>
                       <Typography variant='caption'>
                         oneplaybet@slot.com
-                        {/* {session?.user?.email || ''} */}
                       </Typography>
                     </div>
-                  </div>
-                  <Divider className='mlb-1' />
+                  </div> */}
+                  {/* <Divider className='mlb-1' /> */}
                   <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/profile')}>
                     <i className='tabler-user' />
                     <Typography color='text.primary'>My Profile</Typography>
@@ -151,10 +157,10 @@ const UserDropdown = () => {
                     <i className='tabler-currency-dollar' />
                     <Typography color='text.primary'>Pricing</Typography>
                   </MenuItem> */}
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/pages/faq')}>
+                  {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/pages/faq')}>
                     <i className='tabler-help-circle' />
                     <Typography color='text.primary'>FAQ</Typography>
-                  </MenuItem>
+                  </MenuItem> */}
                   <div className='flex items-center plb-2 pli-3'>
                     <Button
                       fullWidth
