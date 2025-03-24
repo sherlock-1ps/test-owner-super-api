@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import OperatorsListTable from './OperatorsListTable'
+import { fetchOperatorQueryOption } from '@/queryOptions/operator/operatorQueryOptions'
 
 const DebouncedInput = ({
   value: initialValue,
@@ -66,6 +67,18 @@ const OperatorsComponent = () => {
   // Vars
   const { lang: locale } = params
 
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const {
+    data: operatorsData,
+    isPending: pendingOperatorsData,
+    error: errorOpeatorsData,
+    refetch
+  } = fetchOperatorQueryOption(page, pageSize)
+
+  console.log('operator', operatorsData)
+
   return (
     <Card>
       <CardContent>
@@ -121,9 +134,19 @@ const OperatorsComponent = () => {
             </Grid>
             <Button variant='contained'>Search</Button>
           </Grid>
-          <Grid item xs={12}>
-            <OperatorsListTable />
-          </Grid>
+          {pendingOperatorsData && <p>Loading....</p>}
+          {errorOpeatorsData && <Typography className=' text-error'>{errorOpeatorsData.message}</Typography>}
+          {operatorsData?.code == 'SUCCESS' && (
+            <Grid item xs={12}>
+              <OperatorsListTable
+                data={operatorsData.data}
+                page={page}
+                pageSize={pageSize}
+                setPage={setPage}
+                setPageSize={setPageSize}
+              />
+            </Grid>
+          )}
         </Grid>
       </CardContent>
     </Card>

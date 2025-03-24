@@ -45,44 +45,61 @@ const Dropzone = styled(AppReactDropzone)<BoxProps>(({ theme }) => ({
   }
 }))
 
-const ProviderLogo = () => {
+const ProviderLogo = ({ setFileImg }: any) => {
   // States
   const [files, setFiles] = useState<File[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   // Hooks
   const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles: File[]) => {
-      setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+    maxSize: 1 * 1024 * 1024, // 1MB limit
+    accept: {
+      'image/png': ['.png'],
+      'image/webp': ['.webp']
+    },
+    onDrop: (acceptedFiles, rejectedFiles) => {
+      if (rejectedFiles.length > 0) {
+        setError('File must be a PNG or WEBP and not exceed 1MB.')
+
+        return
+      }
+      setError(null)
+      setFiles(acceptedFiles)
+      const file = acceptedFiles[0]
+
+      const reader = new FileReader()
+      reader.readAsDataURL(file) // Convert to Base64
+
+      reader.onload = () => {
+        setFileImg(reader.result) // ✅ Store Base64 string
+      }
+      reader.onerror = error => {
+        console.error('Error converting file to Base64:', error)
+      }
+
+      setFileImg(acceptedFiles[0])
     }
   })
 
-  const renderFilePreview = (file: FileProp) => {
-    if (file.type.startsWith('image')) {
-      return <img width={38} height={38} alt={file.name} src={URL.createObjectURL(file as any)} />
-    } else {
-      return <i className='tabler-file-description' />
-    }
+  const renderFilePreview = (file: File) => {
+    return <img width={100} height={100} alt={file.name} src={URL.createObjectURL(file)} />
   }
 
-  const handleRemoveFile = (file: FileProp) => {
-    const uploadedFiles = files
-    const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
-
-    setFiles([...filtered])
+  const handleRemoveFile = (file: File) => {
+    setFiles(prevFiles => prevFiles.filter(i => i.name !== file.name))
+    setFileImg(null)
   }
 
-  const fileList = files.map((file: FileProp) => (
+  const fileList = files.map(file => (
     <ListItem key={file.name} className='pis-4 plb-3'>
       <div className='file-details'>
-        <div className='file-preview'>{renderFilePreview(file)}</div>
+        <div className='flex items-center justify-center'>{renderFilePreview(file)}</div>
         <div>
-          <Typography className='file-name font-medium' color='text.primary'>
+          <Typography className='file-name font-medium' variant='body2' color='text.primary'>
             {file.name}
           </Typography>
           <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
+            {Math.round(file.size / 1024)} KB
           </Typography>
         </div>
       </div>
@@ -92,37 +109,24 @@ const ProviderLogo = () => {
     </ListItem>
   ))
 
-  const handleRemoveAllFiles = () => {
-    setFiles([])
-  }
-
   return (
     <Dropzone>
       <>
-        <div {...getRootProps({ className: 'dropzone' })}>
-          <input {...getInputProps()} />
-          <div className='flex items-center flex-col gap-2 text-center'>
-            <CustomAvatar variant='rounded' skin='light' color='primary'>
-              <i className='tabler-photo' />
-            </CustomAvatar>
-            <Typography className=' font-bold'>Click for upload Provider Logo</Typography>
-            <Typography color='text.disabled'>PNG format, Up to 1MB, 200X200px</Typography>
-            <Button variant='tonal' size='small'>
-              Browse Image
-            </Button>
-          </div>
-        </div>
+        {error && <Typography color='error'>{error}</Typography>} {/* Show error if exists */}
         {files.length ? (
-          <>
-            <List>{fileList}</List>
-            <div className='buttons'>
-              <Button color='error' variant='tonal' onClick={handleRemoveAllFiles}>
-                Remove All
-              </Button>
-              <Button variant='contained'>Upload Files</Button>
+          <List>{fileList}</List>
+        ) : (
+          <div {...getRootProps({ className: 'dropzone' })}>
+            <input {...getInputProps()} />
+            <div className='flex items-center flex-col gap-2 text-center'>
+              <CustomAvatar variant='rounded' skin='light' color='primary'>
+                <i className='tabler-photo' />
+              </CustomAvatar>
+              <Typography className='font-bold'>Upload Provider Logo</Typography>
+              <Typography color='text.disabled'>PNG, WEBP format, Up to 1MB, 200x200px</Typography>
             </div>
-          </>
-        ) : null}
+          </div>
+        )}
       </>
     </Dropzone>
   )

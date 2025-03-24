@@ -10,61 +10,18 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import AccountOperatorTable from './AccountOperatorTable'
-
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  isIcon,
-  ...props
-}: {
-  value: string | number
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  debounce?: number
-  isIcon?: boolean
-} & Omit<TextFieldProps, 'onChange'>) => {
-  const [value, setValue] = useState<string | number>(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const fakeEvent = {
-        target: { value }
-      } as React.ChangeEvent<HTMLInputElement>
-
-      onChange(fakeEvent)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-  }, [value, debounce, onChange])
-
-  return (
-    <CustomTextField
-      {...props}
-      value={value}
-      onChange={e => setValue(e.target.value)}
-      InputProps={{
-        endAdornment: isIcon ? (
-          <InputAdornment position='end'>
-            <IconButton onClick={() => {}}>
-              <i className='tabler-search' />
-            </IconButton>
-          </InputAdornment>
-        ) : null
-      }}
-    />
-  )
-}
+import { fetchAccountOperatorQueryOption } from '@/queryOptions/account/accountQueryOptions'
 
 const AccountOperatorComponent = () => {
   const router = useRouter()
   const params = useParams()
-
-  // Vars
   const { lang: locale } = params
+
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const { data: operatorData, isPending: pendingOperatorData } = fetchAccountOperatorQueryOption(page, pageSize)
 
   return (
     <Card>
@@ -86,20 +43,37 @@ const AccountOperatorComponent = () => {
               </CustomTextField>
             </Grid>
             <Grid item xs={12} sm>
-              <DebouncedInput
-                value={''}
-                placeholder='Search Email'
-                onChange={() => {}}
-                className='w-full'
-                isIcon={true}
+              <CustomTextField
+                fullWidth
+                value={search}
                 label='Email'
+                onChange={e => setSearch(e.target.value)}
+                placeholder='Search Email'
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton onClick={() => {}}>
+                        <i className='tabler-search' />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
             </Grid>
 
             <Button variant='contained'>Search</Button>
           </Grid>
           <Grid item xs={12}>
-            <AccountOperatorTable />
+            {pendingOperatorData && <p>Loading ...</p>}
+            {operatorData?.data?.total && (
+              <AccountOperatorTable
+                data={operatorData.data}
+                page={page}
+                pageSize={pageSize}
+                setPage={setPage}
+                setPageSize={setPageSize}
+              />
+            )}
           </Grid>
         </Grid>
       </CardContent>

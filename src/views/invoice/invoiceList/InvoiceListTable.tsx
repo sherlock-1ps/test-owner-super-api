@@ -327,6 +327,29 @@ const dataMock = [
       bankName: 'Diana Prince',
       bankImage: 'kbank'
     }
+  },
+  {
+    id: 11,
+    issuedDate: 150,
+    address: '4528 Myers Gateway',
+    company: 'Page-Wise PLC',
+    companyEmail: 'bwilson@norris-brock.com',
+    country: 'Guam',
+    contact: '(956) 803-2008',
+    name: 'ช้อปครบ รับของแถมฟรีทันที',
+    service: 'Software Development',
+    total: 4776,
+    avatar: '/images/avatars/7.png',
+    invoiceStatus: 'Downloaded',
+    balance: '$305',
+    dueDate: '02 Feb 2025',
+    group: 2,
+    bonus: 0,
+    bank: {
+      bankNumber: '987-2-32454-2',
+      bankName: 'Diana Prince',
+      bankImage: 'kbank'
+    }
   }
 ]
 
@@ -347,11 +370,37 @@ const InvoiceListTable = () => {
 
   const columns = useMemo<ColumnDef<InvoiceTypeWithAction, any>[]>(
     () => [
-      columnHelper.accessor('id', {
-        header: '',
-        cell: ({ row }) => <Checkbox checked={true} />,
-        enableSorting: false
-      }),
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            sx={{
+              color: 'red',
+              '&.Mui-checked': {
+                color: 'green'
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.1)'
+              }
+            }}
+            {...{
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler()
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            {...{
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              indeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler()
+            }}
+          />
+        )
+      },
       columnHelper.accessor('id', {
         header: 'id',
         cell: ({ row }) => <Typography variant='h6'>11000</Typography>
@@ -504,20 +553,6 @@ const InvoiceListTable = () => {
                           })}
                           onClick={header.column.getToggleSortingHandler()}
                         >
-                          {header.index === 0 && (
-                            <Checkbox
-                              checked={true}
-                              sx={{
-                                color: 'red',
-                                '&.Mui-checked': {
-                                  color: 'green'
-                                },
-                                '&:hover': {
-                                  backgroundColor: 'rgba(0, 0, 0, 0.1)'
-                                }
-                              }}
-                            />
-                          )}
                           {flexRender(header.column.columnDef.header, header.getContext())}
                           {{
                             asc: <i className='tabler-chevron-up text-xl' />,

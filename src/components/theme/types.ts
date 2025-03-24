@@ -67,6 +67,7 @@ declare module '@mui/material/styles' {
         md: string
         lg: string
       }
+
     }
     mainColorChannels: {
       light: string
@@ -185,7 +186,7 @@ declare module '@mui/material/styles' {
   interface PalettePaperChannel {
     paperChannel: string
   }
-  interface TypeBackground extends PalettePaperChannel {}
+  interface TypeBackground extends PalettePaperChannel { }
 
   // Components
   interface ComponentNameToClassKey {

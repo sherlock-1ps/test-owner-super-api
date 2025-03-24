@@ -16,6 +16,7 @@ import { getMode, getSettingsFromCookie, getSystemMode } from '@core/utils/serve
 import { DialogProvider } from '@/@menu/contexts/dialogContext'
 
 import DialogManager from './dialogs/DialogManager'
+import WrapperQueryClient from '@/contexts/WrapperQueryClient'
 
 type Props = ChildrenType & {
   direction: Direction
@@ -32,19 +33,21 @@ const Providers = (props: Props) => {
 
   return (
     // <NextAuthProvider basePath={process.env.NEXTAUTH_BASEPATH}>
-    <VerticalNavProvider>
-      <SettingsProvider settingsCookie={settingsCookie} mode={mode}>
-        <ThemeProvider direction={direction} systemMode={systemMode}>
-          <ReduxProvider>
-            <DialogProvider>
-              {children}
-              <DialogManager />
-            </DialogProvider>
-          </ReduxProvider>
-          <AppReactToastify direction={direction} hideProgressBar />
-        </ThemeProvider>
-      </SettingsProvider>
-    </VerticalNavProvider>
+    <WrapperQueryClient>
+      <VerticalNavProvider>
+        <SettingsProvider settingsCookie={settingsCookie} mode={mode}>
+          <ThemeProvider direction={direction} systemMode={systemMode}>
+            <ReduxProvider>
+              <DialogProvider>
+                {children}
+                <DialogManager />
+              </DialogProvider>
+            </ReduxProvider>
+            <AppReactToastify direction={direction} hideProgressBar />
+          </ThemeProvider>
+        </SettingsProvider>
+      </VerticalNavProvider>
+    </WrapperQueryClient>
     // </NextAuthProvider>
   )
 }

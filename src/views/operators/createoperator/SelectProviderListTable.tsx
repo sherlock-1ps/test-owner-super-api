@@ -71,15 +71,17 @@ declare module '@tanstack/table-core' {
   }
 }
 
-type InvoiceTypeWithAction = InvoiceType & {
-  action?: string
-}
-
-type InvoiceStatusObj = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
-  }
+type ProviderType = {
+  id: string
+  provider_id: string
+  provider_code: string
+  provider_name: string
+  categories: string[]
+  percent_holder: number
+  is_enable: boolean
+  image: string
+  currencies: string[]
+  isSelected?: boolean
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -95,321 +97,116 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-const dataMock = [
-  {
-    id: 1,
-    issuedDate: 837,
-    address: '7777 Mendez Plains',
-    company: 'Hall-Robbins PLC',
-    companyEmail: 'don85@johnson.com',
-    country: 'USA',
-    contact: '(616) 865-4180',
-    name: 'เติมงาน รับเพิ่มทันที',
-    service: 'Software Development',
-    total: 3428,
-    avatar: '',
-    avatarColor: 'primary',
-    invoiceStatus: 'Paid',
-    balance: '$724',
-    dueDate: '23 Feb 2025',
-    group: 3,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Alice Johnson',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 2,
-    issuedDate: 254,
-    address: '04033 Wesley Wall Apt. 961',
-    company: 'Mccann LLC and Sons',
-    companyEmail: 'brenda49@taylor.info',
-    country: 'Haiti',
-    contact: '(226) 204-8287',
-    name: 'โปรแรง! เติมงาน รับสิทธิพิเศษทันที',
-    service: 'UI/UX Design & Development',
-    total: 5219,
-    avatar: '/images/avatars/1.png',
-    invoiceStatus: 'Downloaded',
-    balance: 0,
-    dueDate: '15 Feb 2025',
-    group: 1,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Elijah Nguyen',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 3,
-    issuedDate: 793,
-    address: '5345 Robert Squares',
-    company: 'Leonard-Garcia and Sons',
-    companyEmail: 'smithtiffany@powers.com',
-    country: 'Denmark',
-    contact: '(955) 676-1076',
-    name: 'ดีลพิเศษ เติมงาน รับโบนัสทันที',
-    service: 'Unlimited Extended License',
-    total: 3719,
-    avatar: '/images/avatars/2.png',
-    invoiceStatus: 'Paid',
-    balance: 0,
-    dueDate: '03 Feb 2025',
-    group: 4,
-    bonus: 10,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Bob Smith',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 4,
-    issuedDate: 316,
-    address: '19022 Clark Parks Suite 149',
-    company: 'Smith, Miller and Henry LLC',
-    companyEmail: 'mejiageorge@lee-perez.com',
-    country: 'Cambodia',
-    contact: '(832) 323-6914',
-    name: 'โปรโมชั่นสุดคุ้ม รับงานฟรีทันที',
-    service: 'Software Development',
-    total: 4749,
-    avatar: '/images/avatars/3.png',
-    invoiceStatus: 'Sent',
-    balance: 0,
-    dueDate: '11 Feb 2025',
-    group: 5,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Charlie Brown',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 5,
-    issuedDate: 465,
-    address: '8534 Saunders Hill Apt. 583',
-    company: 'Garcia-Cameron and Sons',
-    companyEmail: 'brandon07@pierce.com',
-    country: 'Martinique',
-    contact: '(970) 982-3353',
-    name: 'ช้อปครบ รับของแถมฟรีทันที',
-    service: 'UI/UX Design & Development',
-    total: 4056,
-    avatar: '/images/avatars/4.png',
-    invoiceStatus: 'Draft',
-    balance: '$815',
-    dueDate: '30 Feb 2025',
-    group: 2,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Diana Prince',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 6,
-    issuedDate: 192,
-    address: '661 Perez Run Apt. 778',
-    company: 'Burnett-Young PLC',
-    companyEmail: 'guerrerobrandy@beasley-harper.com',
-    country: 'Botswana',
-    contact: '(511) 938-9617',
-    name: 'เติมงาน รับเพิ่มทันที',
-    service: 'UI/UX Design & Development',
-    total: 2771,
-    avatar: '',
-    avatarColor: 'secondary',
-    invoiceStatus: 'Paid',
-    balance: 0,
-    dueDate: '24 Feb 2025',
-    group: 1,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Elijah Nguyen',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 7,
-    issuedDate: 879,
-    address: '074 Long Union',
-    company: 'Wilson-Lee LLC',
-    companyEmail: 'williamshenry@moon-smith.com',
-    country: 'Montserrat',
-    contact: '(504) 859-2893',
-    name: 'โปรแรง! เติมงาน รับสิทธิพิเศษทันที',
-    service: 'UI/UX Design & Development',
-    total: 2713,
-    avatar: '',
-    avatarColor: 'success',
-    invoiceStatus: 'Draft',
-    balance: '$407',
-    dueDate: '22 Feb 2025',
-    group: 5,
-    bonus: 10,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Bob Smith',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 8,
-    issuedDate: 540,
-    address: '5225 Ford Cape Apt. 840',
-    company: 'Schwartz, Henry and Rhodes Group',
-    companyEmail: 'margaretharvey@russell-murray.com',
-    country: 'Oman',
-    contact: '(758) 403-7718',
-    name: 'โปรโมชั่นสุดคุ้ม รับงานฟรีทันที',
-    service: 'Template Customization',
-    total: 4309,
-    avatar: '/images/avatars/5.png',
-    invoiceStatus: 'Paid',
-    balance: '-$205',
-    dueDate: '10 Feb 2025',
-    group: 3,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Alice Johnson',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 9,
-    issuedDate: 701,
-    address: '23717 James Club Suite 277',
-    company: 'Henderson-Holder PLC',
-    companyEmail: 'dianarodriguez@villegas.com',
-    country: 'Cambodia',
-    contact: '(292) 873-8254',
-    name: 'ดีลพิเศษ เติมงาน รับโบนัสทันที',
-    service: 'Software Development',
-    total: 3367,
-    avatar: '/images/avatars/6.png',
-    invoiceStatus: 'Downloaded',
-    balance: 0,
-    dueDate: '24 Feb 2025',
-    group: 4,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Charlie Brown',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 10,
-    issuedDate: 150,
-    address: '4528 Myers Gateway',
-    company: 'Page-Wise PLC',
-    companyEmail: 'bwilson@norris-brock.com',
-    country: 'Guam',
-    contact: '(956) 803-2008',
-    name: 'ช้อปครบ รับของแถมฟรีทันที',
-    service: 'Software Development',
-    total: 4776,
-    avatar: '/images/avatars/7.png',
-    invoiceStatus: 'Downloaded',
-    balance: '$305',
-    dueDate: '02 Feb 2025',
-    group: 2,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Diana Prince',
-      bankImage: 'kbank'
-    }
-  }
-]
-
 // Column Definitions
-const columnHelper = createColumnHelper<InvoiceTypeWithAction>()
+const columnHelper = createColumnHelper<ProviderType>()
 
-const SelectProviderListTable = () => {
+const SelectProviderListTable = ({ dataTable, handleUpdateProvider, handleChangeSelectedProvider, category }: any) => {
   const { showDialog } = useDialog()
   // States
-  const [status, setStatus] = useState<InvoiceType['invoiceStatus']>('')
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(...[dataMock])
-  const [filteredData, setFilteredData] = useState(data)
+  const [data, setData] = useState(...[dataTable])
   const [globalFilter, setGlobalFilter] = useState('')
+  const [percentCredential, setPercentCredential] = useState('10')
 
   // Hooks
   const { lang: locale } = useParams()
 
-  const columns = useMemo<ColumnDef<InvoiceTypeWithAction, any>[]>(
+  const columns = useMemo<ColumnDef<ProviderType, any>[]>(
     () => [
-      columnHelper.accessor('id', {
-        header: '',
-        cell: ({ row }) => <Checkbox checked={true} />,
-        enableSorting: false
-      }),
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            sx={{
+              color: 'red',
+              '&.Mui-checked': {
+                color: 'green'
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.1)'
+              }
+            }}
+            {...{
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler()
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            {...{
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              indeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler()
+            }}
+          />
+        )
+      },
 
-      columnHelper.accessor('company', {
+      columnHelper.display({
+        id: 'provider',
         header: 'Select All Slot Provider',
-
+        enableSorting: false,
         cell: ({ row }) => (
           <div className='flex flex-col'>
-            <Typography variant='h6'>{row.original.company}</Typography>
+            <Typography variant='h6'>{row.original.provider_name}</Typography>
           </div>
         )
       }),
-      columnHelper.accessor('companyEmail', {
+      columnHelper.accessor('image', {
         header: '',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.companyEmail}</Typography>
+        cell: ({ row }) => <img src={row.original.image} alt='providerLogo' className='w-[48px] h-[48px]  rounded-md' />
       }),
-      columnHelper.accessor('total', {
+      columnHelper.accessor('percent_holder', {
         header: 'Holder %',
-        cell: ({ row }) => <Typography variant='h6'>8</Typography>
-      }),
-      columnHelper.accessor('country', {
-        header: 'Credential %',
-        cell: ({ row }) => <CustomTextField type='number' label='' className='max-w-[122px]' />
-      }),
-      columnHelper.accessor('country', {
-        header: 'List Game',
-        cell: ({ row }) => <Typography variant='h6'>All Game</Typography>
-      }),
+        cell: ({ row }) => {
+          return
 
-      columnHelper.accessor('action', {
-        header: '',
-        cell: ({ row }) => (
-          <div className='flex items-center gap-2'>
-            <Button className='p-0'>
-              <Chip label='All' color='primary' variant='outlined' className='w-full ' />
-            </Button>
-            <Button
-              className='p-0'
-              onClick={() => {
-                showDialog({
-                  id: 'GameCredentialProviderDialog',
-                  component: <GameCredentialProviderDialog id='GameCredentialProviderDialog' onClick={() => {}} />,
-                  size: 'sm'
-                })
+          // return <Typography variant='h6'>{row.original.percent_holder}%</Typography>
+        }
+      }),
+      columnHelper.display({
+        id: 'credential',
+        header: 'Credential %',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const [value, setValue] = useState(percentCredential || '0')
+
+          const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            let newValue = Number(event.target.value)
+
+            if (newValue > row.original.percent_holder) {
+              newValue = row.original.percent_holder // Restrict max value
+            }
+
+            setValue(newValue.toString())
+            setPercentCredential(newValue.toString())
+          }
+
+          return (
+            <CustomTextField
+              type='number'
+              label=''
+              className='min-w-[122px]'
+              value={value}
+              onChange={handleChange}
+              inputProps={{
+                min: 0,
+                max: row.original.percent_holder // Max limit
               }}
-            >
-              <Chip label='Select Specific' color='primary' variant='outlined' className='w-full ' />
-            </Button>
-          </div>
-        ),
-        enableSorting: false
+            />
+          )
+        }
       })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, filteredData]
+    [data]
   )
 
-  const table = useReactTable({
-    data: filteredData as InvoiceType[],
+  const table = useReactTable<ProviderType>({
+    data: data,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -437,16 +234,6 @@ const SelectProviderListTable = () => {
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
 
-  useEffect(() => {
-    const filteredData = data?.filter(invoice => {
-      if (status && invoice.invoiceStatus.toLowerCase().replace(/\s+/g, '-') !== status) return false
-
-      return true
-    })
-
-    setFilteredData(filteredData)
-  }, [status, data])
-
   return (
     <Card>
       <div className='overflow-x-auto'>
@@ -470,20 +257,6 @@ const SelectProviderListTable = () => {
                           })}
                           onClick={header.column.getToggleSortingHandler()}
                         >
-                          {header.index === 0 && (
-                            <Checkbox
-                              checked={true}
-                              sx={{
-                                color: 'red', // Change checkbox color when unchecked
-                                '&.Mui-checked': {
-                                  color: 'green' // Change color when checked
-                                },
-                                '&:hover': {
-                                  backgroundColor: 'rgba(0, 0, 0, 0.1)' // Light hover effect
-                                }
-                              }}
-                            />
-                          )}
                           {flexRender(header.column.columnDef.header, header.getContext())}
                           {{
                             asc: <i className='tabler-chevron-up text-xl' />,
@@ -513,8 +286,15 @@ const SelectProviderListTable = () => {
                 .map(row => {
                   return (
                     <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                      {row.getVisibleCells().map((cell, index) => (
+                        <td key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {index == 3 && (
+                            <Typography variant='h6'>
+                              {row.original.percent_holder - Number(percentCredential)}%
+                            </Typography>
+                          )}
+                        </td>
                       ))}
                     </tr>
                   )
@@ -523,21 +303,6 @@ const SelectProviderListTable = () => {
           )}
         </table>
       </div>
-
-      <TablePagination
-        component={() => (
-          <>
-            <TablePaginationComponent table={table} />
-          </>
-        )}
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
-      />
     </Card>
   )
 }

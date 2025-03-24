@@ -22,7 +22,6 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 
 // Third-party Imports
-import { signOut } from 'next-auth/react'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
@@ -32,6 +31,7 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
+import { signOut } from '@/app/actions/auth/authAction'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -73,8 +73,9 @@ const UserDropdown = () => {
 
   const handleUserLogout = async () => {
     try {
-      // Sign out from the app
-      await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
+      // await signOut()
+      router.push('/login')
+      // await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
     } catch (error) {
       console.error(error)
 

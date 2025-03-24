@@ -1,18 +1,27 @@
-// MUI Imports
-import { MenuItem } from '@mui/material'
-import Pagination from '@mui/material/Pagination'
-import Typography from '@mui/material/Typography'
-
-// Third Party Imports
-import type { Table, useReactTable } from '@tanstack/react-table'
-
+import { MenuItem, Pagination, Typography } from '@mui/material'
 import CustomTextField from '@/@core/components/mui/TextField'
+import type { Table } from '@tanstack/react-table'
+
 interface TablePaginationComponentProps<TData> {
   table: Table<TData>
-  // you can add other props if needed
+  count: number
+  page: number
+  pageSize: number
+  onPageChange: (newPage: number) => void
+  onPageSizeChange: (newSize: number) => void
 }
 
-const TablePaginationComponent = <TData,>({ table }: TablePaginationComponentProps<TData>) => {
+const TablePaginationComponent = <TData,>({
+  table,
+  count,
+  page,
+  pageSize,
+  onPageChange,
+  onPageSizeChange
+}: TablePaginationComponentProps<TData>) => {
+  // const pageSize = table.getState().pagination.pageSize
+  // const pageIndex = table.getState().pagination.pageIndex
+
   return (
     <div className='flex justify-between items-center flex-wrap pli-6 border-bs bs-auto plb-[12.5px] gap-2'>
       <div className='flex gap-2 items-center'>
@@ -20,36 +29,33 @@ const TablePaginationComponent = <TData,>({ table }: TablePaginationComponentPro
           <Typography className='hidden sm:block'>Show</Typography>
           <CustomTextField
             select
-            value={table.getState().pagination.pageSize}
-            onChange={e => table.setPageSize(Number(e.target.value))}
+            value={pageSize}
+            onChange={e => {
+              const newSize = Number(e.target.value)
+              // table.setPageSize(newSize)
+              onPageChange(1)
+              onPageSizeChange(newSize) // ✅ Trigger API call for new page size
+            }}
             className='max-sm:is-full sm:is-[70px]'
           >
-            <MenuItem value='10'>10</MenuItem>
-            <MenuItem value='25'>25</MenuItem>
-            <MenuItem value='50'>50</MenuItem>
+            <MenuItem value={1}>1</MenuItem>
+            <MenuItem value={2}>2</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={25}>25</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
           </CustomTextField>
         </div>
-        <Typography color='text.disabled'>
-          {`Showing ${
-            table.getFilteredRowModel().rows.length === 0
-              ? 0
-              : table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1
-          }
-        to ${Math.min(
-          (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-          table.getFilteredRowModel().rows.length
-        )} of ${table.getFilteredRowModel().rows.length} entries`}
-        </Typography>
       </div>
 
       <Pagination
         shape='rounded'
         color='primary'
         variant='tonal'
-        count={Math.ceil(table.getFilteredRowModel().rows.length / table.getState().pagination.pageSize)}
-        page={table.getState().pagination.pageIndex + 1}
-        onChange={(_, page) => {
-          table.setPageIndex(page - 1)
+        count={count}
+        page={page} // ✅ Adjust for zero-based index
+        onChange={(_, newPage) => {
+          // table.setPageIndex(newPage - 1)
+          onPageChange(newPage) // ✅ Trigger API call for new page
         }}
         showFirstButton
         showLastButton

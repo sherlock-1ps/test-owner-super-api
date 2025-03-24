@@ -6,14 +6,17 @@ import { Divider, Grid, MenuItem, Typography } from '@mui/material'
 
 import { useDialog } from '@/hooks/useDialog'
 import CustomTextField from '@/@core/components/mui/TextField'
+import { useChangeRoleAccountOwnerMutationOption } from '@/queryOptions/account/accountQueryOptions'
 
 interface confirmProps {
   id: string
   onClick: () => void
+  data: any
 }
 
-const RenameAccountDialog = ({ id, onClick }: confirmProps) => {
+const RenameAccountDialog = ({ id, onClick, data }: confirmProps) => {
   const { closeDialog } = useDialog()
+  const { mutate: changeRoleAccountOwner } = useChangeRoleAccountOwnerMutationOption()
 
   return (
     <Grid container className='flex flex-col gap-2' spacing={2}>
@@ -22,7 +25,7 @@ const RenameAccountDialog = ({ id, onClick }: confirmProps) => {
       </Grid>
       <Divider />
       <Grid item xs={12} className='flex gap-4'>
-        <CustomTextField fullWidth type='text' label='Old Role' placeholder='' disabled />
+        <CustomTextField fullWidth type='text' label='Old Role' placeholder='' disabled value={data?.role_name} />
         <CustomTextField select fullWidth defaultValue={10} label='New Role'>
           <MenuItem value=''>
             <em>None</em>

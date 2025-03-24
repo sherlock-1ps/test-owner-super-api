@@ -27,6 +27,7 @@ import { i18n } from '@configs/i18n'
 // Util Imports
 import { getDictionary } from '@/utils/getDictionary'
 import { getMode, getSystemMode } from '@core/utils/serverHelpers'
+import { getCookie } from '@/utils/cookieHandler'
 
 const Layout = async ({ children, params }: ChildrenType & { params: { lang: Locale } }) => {
   // Vars
@@ -35,9 +36,11 @@ const Layout = async ({ children, params }: ChildrenType & { params: { lang: Loc
   const mode = getMode()
   const systemMode = getSystemMode()
 
+  const haveToken = getCookie('accessToken')
+
   return (
     <Providers direction={direction}>
-      <AuthGuard locale={params.lang}>
+      <AuthGuard locale={params.lang} session={haveToken}>
         <LayoutWrapper
           systemMode={systemMode}
           verticalLayout={

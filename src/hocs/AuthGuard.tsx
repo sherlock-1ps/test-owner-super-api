@@ -8,14 +8,16 @@ import type { ChildrenType } from '@core/types'
 // Component Imports
 import AuthRedirect from '@/components/AuthRedirect'
 
-export default async function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {
+export default async function AuthGuard({
+  children,
+  locale,
+  session
+}: ChildrenType & { locale: Locale; session: string | null }) {
   // const session = await getServerSession()
 
   // const session = {
   //   user: { name: 'Admin', email: 'admin@oneplaybet.com', image: undefined }
   // }
-
-  const session = null
 
   return <>{session ? children : <AuthRedirect lang={locale} />}</>
 }

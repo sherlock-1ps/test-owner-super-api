@@ -152,6 +152,8 @@ const ProductListTable = ({ productData }: { productData?: ProductType[] }) => {
   const [filteredData, setFilteredData] = useState(data)
   const [globalFilter, setGlobalFilter] = useState('')
 
+  console.log('data', data)
+
   // Hooks
   const { lang: locale } = useParams()
 

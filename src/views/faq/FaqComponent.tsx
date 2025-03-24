@@ -10,54 +10,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import FaqTable from './FaqTable'
-
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  isIcon,
-  ...props
-}: {
-  value: string | number
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  debounce?: number
-  isIcon?: boolean
-} & Omit<TextFieldProps, 'onChange'>) => {
-  const [value, setValue] = useState<string | number>(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const fakeEvent = {
-        target: { value }
-      } as React.ChangeEvent<HTMLInputElement>
-
-      onChange(fakeEvent)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-  }, [value, debounce, onChange])
-
-  return (
-    <CustomTextField
-      {...props}
-      value={value}
-      onChange={e => setValue(e.target.value)}
-      InputProps={{
-        endAdornment: isIcon ? (
-          <InputAdornment position='end'>
-            <IconButton onClick={() => {}}>
-              <i className='tabler-search' />
-            </IconButton>
-          </InputAdornment>
-        ) : null
-      }}
-    />
-  )
-}
+import { fetchFaqQueryOption, useSearchFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
 
 const FaqComponent = () => {
   const router = useRouter()
@@ -65,6 +18,24 @@ const FaqComponent = () => {
 
   // Vars
   const { lang: locale } = params
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const { data: faqData, isPending: pendingFaqData } = fetchFaqQueryOption(page, pageSize)
+  const { mutate, data: searchFaqData, reset } = useSearchFaqMutationOption()
+
+  console.log('faqData', faqData)
+
+  const handleSearch = async (username: any) => {
+    if (!search) return
+
+    mutate({ page, pageSize, title: search })
+  }
+
+  useEffect(() => {
+    if (!search) reset()
+  }, [search])
 
   return (
     <Card>
@@ -86,21 +57,47 @@ const FaqComponent = () => {
           <Divider />
           <Grid container alignItems='end' className='flex gap-6'>
             <Grid item xs={12} sm>
-              <DebouncedInput
-                value={''}
-                placeholder='Search Question'
-                onChange={() => {}}
-                className='w-full'
-                isIcon={true}
+              <CustomTextField
+                fullWidth
+                value={search}
                 label='Question'
+                onChange={e => setSearch(e.target.value)}
+                placeholder='Search Question'
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton onClick={() => {}}>
+                        <i className='tabler-search' />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
             </Grid>
             <Grid item xs={12} sm>
-              <Button variant='contained'>Search</Button>
+              <Button
+                variant='contained'
+                onClick={() => {
+                  handleSearch(search)
+                }}
+                disabled={!search}
+              >
+                Search
+              </Button>
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            <FaqTable />
+            {pendingFaqData && <p>Loading....</p>}
+
+            {faqData?.data?.total && (
+              <FaqTable
+                data={searchFaqData?.data || faqData.data}
+                page={page}
+                pageSize={pageSize}
+                setPage={setPage}
+                setPageSize={setPageSize}
+              />
+            )}
           </Grid>
         </Grid>
       </CardContent>

@@ -10,13 +10,17 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import SettingSmtpTable from './SettingSmtpTable'
+import { fetchSettingSmtpQueryOption } from '@/queryOptions/smtp/settingSmtpQueryOptions'
 
 const SettingsSmtpComponent = () => {
   const router = useRouter()
   const params = useParams()
-
-  // Vars
   const { lang: locale } = params
+
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const { data, isPending } = fetchSettingSmtpQueryOption(page, pageSize)
 
   return (
     <Card>
@@ -38,7 +42,16 @@ const SettingsSmtpComponent = () => {
           <Divider />
 
           <Grid item xs={12}>
-            <SettingSmtpTable />
+            {isPending && <p>Loading....</p>}
+            {data?.data?.total && (
+              <SettingSmtpTable
+                data={data.data}
+                page={page}
+                pageSize={pageSize}
+                setPage={setPage}
+                setPageSize={setPageSize}
+              />
+            )}
           </Grid>
         </Grid>
       </CardContent>

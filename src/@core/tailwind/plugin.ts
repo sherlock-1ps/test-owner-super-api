@@ -77,7 +77,11 @@ module.exports = plugin(function () { }, {
         backdrop: 'var(--backdrop-color)',
         facebook: '#4267B2',
         twitter: '#1DA1F2',
-        linkedin: '#007BB6'
+        linkedin: '#007BB6',
+        slot: "#FCBE03",
+        casino: "#AD03FC",
+        sport: "#02CA4B",
+        lotto: "#03A1FC"
       },
       backgroundImage: {
         deposit: 'linear-gradient(180deg, #97dfa6, #FFFFFF)',

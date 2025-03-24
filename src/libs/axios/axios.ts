@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/authStore'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 
@@ -20,14 +21,14 @@ Axios.interceptors.request.use(
   async reqConfig => {
     const config = reqConfig
 
-    // const { accessToken } = useAuthStore.getState()
+    const accessToken = useAuthStore.getState().accessToken;
 
-    // if (config.headers) {
-    //   if (accessToken) config.headers['Authorization'] = `Bearer ${accessToken}`
-    // }
 
-    // config.headers['Authorization'] =
-    //   `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZV9udW1iZXIiOiIxOTEiLCJ1c2VybmFtZSI6ImFkbWluIn0._JcH25k1zAW9JUIYwSvwMga2NMfAngQ0N1bHPp7S1D4`
+    if (config.headers) {
+      if (accessToken) config.headers['Authorization'] = `Bearer ${accessToken}`
+    }
+
+
 
     return config
   },
@@ -59,28 +60,3 @@ Axios.interceptors.response.use(
 )
 
 export default Axios
-
-// {
-//   "id": 3,
-//   "name": "Setting Cashback",
-//   "actions": [
-//     {
-//       "id": 5,
-//       "name": "Can view setting Cashback",
-//       "preview_image": "",
-//       "is_active": true
-//     },
-//     {
-//       "id": 6,
-//       "name": "Can edit setting Cashback general",
-//       "preview_image": "",
-//       "is_active": true
-//     },
-//     {
-//       "id": 7,
-//       "name": "Can edit setting Cashback provider",
-//       "preview_image": "",
-//       "is_active": true
-//     }
-//   ]
-// }

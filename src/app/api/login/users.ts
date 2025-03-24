@@ -15,8 +15,8 @@ export const users: UserTable[] = [
   {
     id: 1,
     name: 'Oneplaybet',
-    password: 'admin',
-    email: 'admin@oneplaybet.com',
+    password: '123456',
+    email: 'owneruser',
     image: '/images/setting-website/provider/provider8.png'
   }
 ]

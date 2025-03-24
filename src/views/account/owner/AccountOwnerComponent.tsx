@@ -10,54 +10,10 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import AccountOwnerTable from './AccountOwnerTable'
-
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  isIcon,
-  ...props
-}: {
-  value: string | number
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  debounce?: number
-  isIcon?: boolean
-} & Omit<TextFieldProps, 'onChange'>) => {
-  const [value, setValue] = useState<string | number>(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const fakeEvent = {
-        target: { value }
-      } as React.ChangeEvent<HTMLInputElement>
-
-      onChange(fakeEvent)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-  }, [value, debounce, onChange])
-
-  return (
-    <CustomTextField
-      {...props}
-      value={value}
-      onChange={e => setValue(e.target.value)}
-      InputProps={{
-        endAdornment: isIcon ? (
-          <InputAdornment position='end'>
-            <IconButton onClick={() => {}}>
-              <i className='tabler-search' />
-            </IconButton>
-          </InputAdornment>
-        ) : null
-      }}
-    />
-  )
-}
+import {
+  fetchAccountOwnerQueryOption,
+  useSearchAccountOwnerMutationOption
+} from '@/queryOptions/account/accountQueryOptions'
 
 const AccountOwnerComponent = () => {
   const router = useRouter()
@@ -65,6 +21,29 @@ const AccountOwnerComponent = () => {
 
   // Vars
   const { lang: locale } = params
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const { data: accountOwnerData, isPending: pendingAccountOwner } = fetchAccountOwnerQueryOption(page, pageSize)
+  const { mutateAsync: searchAccountOwner, data: searchAccountData, reset } = useSearchAccountOwnerMutationOption()
+
+  const handleSearch = async (username: any) => {
+    if (!username) return
+    try {
+      const response = await searchAccountOwner({
+        username,
+        page,
+        pageSize
+      })
+    } catch (error) {
+      console.error('Error search username:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (!search) reset()
+  }, [search])
 
   return (
     <Card>
@@ -86,13 +65,21 @@ const AccountOwnerComponent = () => {
           <Divider />
           <Grid container alignItems='end' className='flex gap-6'>
             <Grid item xs={12} sm>
-              <DebouncedInput
-                value={''}
-                placeholder='Search Username'
-                onChange={() => {}}
-                className='w-full'
-                isIcon={true}
+              <CustomTextField
+                fullWidth
+                value={search}
                 label='Username'
+                onChange={e => setSearch(e.target.value)}
+                placeholder='Search Username'
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton onClick={() => {}}>
+                        <i className='tabler-search' />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
             </Grid>
             <Grid item xs={12} sm>
@@ -104,10 +91,26 @@ const AccountOwnerComponent = () => {
               </CustomTextField>
             </Grid>
 
-            <Button variant='contained'>Search</Button>
+            <Button
+              variant='contained'
+              onClick={() => {
+                handleSearch(search)
+              }}
+            >
+              Search
+            </Button>
           </Grid>
           <Grid item xs={12}>
-            <AccountOwnerTable />
+            {pendingAccountOwner && <p>Loading ...</p>}
+            {accountOwnerData?.data?.total && (
+              <AccountOwnerTable
+                data={searchAccountData?.data || accountOwnerData.data}
+                page={page}
+                pageSize={pageSize}
+                setPage={setPage}
+                setPageSize={setPageSize}
+              />
+            )}
           </Grid>
         </Grid>
       </CardContent>

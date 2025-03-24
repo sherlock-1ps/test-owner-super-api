@@ -1,14 +1,17 @@
 'use client'
 import { Typography } from '@mui/material'
 import React, { useState } from 'react'
-import ReactQuill from 'react-quill' // Import ReactQuill component
-import 'react-quill/dist/quill.snow.css' // Import Quill styles
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 
-const HtmlEditor = () => {
+const HtmlEditor = ({ handleEditorChange }: { handleEditorChange: (value: string) => void }) => {
   const [editorHtml, setEditorHtml] = useState('')
 
-  const handleChange = (value: any) => {
-    setEditorHtml(value) // Update the state with the editor content
+  const handleChange = (value: string) => {
+    const normalizedValue = value === '<p><br></p>' ? '' : value
+
+    setEditorHtml(normalizedValue)
+    handleEditorChange(normalizedValue)
   }
 
   return (
@@ -44,10 +47,10 @@ const HtmlEditor = () => {
         ]}
       />
 
-      <div style={{ marginTop: '20px', padding: '20px', border: '1px solid #ddd', backgroundColor: '#f9f9f9' }}>
+      {/* <div style={{ marginTop: '20px', padding: '20px', border: '1px solid #ddd', backgroundColor: '#f9f9f9' }}>
         <h3>Output</h3>
         <div dangerouslySetInnerHTML={{ __html: editorHtml }} />
-      </div>
+      </div> */}
       <style jsx>{`
         :global(.ql-editor) {
           white-space: pre-line;

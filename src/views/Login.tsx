@@ -46,6 +46,7 @@ import { useSettings } from '@core/hooks/useSettings'
 import { getLocalizedUrl } from '@/utils/i18n'
 import Axios from '@/libs/axios/axios'
 import { signIn } from '@/app/actions/auth/authAction'
+import { useAuthStore } from '@/store/authStore'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -82,7 +83,7 @@ type ErrorType = {
 type FormData = InferInput<typeof schema>
 
 const schema = object({
-  email: pipe(string(), minLength(1, 'This field is required'), email('Email is invalid')),
+  username: pipe(string(), nonEmpty('This field is required')),
   password: pipe(
     string(),
     nonEmpty('This field is required'),
@@ -128,8 +129,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   } = useForm<FormData>({
     resolver: valibotResolver(schema),
     defaultValues: {
-      email: 'admin@oneplaybet.com',
-      password: 'admin'
+      username: 'owneruser',
+      password: '123456'
     }
   })
 
@@ -145,10 +146,22 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     const ip = await getPublicIP()
+    console.log('ip', ip)
 
     const res = await signIn(data)
 
-    console.log(res)
+    if (res.code == 'SUCCESS') {
+      useAuthStore.getState().setTokens(res.data.token, res.data.refresh_token)
+      // Vars
+
+      const redirectURL = searchParams.get('redirectTo') ?? '/'
+      router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+    } else {
+      if (res?.error) {
+        const error = JSON.parse(res.error)
+        setErrorState(error)
+      }
+    }
 
     // const res = await signIn('credentials', {
     //   email: data.email,
@@ -169,9 +182,11 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
   const getPublicIP = async () => {
     try {
-      const res = await Axios.get('https://api64.ipify.org?format=json')
+      const res = await fetch('https://api64.ipify.org?format=json')
 
-      return res.data.ip
+      const data = await res.json()
+
+      return data.ip
     } catch (error) {
       console.error('Failed to fetch IP:', error)
 
@@ -204,8 +219,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
           </div>
           <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
             <Typography variant='body2' color='primary'>
-              Email: <span className='font-medium'>admin@oneplaybet.com</span> / Pass:{' '}
-              <span className='font-medium'>admin</span>
+              Username: <span className='font-medium'>owneruser</span> / Pass:{' '}
+              <span className='font-medium'>123456</span>
             </Typography>
           </Alert>
           <form
@@ -216,7 +231,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
             className='flex flex-col gap-6'
           >
             <Controller
-              name='email'
+              name='username'
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
@@ -224,16 +239,16 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                   {...field}
                   autoFocus
                   fullWidth
-                  type='email'
-                  label='Email'
-                  placeholder='Enter your email'
+                  type='username'
+                  label='Username'
+                  placeholder='Enter your username'
                   onChange={e => {
                     field.onChange(e.target.value)
                     errorState !== null && setErrorState(null)
                   }}
-                  {...((errors.email || errorState !== null) && {
+                  {...((errors.username || errorState !== null) && {
                     error: true,
-                    helperText: errors?.email?.message || errorState?.message[0]
+                    helperText: errors?.username?.message || errorState?.message[0]
                   })}
                 />
               )}
