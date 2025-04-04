@@ -12,6 +12,7 @@ import { useDialog } from '@/hooks/useDialog'
 import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
 import { useCreateFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
 import { toast } from 'react-toastify'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 const HtmlEditor = dynamic(() => import('@/components/lib/htmlEditor'), { ssr: false })
 
@@ -23,6 +24,7 @@ const faqSchema = z.object({
 type FaqFormValues = z.infer<typeof faqSchema>
 
 const FaqManageComponent = () => {
+  const { dictionary } = useDictionary()
   const router = useRouter()
   const { showDialog } = useDialog()
   const searchParams = useSearchParams()
@@ -60,11 +62,11 @@ const FaqManageComponent = () => {
       })
 
       if (response?.code) {
-        toast.success('FAQ created successfully!', { autoClose: 3000 })
+        toast.success(dictionary['faq']?.createSuccessFaq, { autoClose: 3000 })
         reset()
       }
     } catch (error) {
-      toast.error('Failed to create FAQ!', { autoClose: 3000 })
+      toast.error(dictionary['faq']?.createErrorFaq, { autoClose: 3000 })
       console.error('Error Creating FAQ:', error)
     }
   }
@@ -77,8 +79,8 @@ const FaqManageComponent = () => {
       component: (
         <ConfirmAlert
           id='alertDialogConfirmManageFaq'
-          title={'Do you want to add this faq?'}
-          content1={`add this faq question ?`}
+          title={dictionary['faq']?.addFaqDialog}
+          content1={dictionary['faq']?.confirmAddFaq}
           onClick={() => {
             handleCreateFaqApi(data)
           }}
@@ -103,7 +105,7 @@ const FaqManageComponent = () => {
               <Grid item xs={12} sm>
                 <CustomTextField
                   fullWidth
-                  label='Question'
+                  label={dictionary['faq']?.question}
                   {...register('question')}
                   error={!!errors.question}
                   helperText={errors.question?.message}
@@ -111,17 +113,21 @@ const FaqManageComponent = () => {
               </Grid>
             </Grid>
             <Grid item xs={12}>
-              {pendingCreateFaq ? <p>Loading...</p> : <HtmlEditor handleEditorChange={handleEditorChange} />}
+              {pendingCreateFaq ? (
+                <p>{dictionary?.loading}...</p>
+              ) : (
+                <HtmlEditor handleEditorChange={handleEditorChange} />
+              )}
 
               {errors.answer && <Typography color='error'>{errors.answer.message}</Typography>}
             </Grid>
             <Grid item xs={12}>
               <div className='flex gap-4 justify-end'>
                 <Button variant='outlined' onClick={() => router.back()}>
-                  Cancel
+                  {dictionary?.cancel}
                 </Button>
                 <Button variant='contained' type='submit' disabled={pendingCreateFaq}>
-                  {faqData ? 'Edit FAQ' : 'Add FAQ'}
+                  {faqData ? dictionary['faq']?.editFaq : dictionary['faq']?.addFaq}
                 </Button>
               </div>
             </Grid>

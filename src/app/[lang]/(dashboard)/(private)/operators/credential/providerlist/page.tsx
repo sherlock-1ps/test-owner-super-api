@@ -1,7 +1,7 @@
-import ProviderListComponent from '@/views/providers/ProviderListComponent'
+import CredentialProviderListComponent from '@/views/operators/credential/providerlist/CredentialProviderListComponent'
 
-const OperatorListPage = async () => {
-  return <ProviderListComponent />
+const OperatorCredentialProviderListPage = async () => {
+  return <CredentialProviderListComponent />
 }
 
-export default OperatorListPage
+export default OperatorCredentialProviderListPage

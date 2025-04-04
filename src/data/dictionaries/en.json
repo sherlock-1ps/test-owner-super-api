@@ -1,4 +1,15 @@
 {
+  "loading": "Loading",
+  "search": "Search",
+  "searching": "Searching",
+  "reset": "Reset",
+  "no": "No",
+  "logo": "Logo",
+  "type": "Type",
+  "currency": "Currency",
+  "share": "Share",
+  "status": "Status",
+  "changeStatus": "Do you want to change the status",
   "navigation": {
     "assistantsMenu": "Assistant",
     "bops": "Role&Permissions",

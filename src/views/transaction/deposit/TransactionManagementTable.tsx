@@ -885,7 +885,7 @@ const TransactionManagementTable = ({ title }: { title: string }) => {
                               <ConfirmAlert
                                 id='alertDialogConfirmApproveDeposit'
                                 title='Are you sure to approve ?'
-                                content={`approve this user ${row.original.userID} ?`}
+                                content1={`approve this user ${row.original.userID} ?`}
                                 onClick={() => {}}
                               />
                             ),
@@ -915,7 +915,7 @@ const TransactionManagementTable = ({ title }: { title: string }) => {
                               <ConfirmAlert
                                 id='alertDialogConfirmApproveReject'
                                 title='Are you sure to Reject deposit ?'
-                                content={`Reject deposit this user XPB${row.original.userID} ?`}
+                                content1={`Reject deposit this user XPB${row.original.userID} ?`}
                                 onClick={() => {}}
                               />
                             ),
@@ -942,7 +942,7 @@ const TransactionManagementTable = ({ title }: { title: string }) => {
                               <ConfirmAlert
                                 id='alertDialogConfirmApproveWithdraw2'
                                 title='Are you sure to Withdraw Manual ?'
-                                content={`Withdraw this user ${row.original.userID} ?`}
+                                content1={`Withdraw this user ${row.original.userID} ?`}
                                 onClick={() => {}}
                               />
                             ),
@@ -962,7 +962,7 @@ const TransactionManagementTable = ({ title }: { title: string }) => {
                               <ConfirmAlert
                                 id='alertDialogConfirmApproveWithdraw'
                                 title='Are you sure to Withdraw Auto ?'
-                                content={`Withdraw Auto this user ${row.original.userID} ?`}
+                                content1={`Withdraw Auto this user ${row.original.userID} ?`}
                                 onClick={() => {}}
                               />
                             ),
@@ -984,7 +984,7 @@ const TransactionManagementTable = ({ title }: { title: string }) => {
                               <ConfirmAlert
                                 id='alertDialogConfirmApproveReject'
                                 title='Are you sure to Reject withdraw ?'
-                                content={`Reject this withdraw user XPB${row.original.userID} ?`}
+                                content1={`Reject this withdraw user XPB${row.original.userID} ?`}
                                 onClick={() => {}}
                               />
                             ),

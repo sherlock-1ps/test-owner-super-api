@@ -3,81 +3,69 @@
 
 import CustomTextField from '@/@core/components/mui/TextField'
 import { Button, Card, CardContent, Divider, IconButton, InputAdornment, MenuItem } from '@mui/material'
-import type { TextFieldProps } from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
 
 import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import OperatorsListTable from './OperatorsListTable'
-import { fetchOperatorQueryOption } from '@/queryOptions/operator/operatorQueryOptions'
-
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  isIcon,
-  ...props
-}: {
-  value: string | number
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  debounce?: number
-  isIcon?: boolean
-} & Omit<TextFieldProps, 'onChange'>) => {
-  const [value, setValue] = useState<string | number>(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const fakeEvent = {
-        target: { value }
-      } as React.ChangeEvent<HTMLInputElement>
-
-      onChange(fakeEvent)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-  }, [value, debounce, onChange])
-
-  return (
-    <CustomTextField
-      {...props}
-      value={value}
-      onChange={e => setValue(e.target.value)}
-      InputProps={{
-        endAdornment: isIcon ? (
-          <InputAdornment position='end'>
-            <IconButton onClick={() => {}}>
-              <i className='tabler-search' />
-            </IconButton>
-          </InputAdornment>
-        ) : null
-      }}
-    />
-  )
-}
+import {
+  useFetchCountryOperatorQueryOption,
+  useFetchCurrencyOperatorQueryOption,
+  useFetchOperatorQueryOption,
+  useFetchTimezoneOperatorQueryOption,
+  useSearchOperatorMutationOption
+} from '@/queryOptions/operator/operatorQueryOptions'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 const OperatorsComponent = () => {
   const router = useRouter()
   const params = useParams()
+  const { dictionary } = useDictionary()
 
   // Vars
   const { lang: locale } = params
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [currency, setCurrency] = useState('all')
+  const [timezone, setTimezone] = useState('all')
+  const [country, setCountry] = useState('all')
 
   const {
     data: operatorsData,
     isPending: pendingOperatorsData,
     error: errorOpeatorsData,
     refetch
-  } = fetchOperatorQueryOption(page, pageSize)
+  } = useFetchOperatorQueryOption(page, pageSize)
 
-  console.log('operator', operatorsData)
+  const { data: currencyList, isPending: pendingCurrency } = useFetchCurrencyOperatorQueryOption()
+
+  const { data: timezoneList, isPending: pendingTimezone } = useFetchTimezoneOperatorQueryOption()
+
+  const { data: countryList, isPending: pendingCountry } = useFetchCountryOperatorQueryOption()
+
+  const {
+    mutate,
+    data: searchOperatorsData,
+    isPending: pendingSearchOperatorData,
+    reset
+  } = useSearchOperatorMutationOption()
+
+  const handleSearch = () => {
+    mutate({ page: 1, pageSize, search, currency, timezone, country })
+  }
+
+  const handleReset = () => {
+    setPage(1)
+    setSearch('')
+    setCurrency('all')
+    setTimezone('all')
+    setCountry('all')
+    reset()
+    refetch()
+  }
 
   return (
     <Card>
@@ -85,7 +73,7 @@ const OperatorsComponent = () => {
         <Grid container className='flex flex-col gap-6'>
           <Grid item xs={12} sm className='flex gap-2 justify-between'>
             <Typography variant='h5' className=' text-nowrap'>
-              Operator List
+              {dictionary['operator']?.operatorList ?? 'Operator List'}
             </Typography>
             <Button
               variant='contained'
@@ -93,53 +81,126 @@ const OperatorsComponent = () => {
                 router.push(`/${locale}/operators/createoperator`)
               }}
             >
-              Create Operator
+              {dictionary['operator']?.createOperator ?? 'Create Operator'}
             </Button>
           </Grid>
           <Divider />
           <Grid container alignItems='end' className='flex gap-6'>
             <Grid item xs={12} sm>
-              <Typography>Operator Name</Typography>
-              <DebouncedInput
-                value={''}
-                placeholder='Search Operator'
-                onChange={() => {}}
-                className='w-full'
-                isIcon={true}
+              <CustomTextField
+                value={search}
+                label={dictionary['operator']?.operatorName ?? 'Operator Name'}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={dictionary['operator']?.searchOperator ?? 'Search Operator'}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton onClick={() => {}}>
+                        <i className='tabler-search' />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
             </Grid>
             <Grid item xs={12} sm>
-              <CustomTextField select fullWidth defaultValue={10} label='Select Type'>
-                <MenuItem value=''>
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value={10}>All</MenuItem>
+              <CustomTextField
+                select
+                fullWidth
+                value={currency}
+                defaultValue={'all'}
+                label={dictionary['operator']?.selectCurrency}
+                onChange={e => setCurrency(e.target.value)}
+                disabled={pendingCurrency}
+              >
+                {currencyList?.code === 'SUCCESS'
+                  ? [
+                      <MenuItem value='all' key='all' className='capitalize'>
+                        All
+                      </MenuItem>,
+                      ...currencyList?.data?.currencies_code?.map((item: any, idx: number) => (
+                        <MenuItem value={item} key={idx} className='capitalize'>
+                          {item}
+                        </MenuItem>
+                      ))
+                    ]
+                  : [
+                      <MenuItem value='all' key='all'>
+                        All
+                      </MenuItem>
+                    ]}
               </CustomTextField>
             </Grid>
             <Grid item xs={12} sm>
-              <CustomTextField select fullWidth defaultValue={10} label='Select Timezone'>
-                <MenuItem value=''>
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value={10}>All</MenuItem>
+              <CustomTextField
+                select
+                fullWidth
+                value={timezone}
+                defaultValue={'all'}
+                label={dictionary['operator']?.selectTimezone}
+                onChange={e => setTimezone(e.target.value)}
+                disabled={pendingTimezone}
+              >
+                {timezoneList?.code === 'SUCCESS'
+                  ? [
+                      <MenuItem value='all' key='all' className='capitalize'>
+                        All
+                      </MenuItem>,
+                      ...timezoneList?.data?.timezone?.map((item: any, idx: number) => (
+                        <MenuItem value={item} key={idx} className='capitalize'>
+                          {item}
+                        </MenuItem>
+                      ))
+                    ]
+                  : [
+                      <MenuItem value='all' key='all'>
+                        All
+                      </MenuItem>
+                    ]}
               </CustomTextField>
             </Grid>
             <Grid item xs={12} sm>
-              <CustomTextField select fullWidth defaultValue={10} label='Select Country'>
-                <MenuItem value=''>
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value={10}>All</MenuItem>
+              <CustomTextField
+                select
+                fullWidth
+                value={country}
+                defaultValue={'all'}
+                label={dictionary['operator']?.selectCountry ?? 'Select Country'}
+                onChange={e => setCountry(e.target.value)}
+                disabled={pendingCountry}
+              >
+                {countryList?.code === 'SUCCESS'
+                  ? [
+                      <MenuItem value='all' key='all' className='capitalize'>
+                        All
+                      </MenuItem>,
+                      ...countryList?.data?.country?.map((item: any, idx: number) => (
+                        <MenuItem value={item} key={idx} className='capitalize'>
+                          {item}
+                        </MenuItem>
+                      ))
+                    ]
+                  : [
+                      <MenuItem value='all' key='all'>
+                        All
+                      </MenuItem>
+                    ]}
               </CustomTextField>
             </Grid>
-            <Button variant='contained'>Search</Button>
+            <Button variant='contained' disabled={pendingSearchOperatorData} onClick={handleSearch}>
+              {dictionary?.search ?? 'Search'}
+            </Button>
+            <Button variant='outlined' onClick={handleReset}>
+              {dictionary?.reset ?? 'Reset'}
+            </Button>
           </Grid>
-          {pendingOperatorsData && <p>Loading....</p>}
+          {pendingOperatorsData && <p>{dictionary?.loading ?? 'Loading'}....</p>}
           {errorOpeatorsData && <Typography className=' text-error'>{errorOpeatorsData.message}</Typography>}
-          {operatorsData?.code == 'SUCCESS' && (
+
+          {operatorsData?.data?.total && !pendingOperatorsData && !pendingSearchOperatorData && (
             <Grid item xs={12}>
               <OperatorsListTable
-                data={operatorsData.data}
+                data={searchOperatorsData?.data || operatorsData?.data}
                 page={page}
                 pageSize={pageSize}
                 setPage={setPage}

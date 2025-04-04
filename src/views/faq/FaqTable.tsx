@@ -61,6 +61,7 @@ import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -96,8 +97,8 @@ const columnHelper = createColumnHelper<FaqType>()
 
 const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
-  const [status, setStatus] = useState<InvoiceType['invoiceStatus']>('')
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
 
@@ -113,12 +114,12 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
       }),
 
       columnHelper.accessor('question', {
-        header: 'Question',
+        header: dictionary['faq']?.question,
         cell: ({ row }) => <Typography variant='h6'>{row.original.question}</Typography>
       }),
 
       columnHelper.accessor('status', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
@@ -130,8 +131,13 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                     component: (
                       <ConfirmAlert
                         id='alertChangeFaqStatus'
-                        title={'Do you want to change faq status'}
-                        content1={`Change this ${row.original.question} faq status?`}
+                        title={dictionary?.changeStatus}
+                        // content1={`Change this ${row.original.question} faq status?`}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.question)
+                            .replace('{{key}}', 'faq') ?? `Change this ${row.original.question} faq status?`
+                        }
                         onClick={() => {}}
                       />
                     ),
@@ -139,13 +145,13 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                   })
                 }}
               />
-              <Typography>{row.original.status ? 'Publish' : 'Unpublish'}</Typography>
+              <Typography>{row.original.status ? dictionary?.publish : dictionary?.unPublish}</Typography>
             </div>
           )
         }
       }),
       columnHelper.accessor('update_at', {
-        header: 'Date Last Login',
+        header: dictionary?.lastLogin,
         cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
       }),
 
@@ -159,8 +165,12 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
               component: (
                 <ConfirmAlert
                   id='alertDialogConfirmDeleteFAQ'
-                  title={'Confirm Delete FAQ'}
-                  content1={`Are you sure you want to delete the FAQ titled "${row.original.question}"?`}
+                  title={dictionary?.deleteFaq}
+                  // content1={`Are you sure you want to delete the FAQ titled "${row.original.question}"?`}
+                  content1={
+                    dictionary['faq']?.confirmDeleteFaq?.replace('{{name}}', row.original.question) ??
+                    `Are you sure you want to delete the FAQ titled "${row.original.question}"?`
+                  }
                   content2=''
                   onClick={() => {}}
                 />
@@ -187,13 +197,13 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                         className='no-underline text-textSecondary'
                         onClick={e => e.stopPropagation()}
                       >
-                        Edit FAQ
+                        {dictionary?.editFaq}
                       </Link>
                     )
                   },
                   row.original.status === false
                     ? {
-                        text: 'Delete',
+                        text: dictionary?.delete,
                         menuItemProps: {
                           className: 'flex items-center gap-2 text-textSecondary',
                           onClick: handleDeleteClick
@@ -281,7 +291,7 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

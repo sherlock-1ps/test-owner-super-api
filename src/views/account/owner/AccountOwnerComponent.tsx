@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // MUI Imports
 'use client'
 
@@ -14,30 +15,61 @@ import {
   fetchAccountOwnerQueryOption,
   useSearchAccountOwnerMutationOption
 } from '@/queryOptions/account/accountQueryOptions'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import { useFetchConfigRoleQueryOption } from '@/queryOptions/config/configQueryOptions'
 
 const AccountOwnerComponent = () => {
   const router = useRouter()
   const params = useParams()
+  const { dictionary } = useDictionary()
 
   // Vars
   const { lang: locale } = params
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [role, setRole] = useState('all')
 
-  const { data: accountOwnerData, isPending: pendingAccountOwner } = fetchAccountOwnerQueryOption(page, pageSize)
+  const {
+    data: accountOwnerData,
+    isPending: pendingAccountOwner,
+    refetch
+  } = fetchAccountOwnerQueryOption(page, pageSize)
   const { mutateAsync: searchAccountOwner, data: searchAccountData, reset } = useSearchAccountOwnerMutationOption()
+  const { data: roleListData, isPending: pendingRole } = useFetchConfigRoleQueryOption()
 
   const handleSearch = async (username: any) => {
-    if (!username) return
+    if (!username && role == 'all') return
     try {
       const response = await searchAccountOwner({
         username,
+        role_id: role,
         page,
         pageSize
       })
     } catch (error) {
       console.error('Error search username:', error)
+    }
+  }
+
+  const handleReset = () => {
+    setPage(1)
+    setRole('all')
+    setSearch('')
+    reset()
+    refetch()
+  }
+
+  const handleUpdateStatus = () => {
+    if (searchAccountData?.data) {
+      searchAccountOwner({
+        username: search,
+        role_id: role,
+        page,
+        pageSize
+      })
+    } else {
+      refetch()
     }
   }
 
@@ -51,7 +83,7 @@ const AccountOwnerComponent = () => {
         <Grid container className='flex flex-col gap-6'>
           <Grid item xs={12} sm className='flex gap-2 justify-between'>
             <Typography variant='h5' className=' text-nowrap'>
-              Owner Account List
+              {dictionary['account']?.ownerList}
             </Typography>
             <Button
               variant='contained'
@@ -59,7 +91,7 @@ const AccountOwnerComponent = () => {
                 router.push(`/${locale}/account/owner/createowner`)
               }}
             >
-              Create Account
+              {dictionary['account']?.createOwner}
             </Button>
           </Grid>
           <Divider />
@@ -68,9 +100,9 @@ const AccountOwnerComponent = () => {
               <CustomTextField
                 fullWidth
                 value={search}
-                label='Username'
+                label={dictionary?.username}
                 onChange={e => setSearch(e.target.value)}
-                placeholder='Search Username'
+                placeholder={dictionary?.searchUsername}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
@@ -83,13 +115,42 @@ const AccountOwnerComponent = () => {
               />
             </Grid>
             <Grid item xs={12} sm>
-              <CustomTextField select fullWidth defaultValue={10} label='Select Role'>
-                <MenuItem value=''>
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value={10}>All</MenuItem>
+              <CustomTextField
+                select
+                fullWidth
+                value={role}
+                defaultValue={'all'}
+                onChange={e => setRole(e.target.value)}
+                label={dictionary['account']?.selectRole}
+                disabled={pendingRole}
+              >
+                {roleListData?.code === 'SUCCESS'
+                  ? [
+                      <MenuItem value='all' key='all' className='capitalize'>
+                        All
+                      </MenuItem>,
+                      ...roleListData?.data.map((item: any, idx: number) => (
+                        <MenuItem value={item?.role_id} key={idx} className='capitalize'>
+                          {item?.role_name}
+                        </MenuItem>
+                      ))
+                    ]
+                  : [
+                      <MenuItem value='all' key='all'>
+                        All
+                      </MenuItem>
+                    ]}
               </CustomTextField>
             </Grid>
+
+            <Button
+              variant='outlined'
+              onClick={() => {
+                handleReset()
+              }}
+            >
+              {dictionary?.reset}
+            </Button>
 
             <Button
               variant='contained'
@@ -97,11 +158,11 @@ const AccountOwnerComponent = () => {
                 handleSearch(search)
               }}
             >
-              Search
+              {dictionary?.search}
             </Button>
           </Grid>
           <Grid item xs={12}>
-            {pendingAccountOwner && <p>Loading ...</p>}
+            {pendingAccountOwner && <p>{dictionary?.loading} ...</p>}
             {accountOwnerData?.data?.total && (
               <AccountOwnerTable
                 data={searchAccountData?.data || accountOwnerData.data}
@@ -109,6 +170,7 @@ const AccountOwnerComponent = () => {
                 pageSize={pageSize}
                 setPage={setPage}
                 setPageSize={setPageSize}
+                onUpdateStatus={handleUpdateStatus}
               />
             )}
           </Grid>

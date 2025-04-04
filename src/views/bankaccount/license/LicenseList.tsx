@@ -288,7 +288,7 @@ const LicenseList = () => {
                                   <ConfirmAlert
                                     id={`alertDialogDeleteAutoLicense`}
                                     title={'Are you sure to delete'}
-                                    content='delete this License ?'
+                                    content1='delete this License ?'
                                     onClick={async () => {}}
                                   />
                                 ),

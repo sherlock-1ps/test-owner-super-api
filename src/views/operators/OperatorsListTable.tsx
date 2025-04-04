@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from 'react'
 
 // Next Imports
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -38,7 +38,16 @@ import tableStyles from '@core/styles/table.module.css'
 import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
 import { useDialog } from '@/hooks/useDialog'
 import { Chip, Switch } from '@mui/material'
-import { useUpdateOperatorMutationOption } from '@/queryOptions/operator/operatorQueryOptions'
+import {
+  useDeleteDraftOperatorMutationOption,
+  useDeleteOperatorMutationOption,
+  useFetchDraftOperatorMutationOption,
+  useResetPasswordOperatorMutationOption,
+  useUpdateStatusOperatorMutationOption
+} from '@/queryOptions/operator/operatorQueryOptions'
+import { toast } from 'react-toastify'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import OperatorInfoDialog from '@/components/dialogs/operators/OperatorInfoDialog'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -54,7 +63,7 @@ type OperatorType = {
   operator_prefix: string
   operator_name: string
   email: string
-  currency: string
+  currency_code: string
   country: string
   timezone: string
   is_enable: boolean
@@ -80,6 +89,8 @@ const columnHelper = createColumnHelper<OperatorType>()
 
 const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
+  const router = useRouter()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -87,8 +98,37 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
   // Hooks
   const { lang: locale } = useParams()
 
-  const { mutate: updateOperator, isPending: pendingUpdate } = useUpdateOperatorMutationOption()
-  const { mutate: resetPasswordOperator } = useUpdateOperatorMutationOption()
+  const { mutate: deleteOperator, isPending: pendingDelete } = useDeleteOperatorMutationOption()
+  const { mutate: deleteDraftOperator, isPending: pendingDeleteDraft } = useDeleteDraftOperatorMutationOption()
+  const { mutateAsync: fetchDraftOperator, isPending: pendingFetchDraftOperator } =
+    useFetchDraftOperatorMutationOption()
+  const { mutate: updateStateOperator, isPending: pendingStatus } = useUpdateStatusOperatorMutationOption()
+  const { mutateAsync: resetOperator } = useResetPasswordOperatorMutationOption()
+
+  const handleResetPasswordOperator = async (email: string) => {
+    try {
+      const response = await resetOperator({ email })
+      if (response?.code == 'SUCCESS') {
+        toast.success('reset email success!', { autoClose: 3000 })
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('reset password Failed', { autoClose: 3000 })
+    }
+  }
+
+  const handleCountinueSetting = async (prefix: string) => {
+    try {
+      const response = await fetchDraftOperator(prefix)
+      if (response?.code == 'SUCCESS') {
+        const operatorDraft = encodeURIComponent(JSON.stringify(response.data))
+        router.push(`/${locale}/operators/createoperator?operatorDraft=${operatorDraft}`)
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('Fetching Draft Failed', { autoClose: 3000 })
+    }
+  }
 
   const columns = useMemo<ColumnDef<OperatorType, any>[]>(
     () => [
@@ -99,7 +139,7 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
       }),
       columnHelper.accessor('operator_prefix', {
         header: 'Prefix',
-        cell: ({ row }) => <Typography variant='h6'>OPB1</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{row.original.operator_prefix}</Typography>
       }),
 
       columnHelper.accessor('operator_name', {
@@ -112,19 +152,19 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
         )
       }),
       columnHelper.accessor('email', {
-        header: 'Email',
+        header: dictionary?.email,
         cell: ({ row }) => <Typography variant='h6'>{row.original.email}</Typography>
       }),
-      columnHelper.accessor('currency', {
-        header: 'Currency',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.currency}</Typography>
+      columnHelper.accessor('currency_code', {
+        header: dictionary?.currency,
+        cell: ({ row }) => <Typography variant='h6'>{row.original.currency_code}</Typography>
       }),
       columnHelper.accessor('timezone', {
-        header: 'Timezone',
+        header: dictionary?.timezone,
         cell: ({ row }) => <Typography variant='h6'>{row.original.timezone}</Typography>
       }),
       columnHelper.accessor('country', {
-        header: 'Country',
+        header: dictionary?.country,
         cell: ({ row }) => (
           <Typography variant='h6' className='uppercase'>
             {row.original.country}
@@ -132,7 +172,7 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
         )
       }),
       columnHelper.accessor('is_enable', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => {
           return row.original.is_draft ? (
             <Chip color='info' label='Draft' size='small' variant='tonal' />
@@ -146,10 +186,16 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                     component: (
                       <ConfirmAlert
                         id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={'Do you want to change operator status'}
-                        content1={`Change this operator status?`}
+                        title={dictionary?.changeStatus}
+                        // content1={`Change this operator status?`}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.operator_name)
+                            .replace('{{key}}', 'operator') ??
+                          `Change this ${row.original.operator_name} operator status?`
+                        }
                         onClick={() => {
-                          updateOperator({
+                          updateStateOperator({
                             operator_id: row.original.operator_id,
                             is_enable: !row.original.is_enable
                           })
@@ -159,9 +205,9 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                     size: 'sm'
                   })
                 }}
-                disabled={pendingUpdate}
+                disabled={pendingStatus}
               />
-              <Typography>{row.original.is_enable ? 'Enable' : 'Disabled'}</Typography>
+              <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>
           )
         }
@@ -171,7 +217,6 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
         id: 'action',
         header: '',
         cell: ({ row }) => {
-          const operatorDraft = encodeURIComponent(JSON.stringify(row.original))
           return (
             <div className='flex items-center'>
               <OptionMenu
@@ -181,22 +226,18 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                   row.original.is_draft
                     ? [
                         {
-                          text: (
-                            <Link
-                              href={{
-                                pathname: `/${locale}/operators/createoperator`,
-                                query: { operatorDraft: operatorDraft }
-                              }}
-                              className='no-underline text-textSecondary'
-                              onClick={e => e.stopPropagation()}
-                            >
-                              Continue Setting
-                            </Link>
-                          )
+                          text: pendingFetchDraftOperator ? 'Loading...' : dictionary['operator']?.countinueSetting,
+                          menuItemProps: {
+                            className: 'flex items-center gap-2 text-textSecondary',
+                            onClick: () => {
+                              handleCountinueSetting(row.original.operator_prefix)
+                            },
+                            disabled: pendingFetchDraftOperator
+                          }
                         },
 
                         {
-                          text: 'Delete',
+                          text: dictionary?.delete,
                           menuItemProps: {
                             className: 'flex items-center gap-2 text-textSecondary',
                             onClick: () =>
@@ -205,12 +246,17 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                                 component: (
                                   <ConfirmAlert
                                     id='alertDialogConfirmDeleteCreateOperator'
-                                    title={'Confirm Delete Operator'}
-                                    content1={`Are you sure you want to delete Operator OnePlayBet1 ? `}
+                                    title={dictionary['operator']?.confirmDelete}
+                                    // content1={`Are you sure you want to delete Operator OnePlayBet1 ? `}
+                                    content1={
+                                      dictionary?.changeStatusWithName?.replace(
+                                        '{{name}}',
+                                        row.original.operator_name
+                                      ) ?? `Are you sure you want to delete Operator ${row.original.operator_name} ?`
+                                    }
                                     onClick={() => {
-                                      updateOperator({
-                                        operator_id: row.original.operator_id,
-                                        is_delete: true
+                                      deleteDraftOperator({
+                                        operator_prefix: row.original.operator_prefix
                                       })
                                     }}
                                   />
@@ -226,31 +272,49 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                             <Link
                               href={{
                                 pathname: `/${locale}/operators/credential`,
-                                query: { provider: 'hello world' }
+                                query: { credential: row.original.operator_prefix }
                               }}
                               className='no-underline text-textSecondary'
                               onClick={e => e.stopPropagation()}
                             >
-                              Credential List
+                              {dictionary['operator']?.crendentialList}
                             </Link>
                           )
                         },
                         {
-                          text: (
-                            <Link
-                              href={{
-                                pathname: `/${locale}/providers/name`,
-                                query: { provider: 'hello world' }
-                              }}
-                              className='no-underline text-textSecondary'
-                              onClick={e => e.stopPropagation()}
-                            >
-                              Profile
-                            </Link>
-                          )
+                          text: dictionary?.profile,
+                          menuItemProps: {
+                            className: 'flex items-center gap-2 text-textSecondary',
+                            onClick: () =>
+                              showDialog({
+                                id: 'OperatorInfoDialog',
+                                component: (
+                                  <OperatorInfoDialog
+                                    id='OperatorInfoDialog'
+                                    onClick={() => {}}
+                                    operatorId={row.original.operator_id}
+                                  />
+                                ),
+                                size: 'sm'
+                              })
+                          }
                         },
+                        // {
+                        //   text: (
+                        //     <Link
+                        //       href={{
+                        //         pathname: `/${locale}/providers/name`,
+                        //         query: { provider: 'hello world' }
+                        //       }}
+                        //       className='no-underline text-textSecondary'
+                        //       onClick={e => e.stopPropagation()}
+                        //     >
+                        //       {dictionary?.profile}
+                        //     </Link>
+                        //   )
+                        // },
                         {
-                          text: 'Reset Password',
+                          text: dictionary['operator']?.resetPassword,
                           menuItemProps: {
                             className: 'flex items-center gap-2 text-textSecondary',
                             onClick: () =>
@@ -259,10 +323,16 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                                 component: (
                                   <ConfirmAlert
                                     id='alertDialogConfirmResetPasswordCreateOperator'
-                                    title={'Confirm Password Reset'}
-                                    content1={`Are you sure you want to reset the password for Operator OnePlayBet1 ?`}
+                                    title={dictionary['operator']?.passwordReset}
+                                    // content1={`Are you sure you want to reset the password for Operator OnePlayBet1 ?`}
+                                    content1={
+                                      dictionary['operator']?.confirmPasswordReset
+                                        ?.replace('{{name}}', row.original.operator_name)
+                                        .replace('{{key}}', 'operator') ??
+                                      `Are you sure you want to reset the password for Operator ${row.original.operator_name} ?`
+                                    }
                                     onClick={() => {
-                                      // resetPasswordOperator()
+                                      handleResetPasswordOperator(row.original.email)
                                     }}
                                   />
                                 ),
@@ -271,7 +341,7 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                           }
                         },
                         {
-                          text: 'Delete',
+                          text: dictionary?.delete,
                           menuItemProps: {
                             className: 'flex items-center gap-2 text-textSecondary',
                             onClick: () =>
@@ -280,12 +350,17 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                                 component: (
                                   <ConfirmAlert
                                     id='alertDialogConfirmDeleteCreateOperator'
-                                    title={'Confirm Delete Operator'}
-                                    content1={`Are you sure you want to delete Operator OnePlayBet1 ? `}
+                                    title={dictionary?.confirmDelete}
+                                    // content1={`Are you sure you want to delete Operator OnePlayBet1 ? `}
+                                    content1={
+                                      dictionary?.changeStatusWithName
+                                        ?.replace('{{name}}', row.original.operator_name)
+                                        .replace('{{key}}', 'operator') ??
+                                      `Are you sure you want to delete Operator ${row.original.operator_name} ?`
+                                    }
                                     onClick={() => {
-                                      updateOperator({
-                                        operator_id: row.original.operator_id,
-                                        is_delete: true
+                                      deleteOperator({
+                                        operator_id: row.original.operator_id
                                       })
                                     }}
                                   />
@@ -304,7 +379,7 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                               className='no-underline text-textSecondary'
                               onClick={e => e.stopPropagation()}
                             >
-                              Check Log
+                              {dictionary?.checkLog}
                             </Link>
                           )
                         }
@@ -390,7 +465,7 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

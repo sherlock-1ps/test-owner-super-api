@@ -20,8 +20,6 @@ interface confirmProps {
 }
 
 const AddGameDialog = ({ id, onClick, data, providerCode }: confirmProps) => {
-  console.log(data)
-
   const { closeDialog } = useDialog()
   const queryClient = useQueryClient()
   const [fileImg, setFileImg] = useState(null)
@@ -44,8 +42,7 @@ const AddGameDialog = ({ id, onClick, data, providerCode }: confirmProps) => {
         game_code: inputGameCode,
         game_name: inputGameName,
         provider_code: providerCode,
-        image: fileImg,
-        category: 'slot'
+        image: fileImg
       })
       closeDialog(id)
     } else {

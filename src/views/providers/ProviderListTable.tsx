@@ -62,6 +62,7 @@ import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateProvider } from '@/app/sevices/provider/provider'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -76,7 +77,7 @@ type Provider = {
   provider_id: string
   provider_code: string
   provider_name: string
-  categories: string[]
+  category_code: string
   percent_holder: number
   is_enable: boolean
   image: any
@@ -99,8 +100,9 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 // Column Definitions
 const columnHelper = createColumnHelper<Provider>()
 
-const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
+const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
   const [rowSelection, setRowSelection] = useState({})
   // const [data, setData] = useState(...[dataMock])
@@ -110,6 +112,10 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
 
   const { mutate: toggleProviderStatus, isPending: pendingUpdate } = useMutation({
     mutationFn: updateProvider,
+
+    onSuccess: () => {
+      handleRefetchSearch()
+    },
 
     onError: (error, _, context) => {
       console.error('Error updating provider:', error)
@@ -126,13 +132,13 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
   const columns = useMemo<ColumnDef<Provider, any>[]>(
     () => [
       columnHelper.accessor('provider_id', {
-        header: 'No',
+        header: dictionary?.no ?? 'No',
         cell: ({ row }) => <Typography variant='h6'>{row.index + 1}</Typography>,
         enableSorting: false
       }),
 
       columnHelper.accessor('provider_name', {
-        header: 'Provider',
+        header: dictionary['provider']?.provider ?? 'Provider',
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -141,38 +147,33 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
         )
       }),
       columnHelper.accessor('image', {
-        header: 'Logo',
+        header: dictionary?.logo ?? 'Logo',
         cell: ({ row }) => <img src={row.original.image} width={32} alt='providerImg' className=' rounded' />
       }),
-      columnHelper.accessor('categories', {
-        header: 'Type',
+      columnHelper.accessor('category_code', {
+        header: dictionary?.type ?? 'Type',
         cell: ({ row }) => (
           <div className='flex gap-1'>
-            {row?.original?.categories?.map((item, index) => {
-              return (
-                <Chip
-                  key={index}
-                  label={item}
-                  variant='filled'
-                  size='small'
-                  className={`self-start rounded-sm text-white capitalize bg-${item}`}
-                />
-              )
-            })}
+            <Chip
+              label={row.original.category_code}
+              variant='filled'
+              size='small'
+              className={`self-start rounded-sm text-white capitalize bg-${row.original.category_code}`}
+            />
           </div>
         )
       }),
 
       columnHelper.accessor('currencies_code', {
-        header: 'Currency',
+        header: dictionary?.currency ?? 'Currency',
         cell: ({ row }) => <Typography>{row.original.currencies_code.join(', ')}</Typography>
       }),
       columnHelper.accessor('percent_holder', {
-        header: 'Share',
+        header: dictionary?.share ?? 'Share',
         cell: ({ row }) => <Typography>{row.original.percent_holder}%</Typography>
       }),
       columnHelper.accessor('is_enable', {
-        header: 'Status',
+        header: dictionary?.status ?? 'Status',
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
@@ -184,11 +185,16 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
                     component: (
                       <ConfirmAlert
                         id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={'Do you want to change the status'}
-                        content1={`Change this ${row.original.provider_name} provider status ?`}
+                        title={dictionary?.changeStatus ?? 'Do you want to change the status'}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.provider_name)
+                            .replace('{{key}}', dictionary['provider']?.provider) ??
+                          `Change this ${row.original.provider_name} provider status?`
+                        }
                         onClick={() => {
                           toggleProviderStatus({
-                            provider_id: row.original.provider_id,
+                            provider_code: row.original.provider_code,
                             is_enable: !row.original.is_enable
                           })
                         }}
@@ -199,7 +205,9 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
                 }}
                 disabled={pendingUpdate}
               />
-              <Typography>Enable</Typography>
+              <Typography>
+                {row.original.is_enable ? (dictionary?.enable ?? 'Enable') : (dictionary?.disabled ?? 'Disabled')}
+              </Typography>
             </div>
           )
         }
@@ -227,12 +235,12 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
                       className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
                       onClick={e => e.stopPropagation()}
                     >
-                      View Game
+                      {dictionary['provider']?.viewGame ?? 'View Game'}
                     </Link>
                   )
                 },
                 {
-                  text: 'Change Logo',
+                  text: dictionary['provider']?.changeLogo ?? 'Change Logo',
                   menuItemProps: {
                     className: 'flex items-center gap-2 text-textSecondary',
                     onClick: () =>
@@ -272,11 +280,7 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
       rowSelection,
       globalFilter
     },
-    initialState: {
-      pagination: {
-        pageSize: pageSize
-      }
-    },
+    initialState: {},
     enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
     // globalFilterFn: fuzzyFilter,
@@ -331,7 +335,7 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData ?? 'No data available'}
                 </td>
               </tr>
             </tbody>
@@ -354,20 +358,6 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
         </table>
       </div>
 
-      {/* <TablePagination
-        component={() => (
-          <>
-            <TablePaginationComponent table={table} />
-          </>
-        )}
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
-      /> */}
       <TablePaginationComponent
         table={table}
         count={data.max_page}

@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-// MUI Imports
 'use client'
 
 import CustomTextField from '@/@core/components/mui/TextField'
 import { Button, Card, CardContent, Divider, IconButton, InputAdornment, MenuItem } from '@mui/material'
-import type { TextFieldProps } from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
@@ -12,22 +10,23 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import ProviderListTable from './ProviderListTable'
 import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { searchProviders } from '@/app/sevices/provider/provider'
 import fetchProviderQueryOption, { fetchProviderTypeQueryOption } from '@/queryOptions/provider/providerQueryOptions'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import { useAuthStore } from '@/store/authStore'
 
 const ProviderListComponent = () => {
   const router = useRouter()
   const params = useParams()
   const { lang: locale } = params
+  const { dictionary } = useDictionary()
 
   const [search, setSearch] = useState('')
   const [type, setType] = useState('all')
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1)
-
-  const [isSearching, setIsSearching] = useState(false)
-
+  const [pageSize, setPageSize] = useState(10)
+  const profileData = useAuthStore(state => state.profile)
+  console.log('99898989', profileData)
   const {
     data: providersData,
     isPending: pendingProvider,
@@ -41,22 +40,28 @@ const ProviderListComponent = () => {
     mutate,
     data: searchResults,
     isPending: isSearchingPending,
-    error: searchError
+    error: searchError,
+    reset
   } = useMutation({
     mutationFn: searchProviders
   })
 
   const handleSearch = () => {
     setPage(1)
-    setIsSearching(true)
     mutate({ page: 1, pageSize, search, type })
+  }
+
+  const handleRefetchSearch = () => {
+    if (searchResults?.data) {
+      mutate({ page, pageSize, search, type })
+    }
   }
 
   const handleReset = () => {
     setPage(1)
-    setIsSearching(false)
     setSearch('')
     setType('all')
+    reset()
     refetch()
   }
 
@@ -66,7 +71,7 @@ const ProviderListComponent = () => {
         <Grid container className='flex flex-col gap-6'>
           <Grid item xs={12} sm className='flex gap-2 justify-between'>
             <Typography variant='h5' className=' text-nowrap'>
-              Provider List
+              {dictionary['provider']?.providerList ?? 'Provider List'}
             </Typography>
             <Button
               variant='contained'
@@ -74,7 +79,7 @@ const ProviderListComponent = () => {
                 router.push(`/${locale}/providers/addprovider`)
               }}
             >
-              Add New Provider
+              {dictionary['provider']?.addNewProvider ?? 'Add New Provider'}
             </Button>
           </Grid>
           <Divider />
@@ -82,9 +87,9 @@ const ProviderListComponent = () => {
             <Grid item xs={12} md={3}>
               <CustomTextField
                 value={search}
-                label='Provider Name'
+                label={dictionary['provider']?.providerName ?? 'Provider Name'}
                 onChange={e => setSearch(e.target.value)}
-                placeholder='Search provider'
+                placeholder={dictionary['provider']?.searchProvider ?? 'Search provider'}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
@@ -103,7 +108,7 @@ const ProviderListComponent = () => {
                 value={type}
                 defaultValue={'all'}
                 onChange={e => setType(e.target.value)}
-                label='Select Type'
+                label={dictionary['provider']?.selectType ?? 'Select Type'}
                 disabled={pendingType}
               >
                 {typeProvider?.code === 'SUCCESS'
@@ -126,40 +131,31 @@ const ProviderListComponent = () => {
             </Grid>
             <Grid item xs={12} md={4} className='flex gap-4'>
               <Button variant='contained' onClick={handleSearch}>
-                Search
+                {dictionary?.search ?? 'Search'}
               </Button>
               <Button variant='outlined' onClick={handleReset}>
-                Reset
+                {dictionary?.reset ?? 'Search'}
               </Button>
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            {pendingProvider && <Typography>Loading providers...</Typography>}
+            {pendingProvider && <Typography> {dictionary?.loading ?? 'Loading'}...</Typography>}
             {errorProvider && (
               <Typography className='text-error'>Error fetching providers: {errorProvider.message}</Typography>
             )}
-            {isSearchingPending && <Typography>Searching providers...</Typography>}
+            {isSearchingPending && <Typography>{dictionary?.searching ?? 'Searching'} providers...</Typography>}
             {searchError && <Typography className='text-error'>Error searching: {searchError.message}</Typography>}
 
-            {isSearching
-              ? searchResults?.code == 'SUCCESS' && (
-                  <ProviderListTable
-                    data={searchResults.data}
-                    page={page}
-                    pageSize={pageSize}
-                    setPage={setPage}
-                    setPageSize={setPageSize}
-                  />
-                )
-              : providersData?.code == 'SUCCESS' && (
-                  <ProviderListTable
-                    data={providersData.data}
-                    page={page}
-                    pageSize={pageSize}
-                    setPage={setPage}
-                    setPageSize={setPageSize}
-                  />
-                )}
+            {providersData?.data?.total && !isSearchingPending && !pendingProvider && (
+              <ProviderListTable
+                data={searchResults?.data || providersData?.data}
+                page={page}
+                pageSize={pageSize}
+                setPage={setPage}
+                setPageSize={setPageSize}
+                handleRefetchSearch={handleRefetchSearch}
+              />
+            )}
           </Grid>
         </Grid>
       </CardContent>

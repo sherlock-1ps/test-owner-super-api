@@ -22,6 +22,8 @@ import '@/app/globals.css'
 
 // Generated Icon CSS Imports
 import '@assets/iconify-icons/generated-icons.css'
+import { DictionaryProvider } from '@/contexts/DictionaryContext'
+import { getDictionary } from '@/utils/getDictionary'
 
 export const metadata = {
   title: 'BO SUPER-API',
@@ -31,18 +33,20 @@ export const metadata = {
   }
 }
 
-const RootLayout = ({ children, params }: ChildrenType & { params: { lang: Locale } }) => {
+const RootLayout = async ({ children, params }: ChildrenType & { params: { lang: Locale } }) => {
   // Vars
   const headersList = headers()
   const direction = i18n.langDirection[params.lang]
+  const dictionary = await getDictionary(params.lang)
 
   return (
     <TranslationWrapper headersList={headersList} lang={params.lang}>
       <html id='__next' lang={params.lang} dir={direction}>
         <body className='flex is-full min-bs-full flex-auto flex-col'>
           <NextTopLoader />
-
-          {children}
+          <DictionaryProvider dictionary={dictionary} locale={params.lang}>
+            {children}
+          </DictionaryProvider>
         </body>
       </html>
     </TranslationWrapper>

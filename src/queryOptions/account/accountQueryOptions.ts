@@ -1,7 +1,8 @@
-import { createAccountOwner, fetchAccountOperator, fetchAccountOwner, searchAccountOperator, searchAccountOwner, updateAccountOwner } from "@/app/sevices/account/account";
+/* eslint-disable react-hooks/rules-of-hooks */
+import { changeEmailAccountOperator, changeRoleAccountOwner, createAccountOwner, fetchAccountOperator, fetchAccountOwner, resetPasswordAccount, resetPasswordAccountOperator, searchAccountOperator, searchAccountOwner, updateStatusAccountOperator, updateStatusAccountOwner } from "@/app/sevices/account/account";
+import { fetchOperatorPerfixConfig } from "@/app/sevices/config/config";
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from "react-toastify";
 
 export function fetchAccountOwnerQueryOption(page: number, pageSize: number) {
   return useQuery({
@@ -29,11 +30,16 @@ export const useUpdateAccountOwnerMutationOption = () => {
 };
 
 export const useChangeRoleAccountOwnerMutationOption = () => {
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateAccountOwner,
+
+    mutationFn: changeRoleAccountOwner,
     onError: (error) => {
       console.error("Error change role owner account:", error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["accountOwner"] });
     },
 
   });
@@ -42,7 +48,7 @@ export const useChangeRoleAccountOwnerMutationOption = () => {
 export const useResetPasswordAccountOwnerMutationOption = () => {
 
   return useMutation({
-    mutationFn: updateAccountOwner,
+    mutationFn: resetPasswordAccount,
     onError: (error) => {
       console.error("Error reset password owner account:", error);
     },
@@ -50,8 +56,25 @@ export const useResetPasswordAccountOwnerMutationOption = () => {
   });
 };
 
+export const useUpdateStatusAccountOwnerMutationOption = (onSuccessCallback?: () => void) => {
+
+  return useMutation({
+    mutationFn: updateStatusAccountOwner,
+    onError: (error) => {
+      console.error("Error update status owner account:", error);
+    },
+    onSuccess: () => {
+      if (onSuccessCallback) {
+        onSuccessCallback();
+      }
+    },
+
+  });
+};
+
 export const useCreateAccountOwnerMutationOption = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: createAccountOwner,
 
@@ -74,6 +97,16 @@ export const fetchAccountOperatorQueryOption = (page: number, pageSize: number) 
 
 }
 
+export const fetchOperatorPrefixQueryOption = () => {
+  return useQuery({
+    queryKey: ["operatorPrefix"],
+    queryFn: fetchOperatorPerfixConfig,
+  });
+
+}
+
+
+
 export const useSearchAccountOperatorMutationOption = () => {
 
   return useMutation({
@@ -84,4 +117,38 @@ export const useSearchAccountOperatorMutationOption = () => {
 
   });
 };
+
+export const useUpdateStatusAccountOperatorMutationOption = () => {
+
+  return useMutation({
+    mutationFn: updateStatusAccountOperator,
+    onError: (error) => {
+      console.error("Error update status account Operator:", error);
+    },
+
+  });
+};
+
+export const useResetPasswordAccountOperatorMutationOption = () => {
+
+  return useMutation({
+    mutationFn: resetPasswordAccountOperator,
+    onError: (error) => {
+      console.error("Error reset password account Operator:", error);
+    },
+
+  });
+};
+
+export const useChangeEmailAccountOperatorMutationOption = () => {
+
+  return useMutation({
+    mutationFn: changeEmailAccountOperator,
+    onError: (error) => {
+      console.error("Error chnage Email account Operator:", error);
+    },
+
+  });
+};
+
 

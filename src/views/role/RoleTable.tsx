@@ -61,6 +61,8 @@ import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import { OptionType } from '@/@core/components/option-menu/types'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -68,17 +70,6 @@ declare module '@tanstack/table-core' {
   }
   interface FilterMeta {
     itemRank: RankingInfo
-  }
-}
-
-type InvoiceTypeWithAction = InvoiceType & {
-  action?: string
-}
-
-type InvoiceStatusObj = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
   }
 }
 
@@ -94,354 +85,155 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Return if the item should be filtered in/out
   return itemRank.passed
 }
-
-const dataMock = [
-  {
-    id: 1,
-    issuedDate: 837,
-    address: '7777 Mendez Plains',
-    company: 'Hall-Robbins PLC',
-    companyEmail: 'don85@johnson.com',
-    country: 'USA',
-    contact: '(616) 865-4180',
-    name: 'เติมงาน รับเพิ่มทันที',
-    service: 'Software Development',
-    total: 3428,
-    avatar: '',
-    avatarColor: 'primary',
-    invoiceStatus: 'Paid',
-    balance: '$724',
-    dueDate: '23 Feb 2025',
-    group: 3,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Alice Johnson',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 2,
-    issuedDate: 254,
-    address: '04033 Wesley Wall Apt. 961',
-    company: 'Mccann LLC and Sons',
-    companyEmail: 'brenda49@taylor.info',
-    country: 'Haiti',
-    contact: '(226) 204-8287',
-    name: 'โปรแรง! เติมงาน รับสิทธิพิเศษทันที',
-    service: 'UI/UX Design & Development',
-    total: 5219,
-    avatar: '/images/avatars/1.png',
-    invoiceStatus: 'Downloaded',
-    balance: 0,
-    dueDate: '15 Feb 2025',
-    group: 1,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Elijah Nguyen',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 3,
-    issuedDate: 793,
-    address: '5345 Robert Squares',
-    company: 'Leonard-Garcia and Sons',
-    companyEmail: 'smithtiffany@powers.com',
-    country: 'Denmark',
-    contact: '(955) 676-1076',
-    name: 'ดีลพิเศษ เติมงาน รับโบนัสทันที',
-    service: 'Unlimited Extended License',
-    total: 3719,
-    avatar: '/images/avatars/2.png',
-    invoiceStatus: 'Paid',
-    balance: 0,
-    dueDate: '03 Feb 2025',
-    group: 4,
-    bonus: 10,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Bob Smith',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 4,
-    issuedDate: 316,
-    address: '19022 Clark Parks Suite 149',
-    company: 'Smith, Miller and Henry LLC',
-    companyEmail: 'mejiageorge@lee-perez.com',
-    country: 'Cambodia',
-    contact: '(832) 323-6914',
-    name: 'โปรโมชั่นสุดคุ้ม รับงานฟรีทันที',
-    service: 'Software Development',
-    total: 4749,
-    avatar: '/images/avatars/3.png',
-    invoiceStatus: 'Sent',
-    balance: 0,
-    dueDate: '11 Feb 2025',
-    group: 5,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Charlie Brown',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 5,
-    issuedDate: 465,
-    address: '8534 Saunders Hill Apt. 583',
-    company: 'Garcia-Cameron and Sons',
-    companyEmail: 'brandon07@pierce.com',
-    country: 'Martinique',
-    contact: '(970) 982-3353',
-    name: 'ช้อปครบ รับของแถมฟรีทันที',
-    service: 'UI/UX Design & Development',
-    total: 4056,
-    avatar: '/images/avatars/4.png',
-    invoiceStatus: 'Draft',
-    balance: '$815',
-    dueDate: '30 Feb 2025',
-    group: 2,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Diana Prince',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 6,
-    issuedDate: 192,
-    address: '661 Perez Run Apt. 778',
-    company: 'Burnett-Young PLC',
-    companyEmail: 'guerrerobrandy@beasley-harper.com',
-    country: 'Botswana',
-    contact: '(511) 938-9617',
-    name: 'เติมงาน รับเพิ่มทันที',
-    service: 'UI/UX Design & Development',
-    total: 2771,
-    avatar: '',
-    avatarColor: 'secondary',
-    invoiceStatus: 'Paid',
-    balance: 0,
-    dueDate: '24 Feb 2025',
-    group: 1,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Elijah Nguyen',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 7,
-    issuedDate: 879,
-    address: '074 Long Union',
-    company: 'Wilson-Lee LLC',
-    companyEmail: 'williamshenry@moon-smith.com',
-    country: 'Montserrat',
-    contact: '(504) 859-2893',
-    name: 'โปรแรง! เติมงาน รับสิทธิพิเศษทันที',
-    service: 'UI/UX Design & Development',
-    total: 2713,
-    avatar: '',
-    avatarColor: 'success',
-    invoiceStatus: 'Draft',
-    balance: '$407',
-    dueDate: '22 Feb 2025',
-    group: 5,
-    bonus: 10,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Bob Smith',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 8,
-    issuedDate: 540,
-    address: '5225 Ford Cape Apt. 840',
-    company: 'Schwartz, Henry and Rhodes Group',
-    companyEmail: 'margaretharvey@russell-murray.com',
-    country: 'Oman',
-    contact: '(758) 403-7718',
-    name: 'โปรโมชั่นสุดคุ้ม รับงานฟรีทันที',
-    service: 'Template Customization',
-    total: 4309,
-    avatar: '/images/avatars/5.png',
-    invoiceStatus: 'Paid',
-    balance: '-$205',
-    dueDate: '10 Feb 2025',
-    group: 3,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Alice Johnson',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 9,
-    issuedDate: 701,
-    address: '23717 James Club Suite 277',
-    company: 'Henderson-Holder PLC',
-    companyEmail: 'dianarodriguez@villegas.com',
-    country: 'Cambodia',
-    contact: '(292) 873-8254',
-    name: 'ดีลพิเศษ เติมงาน รับโบนัสทันที',
-    service: 'Software Development',
-    total: 3367,
-    avatar: '/images/avatars/6.png',
-    invoiceStatus: 'Downloaded',
-    balance: 0,
-    dueDate: '24 Feb 2025',
-    group: 4,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Charlie Brown',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 10,
-    issuedDate: 150,
-    address: '4528 Myers Gateway',
-    company: 'Page-Wise PLC',
-    companyEmail: 'bwilson@norris-brock.com',
-    country: 'Guam',
-    contact: '(956) 803-2008',
-    name: 'ช้อปครบ รับของแถมฟรีทันที',
-    service: 'Software Development',
-    total: 4776,
-    avatar: '/images/avatars/7.png',
-    invoiceStatus: 'Downloaded',
-    balance: '$305',
-    dueDate: '02 Feb 2025',
-    group: 2,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Diana Prince',
-      bankImage: 'kbank'
-    }
-  }
-]
+type RoleConfig = {
+  role_id: string
+  parent_role_id: string
+  role_name: string
+  description: string
+  is_enable: boolean
+  operator_prefix: string
+  member: number
+}
 
 // Column Definitions
-const columnHelper = createColumnHelper<InvoiceTypeWithAction>()
+const columnHelper = createColumnHelper<RoleConfig>()
 
-const RoleTable = () => {
+const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
-  const [status, setStatus] = useState<InvoiceType['invoiceStatus']>('')
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(...[dataMock])
-  const [filteredData, setFilteredData] = useState(data)
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Hooks
   const { lang: locale } = useParams()
 
-  const columns = useMemo<ColumnDef<InvoiceTypeWithAction, any>[]>(
+  const columns = useMemo<ColumnDef<RoleConfig, any>[]>(
     () => [
-      columnHelper.accessor('id', {
+      columnHelper.display({
+        id: 'id',
         header: 'ID',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.id}</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{row.index + 1}</Typography>
       }),
 
-      columnHelper.accessor('company', {
+      columnHelper.accessor('role_name', {
         header: 'Role',
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
-            <Typography variant='h6'>{row.original.company}</Typography>
+            <Typography variant='h6'>{row.original.role_name}</Typography>
           </div>
         )
       }),
-      columnHelper.accessor('companyEmail', {
+      columnHelper.accessor('description', {
         header: 'Description',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.companyEmail}</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{row.original.description}</Typography>
       }),
-      columnHelper.accessor('id', {
+      columnHelper.accessor('member', {
         header: 'Member',
-        cell: ({ row }) => <Typography variant='h6'>1</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{row.original.member}</Typography>
       }),
 
-      columnHelper.accessor('balance', {
+      columnHelper.accessor('is_enable', {
         header: 'Status',
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
-              <Switch checked={true} onChange={() => {}} />
-              <Typography>Enable</Typography>
+              <Switch
+                checked={row.original.is_enable}
+                onChange={() => {
+                  showDialog({
+                    id: 'alertDialogConfirmResetPasswordCreateOperator',
+                    component: (
+                      <ConfirmAlert
+                        id='alertDialogConfirmResetPasswordCreateOperator'
+                        title={dictionary?.changeStatus}
+                        // content1={`Change this operator status?`}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.role_name)
+                            .replace('{{key}}', 'role') ?? `Change this ${row.original.role_name} role status?`
+                        }
+                        onClick={() => {}}
+                      />
+                    ),
+                    size: 'sm'
+                  })
+                }}
+                // disabled={pendingStatus}
+              />
+              <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>
           )
         }
       }),
-      columnHelper.accessor('country', {
+      columnHelper.accessor('member', {
         header: 'Date Last Login',
         cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
       }),
 
-      columnHelper.accessor('action', {
+      columnHelper.display({
+        id: 'action',
         header: '',
-        cell: ({ row }) => (
-          <div className='flex items-center'>
-            <OptionMenu
-              iconButtonProps={{ size: 'medium' }}
-              iconClassName='text-textSecondary'
-              options={[
-                {
-                  text: (
-                    <Link
-                      href={{
-                        pathname: `/${locale}/role/managerole`,
-                        query: { role: 'OPB12345' }
-                      }}
-                      className='no-underline text-textSecondary'
-                      onClick={e => e.stopPropagation()}
-                    >
-                      Edit Role
-                    </Link>
-                  )
-                },
-                {
-                  text: 'Delete',
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-textSecondary',
-                    onClick: () =>
-                      showDialog({
-                        id: 'alertDialogConfirmResetPasswordCreateOperator',
-                        component: (
-                          <ConfirmAlert
-                            id='alertDialogConfirmResetPasswordCreateOperator'
-                            title={'Confirm Delete Role'}
-                            content1='Are you sure you want to delete Role Manager ? '
-                            content2='This action can only be performed for roles that do not have any members assigned.'
-                            onClick={() => {}}
-                          />
-                        ),
-                        size: 'sm'
-                      })
-                  }
+        cell: ({ row }) => {
+          return (
+            <div className='flex items-center'>
+              <OptionMenu
+                iconButtonProps={{ size: 'medium' }}
+                iconClassName='text-textSecondary'
+                options={
+                  [
+                    {
+                      text: (
+                        <Link
+                          href={{
+                            pathname: `/${locale}/role/managerole`,
+                            query: { role: 'OPB12345' }
+                          }}
+                          className='no-underline text-textSecondary'
+                          onClick={e => e.stopPropagation()}
+                        >
+                          Edit Role
+                        </Link>
+                      )
+                    },
+                    row.original.member === 0
+                      ? {
+                          text: <span>Delete</span>,
+                          menuItemProps: {
+                            className: 'flex items-center gap-2 text-textSecondary',
+                            onClick: () =>
+                              showDialog({
+                                id: 'alertDialogConfirmResetPasswordCreateOperator',
+                                component: (
+                                  <ConfirmAlert
+                                    id='alertDialogConfirmResetPasswordCreateOperator'
+                                    title='Confirm Delete Role'
+                                    content1='Are you sure you want to delete Role Manager?'
+                                    content2='This action can only be performed for roles that do not have any members assigned.'
+                                    onClick={() => {}}
+                                  />
+                                ),
+                                size: 'sm'
+                              })
+                          }
+                        }
+                      : null
+                  ].filter(Boolean) as OptionType[]
                 }
-              ]}
-            />
-          </div>
-        ),
+              />
+            </div>
+          )
+        },
         enableSorting: false
       })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, filteredData]
+    [data]
   )
 
-  const table = useReactTable({
-    data: filteredData as InvoiceType[],
+  const table = useReactTable<RoleConfig>({
+    data: data.list,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -468,16 +260,6 @@ const RoleTable = () => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
-
-  useEffect(() => {
-    const filteredData = data?.filter(invoice => {
-      if (status && invoice.invoiceStatus.toLowerCase().replace(/\s+/g, '-') !== status) return false
-
-      return true
-    })
-
-    setFilteredData(filteredData)
-  }, [status, data])
 
   return (
     <Card>
@@ -541,20 +323,13 @@ const RoleTable = () => {
           )}
         </table>
       </div>
-
-      <TablePagination
-        component={() => (
-          <>
-            <TablePaginationComponent table={table} />
-          </>
-        )}
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
+      <TablePaginationComponent
+        table={table}
+        count={data.max_page}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
       />
     </Card>
   )

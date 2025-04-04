@@ -28,6 +28,7 @@ import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNav
 // Style Imports
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
+import { useAuthStore } from '@/store/authStore'
 
 // Menu Data Imports
 // import menuData from '@/data/navigation/verticalMenuData'
@@ -53,6 +54,8 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
   const theme = useTheme()
   const verticalNavOptions = useVerticalNav()
   const params = useParams()
+
+  const profileData = useAuthStore(state => state.profile)
 
   // Vars
   const { isBreakpointReached, transitionDuration } = verticalNavOptions

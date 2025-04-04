@@ -6,6 +6,7 @@ import { Divider, Grid, MenuItem, Typography } from '@mui/material'
 import { useDialog } from '@/hooks/useDialog'
 import CustomTextField from '@/@core/components/mui/TextField'
 import { useState } from 'react'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 interface confirmProps {
   id: string
@@ -15,25 +16,24 @@ interface confirmProps {
 
 const ChangeEmailOperatorDialog = ({ id, onClick, data }: confirmProps) => {
   const { closeDialog } = useDialog()
+  const { dictionary } = useDictionary()
 
   const [inputEmail, setInputEmail] = useState('')
 
   return (
     <Grid container className='flex flex-col gap-2' spacing={2}>
       <Grid item xs={12}>
-        <Typography variant='h5'>Email Change for {data} Operator</Typography>
+        <Typography variant='h5'>{dictionary['account']?.operatorEmailChange?.replace('{{name}}', data)}</Typography>
       </Grid>
       <Divider />
       <Grid item xs={12}>
-        <Typography>
-          Once you change the email, the user will no longer be able to log in with their old email.
-        </Typography>
+        <Typography>{dictionary['account']?.changeEmailDetail}</Typography>
       </Grid>
       <Grid item xs={12} className='flex gap-4'>
         <CustomTextField
           fullWidth
           type='text'
-          label='New Email'
+          label={dictionary['account']?.newEmail}
           placeholder=''
           value={inputEmail}
           onChange={e => {
@@ -49,7 +49,7 @@ const ChangeEmailOperatorDialog = ({ id, onClick, data }: confirmProps) => {
             closeDialog(id)
           }}
         >
-          Cancel
+          {dictionary?.cancel}
         </Button>
         <Button
           variant='contained'
@@ -58,7 +58,7 @@ const ChangeEmailOperatorDialog = ({ id, onClick, data }: confirmProps) => {
           }}
           disabled={!inputEmail}
         >
-          Confirm
+          {dictionary?.confirm}
         </Button>
       </Grid>
     </Grid>

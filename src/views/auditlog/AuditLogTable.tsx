@@ -60,7 +60,7 @@ import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
 import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
-import React from 'react'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -336,6 +336,7 @@ const columnHelper = createColumnHelper<InvoiceTypeWithAction>()
 
 const AuditLogTable = () => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
   const [status, setStatus] = useState<InvoiceType['invoiceStatus']>('')
   const [rowSelection, setRowSelection] = useState({})
@@ -372,23 +373,23 @@ const AuditLogTable = () => {
         cell: ({ row }) => <Typography variant='h6'>OPB1</Typography>
       }),
       columnHelper.accessor('companyEmail', {
-        header: 'username',
+        header: dictionary?.username,
         cell: ({ row }) => <Typography variant='h6'>{row.original.companyEmail}</Typography>
       }),
       columnHelper.accessor('total', {
-        header: 'Device',
+        header: dictionary['audit']?.device,
         cell: ({ row }) => <Typography variant='h6'>Window</Typography>
       }),
       columnHelper.accessor('country', {
-        header: 'Geolocation',
+        header: dictionary['audit']?.geolocation,
         cell: ({ row }) => <Typography variant='h6'>GMT+7</Typography>
       }),
       columnHelper.accessor('country', {
-        header: 'Country',
+        header: dictionary?.country,
         cell: ({ row }) => <Typography variant='h6'>Thailand</Typography>
       }),
       columnHelper.accessor('balance', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
@@ -501,13 +502,14 @@ const AuditLogTable = () => {
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
                   No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>
           ) : (
             <tbody>
               {table.getRowModel().rows.map(row => (
-                <React.Fragment key={row.id}>
+                <div key={row.id}>
                   <tr className={classnames({ selected: row.getIsSelected() })}>
                     {row.getVisibleCells().map(cell => (
                       <td className={`${expandedRow == row.id ? ' bg-primaryLight' : ''}`} key={cell.id}>
@@ -528,27 +530,12 @@ const AuditLogTable = () => {
                       </td>
                     </tr>
                   )}
-                </React.Fragment>
+                </div>
               ))}
             </tbody>
           )}
         </table>
       </div>
-
-      <TablePagination
-        component={() => (
-          <>
-            <TablePaginationComponent table={table} />
-          </>
-        )}
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
-      />
     </Card>
   )
 }

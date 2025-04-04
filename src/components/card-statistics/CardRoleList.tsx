@@ -101,7 +101,7 @@ const CardRoleList = ({ data }: { data?: any }) => {
                         <ConfirmAlert
                           id='alertDialogConfirmDeleteRole'
                           title={'Are you sure to delete'}
-                          content='delete this role ?'
+                          content1='delete this role ?'
                           onClick={async () => {
                             // await deleteRole(data.id)
                           }}

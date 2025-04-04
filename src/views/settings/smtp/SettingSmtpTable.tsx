@@ -61,6 +61,7 @@ import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -100,6 +101,7 @@ const columnHelper = createColumnHelper<SmtpConfigType>()
 
 const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -133,15 +135,15 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
         cell: ({ row }) => <Typography variant='h6'>{row.original.smtp_username}</Typography>
       }),
       columnHelper.accessor('password', {
-        header: 'Password',
+        header: dictionary?.password ?? 'Password',
         cell: ({ row }) => <Typography variant='h6'>{row.original.password}</Typography>
       }),
       columnHelper.accessor('sender_name', {
-        header: 'Sender',
+        header: dictionary['smtp']?.sender,
         cell: ({ row }) => <Typography variant='h6'>{row.original.sender_name}</Typography>
       }),
       columnHelper.accessor('sender_email', {
-        header: 'Form Email Address',
+        header: dictionary['smtp']?.formEmail,
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -151,7 +153,7 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
       }),
 
       columnHelper.accessor('is_enable', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
@@ -163,8 +165,13 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                     component: (
                       <ConfirmAlert
                         id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={'Do you want to change smtp status'}
-                        content1={`Change this ${row.original.smtp_username} status?`}
+                        title={dictionary?.changeStatus}
+                        // content1={`Change this ${row.original.smtp_username} status?`}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.smtp_username)
+                            .replace('{{key}}', 'smtp') ?? `Change this ${row.original.smtp_username} status?`
+                        }
                         onClick={() => {}}
                       />
                     ),
@@ -172,7 +179,7 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                   })
                 }}
               />
-              <Typography>Enable</Typography>
+              <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>
           )
         }
@@ -192,6 +199,7 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
               is_enable: true
             })
           )
+
           return (
             <div className='flex items-center'>
               <OptionMenu
@@ -208,12 +216,12 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                         className='no-underline text-textSecondary'
                         onClick={e => e.stopPropagation()}
                       >
-                        Edit SMTP Server
+                        {dictionary['smtp']?.editSmtp}
                       </Link>
                     )
                   },
                   {
-                    text: 'Delete',
+                    text: dictionary?.delete,
                     menuItemProps: {
                       className: 'flex items-center gap-2 text-textSecondary',
                       onClick: () =>
@@ -222,8 +230,12 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                           component: (
                             <ConfirmAlert
                               id='alertDialogConfirmResetPasswordCreateOperator'
-                              title={'Confirm Delete SMTP Server'}
-                              content1='Are you sure you want to delete the SMTP Server: ‘smtp.mailserver.com’ ? '
+                              title={dictionary['smtp']?.deleteSmtp}
+                              // content1='Are you sure you want to delete the SMTP Server: ‘smtp.mailserver.com’ ? '
+                              content1={
+                                dictionary?.changeStatusWithName?.replace('{{name}}', row.original.smtp_username) ??
+                                `Are you sure you want to delete the SMTP Server: ${row.original.smtp_username} ?`
+                              }
                               content2=''
                               onClick={() => {}}
                             />

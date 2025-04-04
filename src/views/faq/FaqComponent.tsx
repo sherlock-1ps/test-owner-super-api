@@ -11,10 +11,12 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import FaqTable from './FaqTable'
 import { fetchFaqQueryOption, useSearchFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 const FaqComponent = () => {
   const router = useRouter()
   const params = useParams()
+  const { dictionary } = useDictionary()
 
   // Vars
   const { lang: locale } = params
@@ -43,7 +45,7 @@ const FaqComponent = () => {
         <Grid container className='flex flex-col gap-6'>
           <Grid item xs={12} sm className='flex gap-2 justify-between'>
             <Typography variant='h5' className=' text-nowrap'>
-              FAQs List
+              {dictionary['faq']?.faqList}
             </Typography>
             <Button
               variant='contained'
@@ -51,7 +53,7 @@ const FaqComponent = () => {
                 router.push(`/${locale}/faq/managefaq`)
               }}
             >
-              Add New FAQ
+              {dictionary['faq']?.addFaq}
             </Button>
           </Grid>
           <Divider />
@@ -60,9 +62,9 @@ const FaqComponent = () => {
               <CustomTextField
                 fullWidth
                 value={search}
-                label='Question'
+                label={dictionary['faq']?.question}
                 onChange={e => setSearch(e.target.value)}
-                placeholder='Search Question'
+                placeholder={dictionary['faq']?.searchQuestion}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
@@ -82,12 +84,12 @@ const FaqComponent = () => {
                 }}
                 disabled={!search}
               >
-                Search
+                {dictionary?.search}
               </Button>
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            {pendingFaqData && <p>Loading....</p>}
+            {pendingFaqData && <p>{dictionary?.loading}....</p>}
 
             {faqData?.data?.total && (
               <FaqTable

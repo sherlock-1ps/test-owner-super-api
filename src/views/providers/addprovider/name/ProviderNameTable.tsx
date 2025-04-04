@@ -63,7 +63,8 @@ import { Switch } from '@mui/material'
 import RenameProviderDialog from '@/components/dialogs/provider/RenameProviderDialog'
 import ThumbnailProviderDialog from '@/components/dialogs/provider/ThumbnailProviderDialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updateGameProvider } from '@/app/sevices/provider/provider'
+import { updateGameProvider, updateStatusGame } from '@/app/sevices/provider/provider'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -101,10 +102,10 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 // Column Definitions
 const columnHelper = createColumnHelper<Game>()
 
-const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: any) => {
+const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
-  const [status, setStatus] = useState<InvoiceType['invoiceStatus']>('')
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
 
@@ -114,7 +115,11 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
   const queryClient = useQueryClient()
 
   const { mutate: toggleGameProviderStatus, isPending: pendingUpdate } = useMutation({
-    mutationFn: updateGameProvider,
+    mutationFn: updateStatusGame,
+
+    onSuccess() {
+      handleRefetchSearch()
+    },
 
     onError: (error, _, context) => {
       console.error('Error updating game provider:', error)
@@ -128,19 +133,19 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
   const handleCopyGameId = (gameId: string) => {
     navigator.clipboard
       .writeText(gameId)
-      .then(() => toast.success('Copied success ✅', { autoClose: 3000 }))
+      .then(() => toast.success(`${dictionary?.copySuccess ?? 'Copy Success'} ✅`, { autoClose: 3000 }))
       .catch(() => toast.error('Copied failed ', { autoClose: 3000 }))
   }
 
   const columns = useMemo<ColumnDef<Game, any>[]>(
     () => [
       columnHelper.accessor('game_id', {
-        header: 'No',
+        header: dictionary?.no ?? 'No',
         cell: ({ row }) => <Typography variant='h6'>{row.original.game_id}</Typography>
       }),
 
       columnHelper.accessor('game_name', {
-        header: 'Game Name',
+        header: dictionary?.gameName ?? 'Game Name',
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -149,12 +154,12 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
         )
       }),
       columnHelper.accessor('image', {
-        header: 'Thumbnail',
+        header: dictionary?.thumbnail ?? 'Thumbnail',
         cell: ({ row }) => <img src={row.original.image} width={32} alt='thumbnailGame' className=' rounded' />
       }),
 
       columnHelper.accessor('is_enable', {
-        header: 'Status',
+        header: dictionary?.status ?? 'Status',
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
@@ -166,8 +171,14 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
                     component: (
                       <ConfirmAlert
                         id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={'Do you want to change the status game'}
-                        content1={`Change this ${row.original.game_name} status game ?`}
+                        title={dictionary?.changeStatus ?? 'Do you want to change the status'}
+                        // content1={`Change this ${row.original.game_name} status game ?`}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.game_name)
+                            .replace('{{key}}', dictionary?.game) ??
+                          `Change this ${row.original.game_name} provider status?`
+                        }
                         onClick={() => {
                           toggleGameProviderStatus({
                             game_id: row.original.game_id,
@@ -181,7 +192,9 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
                 }}
                 disabled={pendingUpdate}
               />
-              <Typography>Enable</Typography>
+              <Typography>
+                {row.original.is_enable ? (dictionary?.enable ?? 'Enable') : (dictionary?.disabled ?? 'Disabled')}
+              </Typography>
             </div>
           )
         }
@@ -197,7 +210,7 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
               iconClassName='text-textSecondary'
               options={[
                 {
-                  text: 'Rename',
+                  text: dictionary?.rename ?? 'Rename',
                   menuItemProps: {
                     className: 'flex items-center gap-2 text-textSecondary',
                     onClick: () =>
@@ -211,7 +224,7 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
                   }
                 },
                 {
-                  text: 'Change Thumbnail',
+                  text: dictionary['provider']?.changeThumbnail ?? 'Change Thumbnail',
                   menuItemProps: {
                     className: 'flex items-center gap-2 text-textSecondary',
                     onClick: () =>
@@ -256,11 +269,7 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
       rowSelection,
       globalFilter
     },
-    initialState: {
-      pagination: {
-        pageSize: 10
-      }
-    },
+    initialState: {},
     enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
     // globalFilterFn: fuzzyFilter,
@@ -315,7 +324,7 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize }: 
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData ?? 'No data available'}
                 </td>
               </tr>
             </tbody>

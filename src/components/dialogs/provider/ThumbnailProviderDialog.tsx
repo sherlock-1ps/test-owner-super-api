@@ -9,8 +9,9 @@ import CustomTextField from '@/@core/components/mui/TextField'
 import UploadThumbnailImage from './UploadThumbnailImage'
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updateGameProvider } from '@/app/sevices/provider/provider'
+import { updateGameProvider, updateThumbtailGame } from '@/app/sevices/provider/provider'
 import { toast } from 'react-toastify'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 interface confirmProps {
   id: string
@@ -22,9 +23,10 @@ const ThumbnailProviderDialog = ({ id, onClick, data }: confirmProps) => {
   const { closeDialog } = useDialog()
   const [fileImg, setFileImg] = useState(null)
   const queryClient = useQueryClient()
+  const { dictionary } = useDictionary()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: updateGameProvider,
+    mutationFn: updateThumbtailGame,
     onError: error => {
       console.error('Error updating game thumbnail:', error)
     },
@@ -37,18 +39,19 @@ const ThumbnailProviderDialog = ({ id, onClick, data }: confirmProps) => {
     if (fileImg) {
       mutate({
         game_id: data.game_id,
+        game_code: data.game_code,
         image: fileImg
       })
       closeDialog(id)
     } else {
-      toast.error('not have file', { autoClose: 3000 })
+      toast.error(dictionary?.notHaveFileImg, { autoClose: 3000 })
     }
   }
 
   return (
     <Grid container className='flex flex-col gap-2' spacing={2}>
       <Grid item xs={12}>
-        <Typography variant='h5'>Change game thumbnail</Typography>
+        <Typography variant='h5'>{dictionary['provider']?.changeGameThumbnail}</Typography>
       </Grid>
       <Divider />
 
@@ -72,7 +75,7 @@ const ThumbnailProviderDialog = ({ id, onClick, data }: confirmProps) => {
             closeDialog(id)
           }}
         >
-          Cancel
+          {dictionary?.cancel ?? 'Cancel'}
         </Button>
         <Button
           variant='contained'
@@ -81,7 +84,7 @@ const ThumbnailProviderDialog = ({ id, onClick, data }: confirmProps) => {
           }}
           disabled={!fileImg || isPending}
         >
-          Confirm
+          {dictionary?.confirm ?? 'Confirm'}
         </Button>
       </Grid>
     </Grid>

@@ -11,11 +11,13 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import SettingSmtpTable from './SettingSmtpTable'
 import { fetchSettingSmtpQueryOption } from '@/queryOptions/smtp/settingSmtpQueryOptions'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 const SettingsSmtpComponent = () => {
   const router = useRouter()
   const params = useParams()
   const { lang: locale } = params
+  const { dictionary } = useDictionary()
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -36,13 +38,13 @@ const SettingsSmtpComponent = () => {
                 router.push(`/${locale}/settings/smtp/create`)
               }}
             >
-              Add New SMTP Server
+              {dictionary['smtp']?.addNewSmtp ?? 'Add New SMTP Server'}
             </Button>
           </Grid>
           <Divider />
 
           <Grid item xs={12}>
-            {isPending && <p>Loading....</p>}
+            {isPending && <p>{dictionary?.loading}....</p>}
             {data?.data?.total && (
               <SettingSmtpTable
                 data={data.data}

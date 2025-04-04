@@ -8,9 +8,7 @@ import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
 import Typography from '@mui/material/Typography'
-import type {
-  TextFieldProps
-} from '@mui/material';
+import type { TextFieldProps } from '@mui/material'
 import {
   Box,
   Button,
@@ -161,14 +159,14 @@ const SettingLanguage = () => {
           <ConfirmAlert
             id='alertCancloseCurrencyLang'
             title={'Can not close default Language'}
-            content=''
+            content1=''
             onClick={() => {}}
           />
         ),
         size: 'sm'
       })
-      
-return
+
+      return
     }
 
     setLanguages(prev => prev.map((row: any, idx: number) => (idx === index ? { ...row, isUse: !row.isUse } : row)))

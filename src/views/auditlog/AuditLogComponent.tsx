@@ -11,6 +11,7 @@ import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import { forwardRef, useState } from 'react'
 import AuditLogTable from './AuditLogTable'
 import { useSearchParams } from 'next/navigation'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 type CustomInputProps = TextFieldProps & {
   label: string
@@ -19,6 +20,7 @@ type CustomInputProps = TextFieldProps & {
 }
 
 const AuditLogComponent = () => {
+  const { dictionary } = useDictionary()
   const searchParams = useSearchParams()
   const operator = searchParams.get('operator')
   const [startDate, setStartDate] = useState<Date | null | undefined>(new Date())
@@ -49,7 +51,7 @@ const AuditLogComponent = () => {
           <div className='flex flex-col gap-6'>
             <div className='flex gap-2 justify-between'>
               <Typography variant='h5' className=' text-nowrap'>
-                Audit Log
+                {dictionary['audit']?.auditLog}
               </Typography>
             </div>
             <Divider />
@@ -69,7 +71,7 @@ const AuditLogComponent = () => {
                 />
               </Grid>
               <Grid item xs={12} sm>
-                <CustomTextField select fullWidth defaultValue={10} label='Select Timezone'>
+                <CustomTextField select fullWidth defaultValue={10} label={dictionary['operator']?.selectTimezone}>
                   <MenuItem value=''>
                     <em>None</em>
                   </MenuItem>
@@ -77,7 +79,7 @@ const AuditLogComponent = () => {
                 </CustomTextField>
               </Grid>
               <Grid item xs={12} sm>
-                <CustomTextField select fullWidth defaultValue={10} label='Select Country'>
+                <CustomTextField select fullWidth defaultValue={10} label={dictionary['operator']?.selectCountry}>
                   <MenuItem value=''>
                     <em>None</em>
                   </MenuItem>
@@ -85,13 +87,17 @@ const AuditLogComponent = () => {
                 </CustomTextField>
               </Grid>
               <Grid item xs={12} sm>
-                <CustomTextField fullWidth label='Search Action' placeholder='search action'></CustomTextField>
+                <CustomTextField
+                  fullWidth
+                  label={dictionary['audit']?.selectAction}
+                  placeholder={dictionary['audit']?.selectAction}
+                ></CustomTextField>
               </Grid>
             </Grid>
             <Grid container spacing={4}>
               <Grid item xs={3}>
                 <Button variant='contained' fullWidth>
-                  Search
+                  {dictionary?.search}
                 </Button>
               </Grid>
             </Grid>

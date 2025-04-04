@@ -60,6 +60,13 @@ import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
 import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeEmailOperatorDialog from '@/components/dialogs/account/ChangeEmailOperatorDialog'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import {
+  useChangeEmailAccountOperatorMutationOption,
+  useResetPasswordAccountOperatorMutationOption,
+  useUpdateStatusAccountOperatorMutationOption
+} from '@/queryOptions/account/accountQueryOptions'
+import { toast } from 'react-toastify'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -100,12 +107,34 @@ const columnHelper = createColumnHelper<OperatorType>()
 
 const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Hooks
   const { lang: locale } = useParams()
+
+  const { mutate, isPending: pendingUpdate, error } = useUpdateStatusAccountOperatorMutationOption()
+
+  const { mutate: callResetPassword } = useResetPasswordAccountOperatorMutationOption()
+  const { mutate: callChangeEmail } = useChangeEmailAccountOperatorMutationOption()
+
+  const handleUpdateStatus = (operator: string, status: boolean) => {
+    mutate({
+      operator_id: operator,
+      is_enable: status
+    })
+  }
+
+  const handleResetPassword = (email: string) => {
+    callResetPassword({ email })
+  }
+  const handleChangeEmail = (email: string) => {}
+
+  useEffect(() => {
+    if (error) toast.error(error?.message)
+  }, [error])
 
   const columns = useMemo<ColumnDef<OperatorType, any>[]>(
     () => [
@@ -120,7 +149,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
       }),
 
       columnHelper.accessor('email', {
-        header: 'Email',
+        header: dictionary?.email,
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -129,12 +158,12 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
         )
       }),
       columnHelper.accessor('role_name', {
-        header: 'Role',
+        header: dictionary?.role,
         cell: ({ row }) => <Typography variant='h6'>{row.original.role_name}</Typography>
       }),
 
       columnHelper.accessor('is_enable', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
@@ -146,16 +175,25 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
                     component: (
                       <ConfirmAlert
                         id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={'Do you want to change account operator status'}
-                        content1={`Change this ${row.original.operator_name} operator status?`}
-                        onClick={() => {}}
+                        title={dictionary?.changeStatus}
+                        // content1={`Change this ${row.original.operator_name} operator status?`}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.operator_name)
+                            .replace('{{key}}', 'operator') ??
+                          `Change this ${row.original.operator_name} operator status?`
+                        }
+                        onClick={() => {
+                          handleUpdateStatus(row.original.operator_id, !row.original.is_enable)
+                        }}
                       />
                     ),
                     size: 'sm'
                   })
                 }}
+                disabled={pendingUpdate}
               />
-              <Typography>{row.original.is_enable ? 'Enable' : 'Disabled'}</Typography>
+              <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>
           )
         }
@@ -175,7 +213,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
               iconClassName='text-textSecondary'
               options={[
                 {
-                  text: 'Change Email',
+                  text: dictionary?.changeEmail,
                   menuItemProps: {
                     className: 'flex items-center gap-2 text-textSecondary',
                     onClick: () =>
@@ -193,7 +231,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
                   }
                 },
                 {
-                  text: 'Reset Password',
+                  text: dictionary['operator']?.resetPassword,
                   menuItemProps: {
                     className: 'flex items-center gap-2 text-textSecondary',
                     onClick: () =>
@@ -205,7 +243,9 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
                             title={'Confirm Password Reset'}
                             content1={`Are you sure you want to reset the password for ${row.original.email} ?`}
                             content2='The system will send the password reset email to the user’s email address '
-                            onClick={() => {}}
+                            onClick={() => {
+                              handleResetPassword(row.original.email)
+                            }}
                           />
                         ),
                         size: 'sm'
@@ -223,7 +263,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
                       className='no-underline text-textSecondary'
                       onClick={e => e.stopPropagation()}
                     >
-                      Check Log
+                      {dictionary?.checkLog}
                     </Link>
                   )
                 }

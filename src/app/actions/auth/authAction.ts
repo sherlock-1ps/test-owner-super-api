@@ -8,20 +8,31 @@ import { removeCookie, setCookie } from "@/utils/cookieHandler"
 
 export const signIn = async (credentials: any) => {
   try {
-
     const response = await Axios.post('/login', {
       username: credentials.username,
-      password: credentials.password
+      password: credentials.password,
     })
 
-    const { token, refresh_token } = response.data.data;
+    const { token, refresh_token } = response.data.data
+    setCookie("accessToken", token)
+    setCookie("refreshToken", refresh_token)
 
-    setCookie("accessToken", token, 60 * 60 * 24 * 29); // 29 days
-    setCookie("refreshToken", refresh_token, 60 * 60 * 24 * 30); // 30 days
+    return {
+      success: true,
+      code: response.data.code,
+      data: response.data.data,
+    }
+  } catch (error: any) {
+    const status = error?.response?.status ?? 500
+    const code = error?.response?.data?.code ?? 'UNKNOWN'
+    const message = error?.response?.data?.message ?? 'Internal Server Error'
 
-    return response.data
-  } catch (error) {
-    axiosErrorHandler(error, '/login')
+    return {
+      success: false,
+      status,
+      code,
+      message,
+    }
   }
 }
 

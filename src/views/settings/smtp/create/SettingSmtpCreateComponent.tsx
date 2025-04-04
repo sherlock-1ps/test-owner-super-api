@@ -12,28 +12,34 @@ import Grid from '@mui/material/Grid'
 
 import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-
-const smtpSchema = z.object({
-  host: z.string().min(1, 'Host is required'),
-  port: z.string().min(1, 'Port is required'), // Change to `number().positive()` if port should be a number
-  smtp_username: z.string().min(1, 'SMTP Username is required'),
-  password: z.string().min(1, 'Password is required'),
-  sender_name: z.string().min(1, 'Sender Name is required'),
-  sender_email: z.string().email('Invalid email format'),
-  is_enable: z.boolean()
-})
-
-type SmtpFormValues = z.infer<typeof smtpSchema>
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import { useCreateSmtpMutationOption } from '@/queryOptions/smtp/settingSmtpQueryOptions'
+import { toast } from 'react-toastify'
 
 const SettingSmtpCreateComponent = () => {
+  const { dictionary } = useDictionary()
   const router = useRouter()
   const searchParams = useSearchParams()
   const data = searchParams.get('data')
+  const { lang: locale } = useParams()
 
   const smtpData = data ? JSON.parse(decodeURIComponent(data as string)) : null
 
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+
+  const { mutateAsync, isPending: pendingCreateSmtp } = useCreateSmtpMutationOption()
+
+  const smtpSchema = z.object({
+    host: z.string().min(1, dictionary['smtp']?.hostRequired),
+    port: z.string().min(1, dictionary['smtp']?.portRequired),
+    smtp_username: z.string().min(1, dictionary['smtp']?.smtpRequired),
+    password: z.string().min(1, dictionary['smtp']?.passwordRequired),
+    sender_name: z.string().min(1, dictionary['smtp']?.senderRequired),
+    sender_email: z.string().email(dictionary['operator']?.invalidEmail)
+  })
+
+  type SmtpFormValues = z.infer<typeof smtpSchema>
 
   const {
     register,
@@ -54,7 +60,28 @@ const SettingSmtpCreateComponent = () => {
 
   const onSubmit = (data: SmtpFormValues) => {
     console.log('Form Submitted:', data)
-    // API call or mutation here
+    handleCreateSmtp(data)
+  }
+
+  const handleCreateSmtp = async (data: SmtpFormValues) => {
+    try {
+      const result = await mutateAsync({
+        host: data.host,
+        port: data.host,
+        smtp_username: data.smtp_username,
+        password: data.password,
+        sender_name: data.sender_name,
+        sender_email: data.sender_email
+      })
+
+      if (result?.code == 'SUCCESS') {
+        toast.success('Create success!', { autoClose: 3000 })
+        router.push(`/${locale}/settings/smtp`)
+      }
+    } catch (error) {
+      toast.error('Create failed!', { autoClose: 3000 })
+      console.log('errror', error)
+    }
   }
 
   return (
@@ -92,7 +119,7 @@ const SettingSmtpCreateComponent = () => {
                 <Grid item xs={12} sm>
                   <CustomTextField
                     fullWidth
-                    label='SMTP Username'
+                    label={dictionary['smtp']?.smtpUsername}
                     {...register('smtp_username')}
                     error={!!errors.smtp_username}
                     helperText={errors.smtp_username?.message}
@@ -101,7 +128,7 @@ const SettingSmtpCreateComponent = () => {
                 <Grid item xs={12} sm>
                   <CustomTextField
                     fullWidth
-                    label='Password'
+                    label={dictionary?.password}
                     type={isPasswordShown ? 'text' : 'password'}
                     {...register('password')}
                     error={!!errors.password}
@@ -126,7 +153,7 @@ const SettingSmtpCreateComponent = () => {
                 <Grid item xs={12} sm>
                   <CustomTextField
                     fullWidth
-                    label='Sender Name'
+                    label={dictionary['smtp']?.senderName}
                     {...register('sender_name')}
                     error={!!errors.sender_name}
                     helperText={errors.sender_name?.message}
@@ -135,7 +162,7 @@ const SettingSmtpCreateComponent = () => {
                 <Grid item xs={12} sm>
                   <CustomTextField
                     fullWidth
-                    label='From Email Address'
+                    label={dictionary['smtp']?.formEmail}
                     {...register('sender_email')}
                     error={!!errors.sender_email}
                     helperText={errors.sender_email?.message}
@@ -151,10 +178,10 @@ const SettingSmtpCreateComponent = () => {
                     router.back()
                   }}
                 >
-                  Cancel
+                  {dictionary?.cancel}
                 </Button>
-                <Button variant='contained' type='submit'>
-                  {smtpData ? 'Edit SMTP Server' : 'Add SMTP Server'}
+                <Button variant='contained' type='submit' disabled={pendingCreateSmtp}>
+                  {smtpData ? dictionary['smtp']?.editSmtp : dictionary['smtp']?.addNewSmtp}
                 </Button>
               </div>
             </Grid>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { createFaq, fetchFaq, searchFaq } from "@/app/sevices/faq/faq";
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'

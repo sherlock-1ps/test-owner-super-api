@@ -263,7 +263,7 @@ const GroupDepositList = () => {
                                   <ConfirmAlert
                                     id={`alertDialogDeleteGroupDeposit`}
                                     title={'Are you sure to delete'}
-                                    content='delete this group deposit?'
+                                    content1='delete this group deposit?'
                                     onClick={async () => {}}
                                   />
                                 ),

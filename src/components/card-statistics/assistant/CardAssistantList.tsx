@@ -97,7 +97,7 @@ const CardAssistantList = ({ data }: { data: AssistantType }) => {
                         <ConfirmAlert
                           id='alertDialogConfirmDeleteAssistant'
                           title={'Are you sure to delete'}
-                          content={`delete this ${data?.username} assistant ?`}
+                          content1={`delete this ${data?.username} assistant ?`}
                           onClick={() => {
                             // handleDeleteUser(data?.id)
                           }}

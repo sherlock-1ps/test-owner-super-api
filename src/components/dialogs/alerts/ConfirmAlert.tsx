@@ -5,17 +5,20 @@ import Button from '@mui/material/Button'
 import { Grid, Typography } from '@mui/material'
 
 import { useDialog } from '@/hooks/useDialog'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 interface confirmProps {
   title: string
-  content1: string
+  content?: string
+  content1?: string
   content2?: string
   id: string
   onClick: () => void
 }
 
-const ConfirmAlert = ({ id, title, content1, content2, onClick }: confirmProps) => {
+const ConfirmAlert = ({ id, title, content, content1, content2, onClick }: confirmProps) => {
   const { closeDialog } = useDialog()
+  const { dictionary } = useDictionary()
 
   return (
     <Grid container className='flex flex-col' spacing={2}>
@@ -39,7 +42,7 @@ const ConfirmAlert = ({ id, title, content1, content2, onClick }: confirmProps) 
             closeDialog(id)
           }}
         >
-          Cancel
+          {dictionary?.cancel ?? 'Cancel'}
         </Button>
         <Button
           variant='contained'
@@ -47,7 +50,7 @@ const ConfirmAlert = ({ id, title, content1, content2, onClick }: confirmProps) 
             closeDialog(id), onClick()
           }}
         >
-          Confirm
+          {dictionary?.confirm ?? 'Confirm'}
         </Button>
       </Grid>
     </Grid>

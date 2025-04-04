@@ -24,6 +24,7 @@ import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styled Component Imports
 import AppReactDropzone from '@/libs/styles/AppReactDropzone'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 type FileProp = {
   name: string
@@ -46,6 +47,7 @@ const Dropzone = styled(AppReactDropzone)<BoxProps>(({ theme }) => ({
 }))
 
 const ProviderLogo = ({ setFileImg }: any) => {
+  const { dictionary } = useDictionary()
   // States
   const [files, setFiles] = useState<File[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -122,7 +124,9 @@ const ProviderLogo = ({ setFileImg }: any) => {
               <CustomAvatar variant='rounded' skin='light' color='primary'>
                 <i className='tabler-photo' />
               </CustomAvatar>
-              <Typography className='font-bold'>Upload Provider Logo</Typography>
+              <Typography className='font-bold'>
+                {dictionary['provider']?.uploadProviderLogo ?? 'Upload Provider Logo'}
+              </Typography>
               <Typography color='text.disabled'>PNG, WEBP format, Up to 1MB, 200x200px</Typography>
             </div>
           </div>

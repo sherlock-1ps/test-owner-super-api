@@ -2,11 +2,11 @@
 'use client'
 
 import CustomTextField from '@/@core/components/mui/TextField'
+import { AxiosError } from 'axios'
 import {
   Button,
   Card,
   CardContent,
-  Chip,
   Divider,
   FormControlLabel,
   IconButton,
@@ -18,7 +18,6 @@ import {
   StepLabel,
   Stepper
 } from '@mui/material'
-import type { SelectChangeEvent } from '@mui/material/Select'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,7 +34,17 @@ import SelectProviderListTable from './SelectProviderListTable'
 import ConfirmProviderListTable from './ConfirmProviderListTable'
 import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
 import { useDialog } from '@/hooks/useDialog'
-import { useCreateOperatorMutationOption } from '@/queryOptions/operator/operatorQueryOptions'
+import {
+  useConfirmCreateOperatorMutationOption,
+  useCreateOperatorMutationOption,
+  useDeleteDraftOperatorMutationOption,
+  useFetchCountryOperatorQueryOption,
+  useFetchCurrencyOperatorQueryOption,
+  useFetchTimezoneOperatorQueryOption,
+  useUpdateCredentialOperatorMutationOption
+} from '@/queryOptions/operator/operatorQueryOptions'
+import { DataModifyProviderType } from '@/types/operator/operatorTypes'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 const steps = [
   {
@@ -51,6 +60,12 @@ const steps = [
     subtitle: 'Check your summary and confirm'
   }
 ]
+type ProviderCredentialType = {
+  provider_code: string
+  credential_percent?: number
+  selectShare: number | string
+  is_select: boolean
+}
 
 type FormDataType = {
   currency: string
@@ -72,12 +87,11 @@ const CreateProviderComponent = () => {
   const { showDialog } = useDialog()
   const searchParams = useSearchParams()
   const operatorDraft = searchParams.get('operatorDraft')
+  const { dictionary } = useDictionary()
 
   const operatorDraftData = operatorDraft ? JSON.parse(decodeURIComponent(operatorDraft as string)) : null
 
-  console.log('operatorDraftData', operatorDraftData)
-
-  const [activeStep, setActiveStep] = useState(operatorDraftData ? 1 : 0)
+  const [activeStep, setActiveStep] = useState(0)
   const [isShowPassword, setIsShowPassword] = useState({
     isPasswordShown: false,
     isConfirmPasswordShown: false
@@ -86,67 +100,61 @@ const CreateProviderComponent = () => {
     isHolder: true,
     inputValue: ''
   })
-  const [dataTable, setDataTable] = useState([
-    {
-      provider_id: '01d7360a-e8d4-43e5-8780-fb9205b6968c',
-      provider_code: 'pg',
-      provider_name: 'Pocket Game',
-      categories: ['slot', 'casino'],
-      percent_holder: 95,
-      is_enable: true,
-      image: 'https://example.com/image.png',
-      currencies: ['THB', 'USD'],
-      isAll: false
-    },
-    {
-      provider_id: '01d7360a-e8d4-43e5-8780-fb9205b6962c',
-      provider_code: 'spn',
-      provider_name: 'Spinix Game',
-      categories: ['slot', 'casino'],
-      percent_holder: 91,
-      is_enable: true,
-      image: 'https://example.com/image.png',
-      currencies: ['THB', 'USD'],
-      isAll: true
-    }
-  ])
+  const [dataModify, setDataModify] = useState<DataModifyProviderType>({})
+
+  const { data: currencyList, isPending: pendingCurrency } = useFetchCurrencyOperatorQueryOption()
+
+  const { data: timezoneList, isPending: pendingTimezone } = useFetchTimezoneOperatorQueryOption()
+
+  const { data: countryList, isPending: pendingCountry } = useFetchCountryOperatorQueryOption()
 
   const { mutateAsync: createOperator, isPending: pendingCreateOperator } = useCreateOperatorMutationOption()
+  const { mutateAsync: deleteDraftOperator, isPending: pendingDeleteDraft } = useDeleteDraftOperatorMutationOption()
+
+  const { mutateAsync: updateOperatorCredential } = useUpdateCredentialOperatorMutationOption()
+
+  const { mutateAsync: confirmCreateOperator } = useConfirmCreateOperatorMutationOption()
 
   const generateRandomCredential = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase()
   }
+
   const [formValues, setFormValues] = useState<FormDataType>({
-    prefix: operatorDraftData?.operator_prefix || 'TEO',
+    prefix: operatorDraftData?.operator_prefix || '',
     credential: generateRandomCredential(),
-    operatorName: 'erererer',
-    email: 'figma.devonecent@gmail.com',
-    password: '123456',
-    confirmPassword: '123456',
-    currency: 'THB',
-    country: 'th',
-    timezone: 'UTC+7',
-    contract: '',
+    operatorName: operatorDraftData?.operator_prefix || '',
+    email: operatorDraftData?.email || '',
+    password: operatorDraftData?.password || '',
+    confirmPassword: operatorDraftData?.password || '',
+    currency: operatorDraftData?.currency_code || '',
+    country: operatorDraftData?.country_code || '',
+    timezone: operatorDraftData?.timezone || '',
+    contract: operatorDraftData?.contract || '',
     description: '',
-    provider: []
+    provider: {}
   })
 
   const schema = z
     .object({
-      prefix: z.string().min(3, 'Prefix is required'),
-      operatorName: z.string().min(1, 'Operator Name is required'),
-      email: z.string().email('Invalid email').min(1, 'Email is required'),
-      password: z.string().min(6, 'Password must be at least 6 characters'),
-      confirmPassword: z.string().min(6, 'Confirm Password is required'),
-      currency: z.string().min(1, 'Currency is required'),
-      country: z.string().min(1, 'Country is required'),
-      timezone: z.string().min(1, 'Timezone is required'),
+      prefix: z.string().min(3, dictionary['operator']?.prefixRequired ?? 'Prefix is required'),
+      operatorName: z.string().min(1, dictionary['operator']?.operatorRequired ?? 'Operator Name is required'),
+      email: z
+        .string()
+        .email(dictionary['operator']?.invalidEmail ?? 'Invalid email')
+        .min(1, dictionary['operator']?.emailRequired ?? 'Email is required'),
+      password: z.string().min(6, dictionary['operator']?.passwordRequired ?? 'Password must be at least 6 characters'),
+      confirmPassword: z.string().min(6, dictionary['operator']?.confirmPasswordRequired),
+      currency: z.string().min(1, dictionary['operator']?.currencyRequired),
+      country: z.string().min(1, dictionary['operator']?.countryRequired),
+      timezone: z.string().min(1, dictionary['operator']?.timezoneRequired),
       contract: z.string().optional(),
       credential:
-        activeStep >= 1 ? z.string().min(6, 'Credential is required, at least 6 characters') : z.string().optional()
+        activeStep >= 1 ? z.string().min(6, dictionary['operator']?.credentialRequired) : z.string().optional(),
+      description: activeStep >= 1 ? z.string().optional() : z.string().optional(),
+      provider: activeStep >= 1 ? z.any() : z.any()
     })
     .refine(data => data.password === data.confirmPassword, {
-      message: 'Passwords must match',
+      message: dictionary['operator']?.matchPassword,
       path: ['confirmPassword']
     })
   const {
@@ -156,6 +164,7 @@ const CreateProviderComponent = () => {
     trigger,
     setValue, // ✅ Allows setting values dynamically
     getValues,
+    setError,
     formState: { errors }
   } = useForm({
     resolver: zodResolver(schema),
@@ -165,21 +174,46 @@ const CreateProviderComponent = () => {
 
   const handleClickShowPassword = () => setIsShowPassword(show => ({ ...show, isPasswordShown: !show.isPasswordShown }))
 
+  console.log('operatorDraftData', operatorDraftData)
+
+  console.log('dataModify', dataModify)
+
+  console.log('formValues', formValues)
+
   const handleClickShowConfirmPassword = () =>
     setIsShowPassword(show => ({ ...show, isConfirmPasswordShown: !show.isConfirmPasswordShown }))
 
-  // const handleNext = async () => {
-  //   const isValid = await trigger()
+  const handleUpdateProvider = (category: string, index?: number, share?: number, list?: ProviderCredentialType[]) => {
+    setFormValues(prev => {
+      const currentProvider = prev.provider || {}
 
-  //   if (!isValid) return
+      let updatedCategory: ProviderCredentialType[]
 
-  //   setFormValues(getValues())
+      if (list) {
+        updatedCategory = list
+      } else {
+        const categoryList = currentProvider[category] || []
+        updatedCategory = categoryList.map((item: any, idx: number | undefined) => {
+          if (idx === index) {
+            return {
+              ...item,
+              ...(share !== undefined && { selectShare: share })
+            }
+          }
 
-  //   setActiveStep(prevActiveStep => prevActiveStep + 1)
-  //   if (activeStep === steps.length - 1) {
-  //     toast.success('Form Submitted', { autoClose: 3000 })
-  //   }
-  // }
+          return item
+        })
+      }
+
+      return {
+        ...prev,
+        provider: {
+          ...currentProvider,
+          [category]: updatedCategory
+        }
+      }
+    })
+  }
 
   const handleChangeRadio = (event: React.ChangeEvent<HTMLInputElement>) => {
     setStateSetPercent({
@@ -201,46 +235,50 @@ const CreateProviderComponent = () => {
   }
 
   const handleBack = () => {
-    setFormValues(getValues())
-    Object.keys(formValues).forEach(field => {
-      setValue(field as keyof typeof formValues, formValues[field as keyof typeof formValues])
-    })
+    // setFormValues(getValues())
+    // Object.keys(formValues).forEach(field => {
+    //   setValue(field as keyof typeof formValues, formValues[field as keyof typeof formValues])
+    // })
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
-  const handleUpdateProvider = (index: number, key: any) => {
-    console.log(key)
-  }
+  const handleDeleteDraft = async (prefix: string) => {
+    try {
+      const result = await deleteDraftOperator({ operator_prefix: prefix })
 
-  console.log('formValues', formValues)
-
-  const handleChangeSelectedProvider = (
-    category: string = 'slot',
-    id: string = 'aa57c48f-1ef1-407e-baa4-238b7be103d8'
-  ) => {
-    setFormValues(prev => {
-      const updatedCategory =
-        prev.provider?.[category]?.map((item: any) =>
-          item.id === id ? { ...item, isSelected: !item.isSelected } : item
-        ) || []
-
-      return {
-        ...prev,
-        provider: {
-          ...prev.provider,
-          [category]: updatedCategory
-        }
+      if (result?.code == 'SUCCESS') {
+        toast.success('delete draft success!', { autoClose: 3000 })
+        router.back()
       }
-    })
+    } catch (error) {
+      toast.error('delete draft failed!', { autoClose: 3000 })
+      console.log('error', error)
+    }
   }
 
   const handleFormSubmit = async (data: FormDataType) => {
-    const isValid = await trigger()
-
-    if (!isValid) return
-
-    setFormValues(getValues())
     if (activeStep == 0) {
+      const isValid = await trigger()
+
+      if (!isValid) return
+      setFormValues(getValues())
+      if (operatorDraftData) {
+        await handleUpdateOperatorCredential(data)
+      } else {
+        await handleCreateOperatorCrendential(data)
+      }
+    } else if (activeStep == 1) {
+      setValue('provider', formValues.provider)
+      const latestValues = getValues()
+      setFormValues(latestValues)
+      setActiveStep(prevActiveStep => prevActiveStep + 1)
+    } else if (activeStep === steps.length - 1) {
+      await handleConfirmCreateOperatorCredential(data)
+    }
+  }
+
+  const handleCreateOperatorCrendential = async (data: FormDataType) => {
+    try {
       const response = await createOperator({
         operator_prefix: data.prefix,
         email: data.email,
@@ -259,8 +297,10 @@ const CreateProviderComponent = () => {
           (acc, [key, value]) => {
             acc[key] = (value as any[]).map(item => ({
               ...item,
-              isSelected: true
+              selectShare: '',
+              is_select: true
             }))
+
             return acc
           },
           {} as Record<string, any[]>
@@ -271,12 +311,87 @@ const CreateProviderComponent = () => {
           provider: updatedProvider
         }))
       }
+    } catch (error) {
+      console.log('error', error)
 
-      console.log('response', response)
+      const errorCase = error as AxiosError<{ code?: string; message?: string }>
+      if (errorCase.response?.data?.code == 'DUPPLICATE_CREDENTIAL_FAILED') {
+        setError('prefix', {
+          type: 'manual',
+          message: 'This prefix already exists!'
+        })
+        toast.error('duplicate credential!', { autoClose: 3000 })
+      }
     }
+  }
 
-    if (activeStep === steps.length - 1) {
-      toast.success('Form Submitted', { autoClose: 3000 })
+  const handleUpdateOperatorCredential = async (data: FormDataType) => {
+    try {
+      const response = await updateOperatorCredential({
+        operator_prefix: data.prefix,
+        email: data.email,
+        password: data.password,
+        operator_name: data.operatorName,
+        currency_code: data.currency,
+        country_code: data.country,
+        timezone: data.timezone,
+        contract: data.contract
+      })
+
+      if (response?.code == 'SUCCESS') {
+        setActiveStep(prevActiveStep => prevActiveStep + 1)
+
+        const updatedProvider = Object.entries(response?.data?.provider || {}).reduce(
+          (acc, [key, value]) => {
+            acc[key] = (value as any[]).map(item => ({
+              ...item,
+              selectShare: '',
+              is_select: true
+            }))
+
+            return acc
+          },
+          {} as Record<string, any[]>
+        )
+
+        setFormValues(prev => ({
+          ...prev,
+          provider: updatedProvider
+        }))
+      }
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
+
+  const handleConfirmCreateOperatorCredential = async (data: FormDataType) => {
+    try {
+      const resultProvider = Object.values(data?.provider || {})
+        .flat()
+        .filter((p): p is ProviderCredentialType => {
+          return (p as ProviderCredentialType).is_select && Number((p as ProviderCredentialType).selectShare) > 0
+        })
+        .map(p => ({
+          provider_code: p.provider_code,
+          credential_percent: Number(p.selectShare) || 0
+        }))
+
+      const payload = {
+        email: data.email,
+        operator_prefix: data.prefix,
+        credential_prefix: data.credential,
+        currency_code: data.currency,
+        ...(data.description && { description: data.description }),
+        credential_provider: resultProvider
+      }
+
+      const response = await confirmCreateOperator(payload)
+
+      if (response?.code == 'SUCCESS') {
+        toast.success('Create Success', { autoClose: 3000 })
+      }
+    } catch (error) {
+      console.log('error', error)
     }
   }
 
@@ -414,17 +529,39 @@ const CreateProviderComponent = () => {
                 name='currency'
                 control={control}
                 render={({ field }) => (
+                  // <CustomTextField
+                  //   select
+                  //   fullWidth
+                  //   label='Currency'
+                  //   {...register('currency')}
+                  //   {...field}
+                  //   error={!!errors.currency}
+                  //   helperText={errors.currency?.message}
+                  // >
+                  //   <MenuItem value='THB'>THB</MenuItem>
+                  //   <MenuItem value='USD'>USD</MenuItem>
+                  // </CustomTextField>
+
                   <CustomTextField
                     select
                     fullWidth
+                    defaultValue={''}
                     label='Currency'
                     {...register('currency')}
                     {...field}
                     error={!!errors.currency}
                     helperText={errors.currency?.message}
+                    disabled={pendingCurrency}
                   >
-                    <MenuItem value='THB'>THB</MenuItem>
-                    <MenuItem value='USD'>USD</MenuItem>
+                    {currencyList?.code === 'SUCCESS'
+                      ? [
+                          ...currencyList?.data?.currencies_code?.map((item: any, idx: number) => (
+                            <MenuItem value={item} key={idx} className='capitalize'>
+                              {item}
+                            </MenuItem>
+                          ))
+                        ]
+                      : []}
                   </CustomTextField>
                 )}
               />
@@ -434,16 +571,38 @@ const CreateProviderComponent = () => {
                 name='country'
                 control={control}
                 render={({ field }) => (
+                  // <CustomTextField
+                  //   select
+                  //   fullWidth
+                  //   label='Country'
+                  //   {...register('country')}
+                  //   {...field}
+                  //   error={!!errors.country}
+                  //   helperText={errors.country?.message}
+                  // >
+                  //   <MenuItem value='th'>Thailand</MenuItem>
+                  // </CustomTextField>
+
                   <CustomTextField
                     select
                     fullWidth
-                    label='Country'
+                    defaultValue={'all'}
+                    label='Select Country'
                     {...register('country')}
                     {...field}
                     error={!!errors.country}
                     helperText={errors.country?.message}
+                    disabled={pendingCountry}
                   >
-                    <MenuItem value='th'>Thailand</MenuItem>
+                    {countryList?.code === 'SUCCESS'
+                      ? [
+                          ...countryList?.data?.country?.map((item: any, idx: number) => (
+                            <MenuItem value={item} key={idx} className='capitalize'>
+                              {item}
+                            </MenuItem>
+                          ))
+                        ]
+                      : []}
                   </CustomTextField>
                 )}
               />
@@ -454,16 +613,38 @@ const CreateProviderComponent = () => {
                 name='timezone'
                 control={control}
                 render={({ field }) => (
+                  // <CustomTextField
+                  //   select
+                  //   fullWidth
+                  //   label='Timezone'
+                  //   {...register('timezone')}
+                  //   {...field}
+                  //   error={!!errors.timezone}
+                  //   helperText={errors.timezone?.message}
+                  // >
+                  //   <MenuItem value='UTC+7'>UTC+7</MenuItem>
+                  // </CustomTextField>
+
                   <CustomTextField
                     select
                     fullWidth
+                    defaultValue={''}
                     label='Timezone'
                     {...register('timezone')}
                     {...field}
                     error={!!errors.timezone}
                     helperText={errors.timezone?.message}
+                    disabled={pendingTimezone}
                   >
-                    <MenuItem value='UTC+7'>UTC+7</MenuItem>
+                    {timezoneList?.code === 'SUCCESS'
+                      ? [
+                          ...timezoneList?.data?.timezone?.map((item: any, idx: number) => (
+                            <MenuItem value={item} key={idx} className='capitalize'>
+                              {item}
+                            </MenuItem>
+                          ))
+                        ]
+                      : []}
                   </CustomTextField>
                 )}
               />
@@ -482,7 +663,7 @@ const CreateProviderComponent = () => {
                     placeholder=''
                     sx={{ '& .MuiInputBase-root.MuiFilledInput-root': { alignItems: 'baseline' } }}
                     {...register('contract')}
-                    {...field} // ✅ Ensures value and onChange are correctly handled
+                    {...field}
                     error={!!errors.contract}
                     helperText={errors.contract?.message}
                   />
@@ -567,17 +748,24 @@ const CreateProviderComponent = () => {
                   <Button fullWidth variant='contained' disabled={!stateSetPercent.inputValue}>
                     Apply
                   </Button>
-                  <Button
-                    variant='contained'
-                    onClick={() => {
-                      handleChangeSelectedProvider()
-                    }}
-                  >
-                    TEST
-                  </Button>
                 </Grid>
               </Grid>
             </Grid>
+
+            {/* {dataModify &&
+              Object.entries(dataModify).map(([categoryKey, providers]) => (
+                <Grid item xs={12} sm={12} key={categoryKey}>
+                  <Typography variant='h6' className='capitalize'>
+                    {categoryKey} Type
+                  </Typography>
+
+                  <SelectProviderListTable
+                    dataTable={providers}
+                    category={categoryKey}
+                    updateMain={handleUpdateDataModify}
+                  />
+                </Grid>
+              ))} */}
 
             {formValues?.provider &&
               Object.entries(formValues.provider).map(([categoryKey, providers]) => (
@@ -587,10 +775,9 @@ const CreateProviderComponent = () => {
                   </Typography>
 
                   <SelectProviderListTable
-                    handleUpdateProvider={handleUpdateProvider}
-                    handleChangeSelectedProvider={handleChangeSelectedProvider}
                     dataTable={providers}
                     category={categoryKey}
+                    updateMain={handleUpdateProvider}
                   />
                 </Grid>
               ))}
@@ -605,46 +792,46 @@ const CreateProviderComponent = () => {
             <Grid item xs={12} className='flex gap-16'>
               <div className='flex flex-col'>
                 <Typography>Operator Prefix</Typography>
-                <Typography color={'text.primary'}>OPB</Typography>
+                <Typography color={'text.primary'}>{formValues?.prefix}</Typography>
               </div>
               <div className='flex flex-col'>
                 <Typography>Operator Name</Typography>
-                <Typography color={'text.primary'}>ONEPLAYBET</Typography>
+                <Typography color={'text.primary'}>{formValues?.operatorName}</Typography>
               </div>
             </Grid>
             <Grid item xs={12} className='flex gap-16'>
               <div className='flex flex-col'>
                 <Typography>Email Address</Typography>
-                <Typography color={'text.primary'}>Oneplaybet@opb.com</Typography>
+                <Typography color={'text.primary'}>{formValues?.email}</Typography>
               </div>
               <div className='flex flex-col'>
                 <Typography>Password</Typography>
-                <Typography color={'text.primary'}>********</Typography>
+                <Typography color={'text.primary'}>{formValues?.password}</Typography>
               </div>
             </Grid>
             <Grid item xs={12} className='flex gap-16'>
               <div className='flex flex-col'>
                 <Typography>Currency</Typography>
-                <Typography color={'text.primary'}>Thai Baht</Typography>
+                <Typography color={'text.primary'}>{formValues?.currency}</Typography>
               </div>
               <div className='flex flex-col'>
                 <Typography>Country</Typography>
-                <Typography color={'text.primary'}>Thailand</Typography>
+                <Typography color={'text.primary'}>{formValues?.country}</Typography>
               </div>
               <div className='flex flex-col'>
                 <Typography>Timezone</Typography>
-                <Typography color={'text.primary'}>(GMT+7) Bangkok, Ho Chi Minh</Typography>
+                <Typography color={'text.primary'}>{formValues?.timezone}</Typography>
               </div>
             </Grid>
-            <Grid item xs={12}>
-              <div className='flex flex-col'>
-                <Typography>Contract</Typography>
-                <Typography color={'text.primary'}>
-                  Office Name: Thai Tech Solutions Co., Ltd. Address: 123/45 Sukhumvit Road, Khlong Tan, Khlong Toei,
-                  Bangkok 10110, Thailand. Contract: Service Agreement for IT Support (02-111-9999)
-                </Typography>
-              </div>
-            </Grid>
+            {formValues?.contract && (
+              <Grid item xs={12}>
+                <div className='flex flex-col'>
+                  <Typography>Contract</Typography>
+                  <Typography color={'text.primary'}>{formValues.contract}</Typography>
+                </div>
+              </Grid>
+            )}
+
             <Grid item xs={12}>
               <Divider />
             </Grid>
@@ -657,21 +844,38 @@ const CreateProviderComponent = () => {
                 <Typography>Credential Prefix</Typography>
                 <Typography color={'text.primary'}>OBT - G1PX78</Typography>
               </div>
-              <div className='flex flex-col'>
-                <Typography>Description</Typography>
-                <Typography color={'text.primary'}>1st credential of OnePlayBet Operator</Typography>
-              </div>
+              {formValues?.description && (
+                <div className='flex flex-col'>
+                  <Typography>Description</Typography>
+                  <Typography color={'text.primary'}>{formValues.description}</Typography>
+                </div>
+              )}
             </Grid>
 
-            <Grid item xs={12}>
-              <ConfirmProviderListTable />
-            </Grid>
+            {formValues?.provider &&
+              Object.entries(formValues?.provider).map(([categoryKey, providers]) => {
+                const typedProviders = providers as ProviderCredentialType[]
+
+                const filteredProviders = typedProviders.filter(
+                  provider => provider?.is_select === true && provider?.selectShare
+                )
+
+                if (filteredProviders.length === 0) return null
+
+                return (
+                  <Grid item xs={12} sm={12} key={categoryKey}>
+                    <ConfirmProviderListTable dataTable={filteredProviders} category={categoryKey} />
+                  </Grid>
+                )
+              })}
           </>
         )
       default:
         return 'Unknown step'
     }
   }
+
+  console.log('dataModify', dataModify)
 
   const renderTitle = (activeStep: number) => {
     switch (activeStep) {
@@ -753,13 +957,14 @@ const CreateProviderComponent = () => {
                               title={'Are you sure to Discard'}
                               content1={`Discard this Create Operator?`}
                               onClick={() => {
-                                router.back()
+                                handleDeleteDraft(operatorDraftData?.operator_prefix)
                               }}
                             />
                           ),
                           size: 'sm'
                         })
                       }}
+                      disabled={pendingDeleteDraft}
                     >
                       Discard
                     </Button>
@@ -780,6 +985,7 @@ const CreateProviderComponent = () => {
                         type='submit'
                         variant='contained'
                         // onClick={handleNext}
+                        color={activeStep === steps.length - 1 ? 'success' : 'primary'}
                         disabled={pendingCreateOperator}
                         endIcon={
                           activeStep === steps.length - 1 ? (
@@ -789,7 +995,11 @@ const CreateProviderComponent = () => {
                           )
                         }
                       >
-                        {pendingCreateOperator ? 'Loading...' : activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+                        {pendingCreateOperator
+                          ? 'Loading...'
+                          : activeStep === steps.length - 1
+                            ? 'Create Operator'
+                            : 'Next'}
                       </Button>
                     </div>
                   </Grid>

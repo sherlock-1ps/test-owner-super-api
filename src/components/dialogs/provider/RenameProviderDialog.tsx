@@ -6,9 +6,10 @@ import { Divider, Grid, Typography } from '@mui/material'
 
 import { useDialog } from '@/hooks/useDialog'
 import CustomTextField from '@/@core/components/mui/TextField'
-import { updateGameProvider } from '@/app/sevices/provider/provider'
+import { updateGameNameProvider, updateGameProvider } from '@/app/sevices/provider/provider'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 interface confirmProps {
   id: string
@@ -18,11 +19,12 @@ interface confirmProps {
 
 const RenameProviderDialog = ({ id, onClick, data }: confirmProps) => {
   const queryClient = useQueryClient()
+  const { dictionary } = useDictionary()
   const { closeDialog } = useDialog()
   const [inputGameName, setInputGameName] = useState('')
 
   const { mutate, isPending } = useMutation({
-    mutationFn: updateGameProvider,
+    mutationFn: updateGameNameProvider,
 
     onError: (error, _, context) => {
       console.error('Error updating game provider:', error)
@@ -44,14 +46,14 @@ const RenameProviderDialog = ({ id, onClick, data }: confirmProps) => {
   return (
     <Grid container className='flex flex-col gap-2' spacing={2}>
       <Grid item xs={12}>
-        <Typography variant='h5'>Rename</Typography>
+        <Typography variant='h5'>{dictionary?.rename ?? 'Rename'}</Typography>
       </Grid>
       <Divider />
       <Grid item xs={12} className='flex gap-4'>
         <CustomTextField
           fullWidth
           type='text'
-          label='Old Game Name'
+          label={dictionary['provider']?.oldGameName ?? 'Old Game Name'}
           placeholder={''}
           value={data?.game_name}
           disabled
@@ -59,7 +61,7 @@ const RenameProviderDialog = ({ id, onClick, data }: confirmProps) => {
         <CustomTextField
           fullWidth
           type='text'
-          label='New Game Name'
+          label={dictionary['provider']?.newGameName ?? 'New Game Name'}
           placeholder=''
           value={inputGameName}
           onChange={e => {
@@ -75,7 +77,7 @@ const RenameProviderDialog = ({ id, onClick, data }: confirmProps) => {
             closeDialog(id)
           }}
         >
-          Cancel
+          {dictionary?.cancel ?? 'Cancel'}
         </Button>
         <Button
           variant='contained'
@@ -84,7 +86,7 @@ const RenameProviderDialog = ({ id, onClick, data }: confirmProps) => {
           }}
           disabled={!inputGameName || isPending}
         >
-          Confirm
+          {dictionary?.confirm ?? 'Confirm'}
         </Button>
       </Grid>
     </Grid>

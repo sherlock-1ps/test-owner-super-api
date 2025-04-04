@@ -204,7 +204,7 @@ const AdvertisementList = () => {
                                     <ConfirmAlert
                                       id={`alertDialogDeleteNews${index}`}
                                       title={'Are you sure to delete'}
-                                      content='delete this Advertise ?'
+                                      content1='delete this Advertise ?'
                                       onClick={async () => {}}
                                     />
                                   ),
@@ -263,7 +263,7 @@ const AdvertisementList = () => {
                                     <ConfirmAlert
                                       id={`alertDialogDeleteNews${index}`}
                                       title={'Are you sure to delete'}
-                                      content='delete this Advertise ?'
+                                      content1='delete this Advertise ?'
                                       onClick={async () => {}}
                                     />
                                   ),
@@ -322,7 +322,7 @@ const AdvertisementList = () => {
                                     <ConfirmAlert
                                       id={`alertDialogDeleteNews${index}`}
                                       title={'Are you sure to delete'}
-                                      content='delete this Advertise ?'
+                                      content1='delete this Advertise ?'
                                       onClick={async () => {}}
                                     />
                                   ),
@@ -381,7 +381,7 @@ const AdvertisementList = () => {
                                     <ConfirmAlert
                                       id={`alertDialogDeleteNews${index}`}
                                       title={'Are you sure to delete'}
-                                      content='delete this Advertise ?'
+                                      content1='delete this Advertise ?'
                                       onClick={async () => {}}
                                     />
                                   ),

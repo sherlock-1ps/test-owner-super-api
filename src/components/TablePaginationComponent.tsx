@@ -4,11 +4,11 @@ import type { Table } from '@tanstack/react-table'
 
 interface TablePaginationComponentProps<TData> {
   table: Table<TData>
-  count: number
-  page: number
-  pageSize: number
-  onPageChange: (newPage: number) => void
-  onPageSizeChange: (newSize: number) => void
+  count?: number
+  page?: number
+  pageSize?: number
+  onPageChange?: (newPage: number) => void
+  onPageSizeChange?: (newSize: number) => void
 }
 
 const TablePaginationComponent = <TData,>({
@@ -33,13 +33,12 @@ const TablePaginationComponent = <TData,>({
             onChange={e => {
               const newSize = Number(e.target.value)
               // table.setPageSize(newSize)
-              onPageChange(1)
-              onPageSizeChange(newSize) // ✅ Trigger API call for new page size
+              onPageChange?.(1) // ✅ Optional chaining
+              onPageSizeChange?.(newSize) // ✅ Optional chaining
             }}
             className='max-sm:is-full sm:is-[70px]'
           >
             <MenuItem value={1}>1</MenuItem>
-            <MenuItem value={2}>2</MenuItem>
             <MenuItem value={10}>10</MenuItem>
             <MenuItem value={25}>25</MenuItem>
             <MenuItem value={50}>50</MenuItem>
@@ -52,10 +51,9 @@ const TablePaginationComponent = <TData,>({
         color='primary'
         variant='tonal'
         count={count}
-        page={page} // ✅ Adjust for zero-based index
+        page={page}
         onChange={(_, newPage) => {
-          // table.setPageIndex(newPage - 1)
-          onPageChange(newPage) // ✅ Trigger API call for new page
+          onPageChange?.(newPage) // ✅ Only call if defined
         }}
         showFirstButton
         showLastButton

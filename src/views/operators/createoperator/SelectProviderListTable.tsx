@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 // React Imports
@@ -61,6 +62,7 @@ import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import GameCredentialProviderDialog from '@/components/dialogs/operators/GameCredentialProviderDialog'
+import type { ProviderCredentialType } from '@/types/operator/operatorTypes'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -69,19 +71,6 @@ declare module '@tanstack/table-core' {
   interface FilterMeta {
     itemRank: RankingInfo
   }
-}
-
-type ProviderType = {
-  id: string
-  provider_id: string
-  provider_code: string
-  provider_name: string
-  categories: string[]
-  percent_holder: number
-  is_enable: boolean
-  image: string
-  currencies: string[]
-  isSelected?: boolean
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -98,20 +87,65 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 }
 
 // Column Definitions
-const columnHelper = createColumnHelper<ProviderType>()
+const columnHelper = createColumnHelper<ProviderCredentialType>()
 
-const SelectProviderListTable = ({ dataTable, handleUpdateProvider, handleChangeSelectedProvider, category }: any) => {
+const SelectProviderListTable = ({ dataTable, category, updateMain }: any) => {
   const { showDialog } = useDialog()
   // States
-  const [rowSelection, setRowSelection] = useState({})
+  const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({})
   const [data, setData] = useState(...[dataTable])
+  const [dataModify, setDataModify] = useState<ProviderCredentialType[]>(...[dataTable])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [percentCredential, setPercentCredential] = useState('10')
 
   // Hooks
   const { lang: locale } = useParams()
 
-  const columns = useMemo<ColumnDef<ProviderType, any>[]>(
+  const handleChangeShareCredential = (share: string, index: number) => {
+    const updatedData = [...dataModify]
+    const percentHolder = data[index]?.percent_holder || 0
+
+    if (Number(percentHolder) <= Number(share)) {
+      updatedData[index] = {
+        ...updatedData[index],
+        selectShare: Number(percentHolder)
+      }
+      updateMain(category, index, Number(percentHolder), undefined)
+    } else {
+      updatedData[index] = {
+        ...updatedData[index],
+        selectShare: Number(share)
+      }
+      updateMain(category, index, Number(share), undefined)
+    }
+    setDataModify(updatedData)
+  }
+
+  useEffect(() => {
+    if (rowSelection) {
+      const updateData = dataModify.map((item, index) => ({
+        ...item,
+        is_select: Boolean(rowSelection[index])
+      }))
+      setDataModify(updateData)
+      updateMain(category, undefined, undefined, updateData)
+    }
+  }, [rowSelection])
+
+  useEffect(() => {
+    if (data) {
+      const defaultSelection = data.reduce((acc: Record<number, boolean>, item: { is_select: any }, index: number) => {
+        if (item.is_select) {
+          acc[index] = true
+        }
+
+        return acc
+      }, {})
+
+      setRowSelection(defaultSelection)
+    }
+  }, [data])
+
+  const columns = useMemo<ColumnDef<ProviderCredentialType, any>[]>(
     () => [
       {
         id: 'select',
@@ -172,32 +206,22 @@ const SelectProviderListTable = ({ dataTable, handleUpdateProvider, handleChange
         header: 'Credential %',
         enableSorting: false,
         cell: ({ row }) => {
-          const [value, setValue] = useState(percentCredential || '0')
-
-          const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-            let newValue = Number(event.target.value)
-
-            if (newValue > row.original.percent_holder) {
-              newValue = row.original.percent_holder // Restrict max value
-            }
-
-            setValue(newValue.toString())
-            setPercentCredential(newValue.toString())
-          }
-
-          return (
-            <CustomTextField
-              type='number'
-              label=''
-              className='min-w-[122px]'
-              value={value}
-              onChange={handleChange}
-              inputProps={{
-                min: 0,
-                max: row.original.percent_holder // Max limit
-              }}
-            />
-          )
+          return
+          // (
+          //   <CustomTextField
+          //     type='number'
+          //     label=''
+          //     className='min-w-[122px]'
+          //     onChange={e => {
+          //       handleChangeShareCredential(e.target.value, row.index)
+          //     }}
+          //     value={dataModify[row.index]?.selectShare}
+          //     inputProps={{
+          //       min: 0,
+          //       max: row.original.percent_holder // Max limit
+          //     }}
+          //   />
+          // )
         }
       })
     ],
@@ -205,7 +229,7 @@ const SelectProviderListTable = ({ dataTable, handleUpdateProvider, handleChange
     [data]
   )
 
-  const table = useReactTable<ProviderType>({
+  const table = useReactTable<ProviderCredentialType>({
     data: data,
     columns,
     filterFns: {
@@ -291,8 +315,19 @@ const SelectProviderListTable = ({ dataTable, handleUpdateProvider, handleChange
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           {index == 3 && (
                             <Typography variant='h6'>
-                              {row.original.percent_holder - Number(percentCredential)}%
+                              {row.original.percent_holder - Number(dataModify[row.index]?.selectShare)}%
                             </Typography>
+                          )}
+                          {index == 4 && dataModify[row.index]?.is_select && (
+                            <CustomTextField
+                              type='number'
+                              label=''
+                              className='min-w-[122px]'
+                              onChange={e => {
+                                handleChangeShareCredential(e.target.value, row.index)
+                              }}
+                              value={dataModify[row.index]?.selectShare || ''}
+                            />
                           )}
                         </td>
                       ))}

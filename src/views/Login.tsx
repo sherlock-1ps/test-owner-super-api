@@ -47,6 +47,8 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import Axios from '@/libs/axios/axios'
 import { signIn } from '@/app/actions/auth/authAction'
 import { useAuthStore } from '@/store/authStore'
+import { fetchProfile } from '@/app/sevices/profile/profile'
+import { toast } from 'react-toastify'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -77,6 +79,7 @@ const MaskImg = styled('img')({
 })
 
 type ErrorType = {
+  code?: string
   message: string[]
 }
 
@@ -121,6 +124,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     control,
@@ -145,53 +149,36 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-    const ip = await getPublicIP()
-    console.log('ip', ip)
-
+    setIsLoading(true)
     const res = await signIn(data)
 
-    if (res.code == 'SUCCESS') {
+    if (res?.code == 'SUCCESS') {
       useAuthStore.getState().setTokens(res.data.token, res.data.refresh_token)
-      // Vars
-
-      const redirectURL = searchParams.get('redirectTo') ?? '/'
-      router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+      const resultProfile = await fetchProfile()
+      console.log('resultProfile', resultProfile?.data)
+      if (resultProfile?.data?.is_first_login) {
+        router.push(`/${locale}/setnewpassword?owner=${resultProfile?.data?.owner_id}`)
+      } else {
+        useAuthStore.getState().setProfile(resultProfile.data)
+        const redirectURL = searchParams.get('redirectTo') ?? '/'
+        router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+      }
     } else {
-      if (res?.error) {
-        const error = JSON.parse(res.error)
-        setErrorState(error)
+      if (res?.code == 'INVALID_PASSWORD') {
+        toast.error('Invalid password!', { autoClose: 3000 })
+        setErrorState({ message: ['Invalid password'] })
+      } else if (res?.code == 'UNKNOWN') {
+        toast.error('Internal Server Error!', { autoClose: 3000 })
+        setErrorState({ message: ['Internal Server Error, please try again!'] })
+      } else if (res?.code == 'USER_NOT_FOUND') {
+        toast.error('User not found!', { autoClose: 3000 })
+        setErrorState({ message: ['User not found!'] })
       }
     }
 
-    // const res = await signIn('credentials', {
-    //   email: data.email,
-    //   password: data.password,
-    //   redirect: false
-    // })
-    // if (res && res.ok && res.error === null) {
-    //   // Vars
-    //   const redirectURL = searchParams.get('redirectTo') ?? '/'
-    //   router.replace(getLocalizedUrl(redirectURL, locale as Locale))
-    // } else {
-    //   if (res?.error) {
-    //     const error = JSON.parse(res.error)
-    //     setErrorState(error)
-    //   }
-    // }
-  }
-
-  const getPublicIP = async () => {
-    try {
-      const res = await fetch('https://api64.ipify.org?format=json')
-
-      const data = await res.json()
-
-      return data.ip
-    } catch (error) {
-      console.error('Failed to fetch IP:', error)
-
-      return null
-    }
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
   }
 
   return (
@@ -278,7 +265,10 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                       </InputAdornment>
                     )
                   }}
-                  {...(errors.password && { error: true, helperText: errors.password.message })}
+                  {...((errors.password || errorState !== null) && {
+                    error: true,
+                    helperText: errors.password?.message ?? ''
+                  })}
                 />
               )}
             />
@@ -293,8 +283,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                 Forgot password?
               </Typography>
             </div>
-            <Button fullWidth variant='contained' type='submit'>
-              Login
+            <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
+              {isLoading ? 'Loading...' : 'Login'}
             </Button>
             {/* <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>New on our platform?</Typography>

@@ -10,6 +10,7 @@ const PermissionList = () => {
   const handleButtonClick = (module: string) => {
     setSelectedModule(module)
   }
+
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} sm={3} className='flex flex-col gap-2'>

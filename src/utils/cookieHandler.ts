@@ -1,12 +1,15 @@
 import { cookies } from "next/headers";
 
-// Function to set a cookie
-export const setCookie = (name: string, value: string, maxAge: number) => {
+
+
+const HUNDRED_YEARS_IN_SECONDS = 60 * 60 * 24 * 365 * 100; // 100 years
+
+export const setCookie = (name: string, value: string, maxAge?: number) => {
   const cookieStore = cookies();
   cookieStore.set(name, value, {
     httpOnly: true,
-    secure: process.env.NEXT_PUBLIC_ENVIRONMENT === "prod", // Secure only in production
-    maxAge,
+    secure: process.env.NEXT_PUBLIC_ENVIRONMENT === "prod",
+    maxAge: maxAge ?? HUNDRED_YEARS_IN_SECONDS,
     path: "/",
   });
 };

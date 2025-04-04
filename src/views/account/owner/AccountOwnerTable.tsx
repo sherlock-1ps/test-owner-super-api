@@ -61,8 +61,12 @@ import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
-import { useResetPasswordAccountOwnerMutationOption } from '@/queryOptions/account/accountQueryOptions'
+import {
+  useResetPasswordAccountOwnerMutationOption,
+  useUpdateStatusAccountOwnerMutationOption
+} from '@/queryOptions/account/accountQueryOptions'
 import { toast } from 'react-toastify'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -73,13 +77,19 @@ declare module '@tanstack/table-core' {
   }
 }
 
-type AccountOwnerType = {
-  owner_id: string
-  username: string
+type Role = {
   role_id: string
   role_name: string
+}
+
+type OwnerAccountType = {
+  owner_id: string
+  username: string
+  role: Role
+  permission: any[] | null
+  is_owner: boolean
   is_enable: boolean
-  update_at: Date
+  is_first_login: boolean
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -96,10 +106,11 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 }
 
 // Column Definitions
-const columnHelper = createColumnHelper<AccountOwnerType>()
+const columnHelper = createColumnHelper<OwnerAccountType>()
 
-const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
+const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdateStatus }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -107,9 +118,23 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
   // Hooks
   const { lang: locale } = useParams()
 
-  const { mutate: resetPasswordAccountOwner } = useResetPasswordAccountOwnerMutationOption()
+  const { mutateAsync: resetPasswordAccountOwner } = useResetPasswordAccountOwnerMutationOption()
 
-  const columns = useMemo<ColumnDef<AccountOwnerType, any>[]>(
+  const { mutate, isPending } = useUpdateStatusAccountOwnerMutationOption(onUpdateStatus)
+
+  const handleResetPassword = async () => {
+    try {
+      const result = await resetPasswordAccountOwner()
+      if (result?.code == 'SUCCESS') {
+        toast.success(dictionary['account']?.resetSuccess, { autoClose: 3000 })
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('reset filed', { autoClose: 3000 })
+    }
+  }
+
+  const columns = useMemo<ColumnDef<OwnerAccountType, any>[]>(
     () => [
       columnHelper.display({
         id: 'id',
@@ -118,7 +143,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
       }),
 
       columnHelper.accessor('username', {
-        header: 'Username',
+        header: dictionary?.username,
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -126,41 +151,48 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
           </div>
         )
       }),
-      columnHelper.accessor('role_name', {
-        header: 'Role',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.role_name}</Typography>
+      columnHelper.accessor('role.role_name', {
+        header: dictionary?.role,
+        cell: ({ row }) => <Typography variant='h6'>{row.original.role.role_name}</Typography>
       }),
 
       columnHelper.accessor('is_enable', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
+                disabled={isPending}
                 onChange={() => {
                   showDialog({
                     id: 'alertDialogConfirmResetPasswordCreateOperator',
                     component: (
                       <ConfirmAlert
                         id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={'Do you want to change operator status'}
-                        content1={`Change this operator status?`}
-                        onClick={() => {}}
+                        title={dictionary?.changeStatus}
+                        content1={
+                          dictionary?.changeStatusWithName
+                            ?.replace('{{name}}', row.original.username)
+                            .replace('{{key}}', 'operator') ?? `Change this ${row.original.username} operator status?`
+                        }
+                        onClick={() => {
+                          mutate({ owner_id: row.original.owner_id, is_enable: !row.original.is_enable })
+                        }}
                       />
                     ),
                     size: 'sm'
                   })
                 }}
               />
-              <Typography>Enable</Typography>
+              <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>
           )
         }
       }),
-      columnHelper.accessor('update_at', {
+      columnHelper.accessor('is_first_login', {
         header: 'Date Last Login',
-        cell: ({ row }) => <Typography variant='h6'>last login</Typography>
+        cell: ({ row }) => <Typography variant='h6'>ererer</Typography>
       }),
 
       columnHelper.display({
@@ -172,7 +204,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
               iconClassName='text-textSecondary'
               options={[
                 {
-                  text: 'Change Role',
+                  text: dictionary['account']?.changeRole,
                   menuItemProps: {
                     className: 'flex items-center gap-2 text-textSecondary',
                     onClick: () =>
@@ -186,7 +218,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
                   }
                 },
                 {
-                  text: 'Force Reset Password',
+                  text: dictionary['account']?.forceReset,
                   menuItemProps: {
                     className: 'flex items-center gap-2 text-textSecondary',
                     onClick: () =>
@@ -195,12 +227,15 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
                         component: (
                           <ConfirmAlert
                             id='alertDialogConfirmResetPasswordCreateOperator'
-                            title={'Confirm Password Reset'}
-                            content1={`Are you sure you want to force reset the password for ${row.original.username} ?`}
-                            content2='The system will generate a new password. Please provide it to the user for login, and they must change it immediately upon first login.'
+                            title={dictionary['operator']?.passwordReset}
+                            // content1={`Are you sure you want to force reset the password for ${row.original.username} ?`}
+                            content1={
+                              dictionary['account']?.resetPasswordTitle?.replace('{{name}}', row.original.username) ??
+                              `Are you sure you want to force reset the password for ${row.original.username} ?`
+                            }
+                            content2={dictionary['account']?.resetPasswordDetail}
                             onClick={() => {
-                              resetPasswordAccountOwner({ owner_id: row.original.owner_id })
-                              toast.success('Reset Success', { autoClose: 3000 })
+                              handleResetPassword()
                             }}
                           />
                         ),
@@ -219,7 +254,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
                       className='no-underline text-textSecondary'
                       onClick={e => e.stopPropagation()}
                     >
-                      Check Log
+                      {dictionary?.checkLog}
                     </Link>
                   )
                 }
@@ -235,7 +270,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
   )
 
   const table = useReactTable({
-    data: data.list as AccountOwnerType[],
+    data: data.list as OwnerAccountType[],
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -245,9 +280,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
       globalFilter
     },
     initialState: {
-      pagination: {
-        pageSize: 10
-      }
+      pagination: {}
     },
     enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
@@ -303,7 +336,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize }: any) 
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

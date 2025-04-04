@@ -21,6 +21,8 @@ import {
 import { useParams, useRouter } from 'next/navigation'
 import { useCreateAccountOwnerMutationOption } from '@/queryOptions/account/accountQueryOptions'
 import { toast } from 'react-toastify'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import { useFetchConfigRoleQueryOption } from '@/queryOptions/config/configQueryOptions'
 
 // Zod Schema for Validation
 const accountSchema = z
@@ -43,6 +45,7 @@ const accountSchema = z
 const AccountCreateOwnerComponent = () => {
   const router = useRouter()
   const { lang: locale } = useParams()
+  const { dictionary } = useDictionary()
 
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
@@ -62,7 +65,9 @@ const AccountCreateOwnerComponent = () => {
     }
   })
 
-  const { mutateAsync } = useCreateAccountOwnerMutationOption()
+  const { data: roleListData, isPending: pendingRole } = useFetchConfigRoleQueryOption()
+
+  const { mutateAsync, isPending: pendingCreate } = useCreateAccountOwnerMutationOption()
 
   const passwordValue = watch('password', '')
 
@@ -77,12 +82,12 @@ const AccountCreateOwnerComponent = () => {
       const response = await mutateAsync({
         username: data.username,
         password: data.password,
-        role_id: data.role_id
+        role_id: data.role
       })
-
-      toast.success('Account created successfully!', { autoClose: 3000 })
-
-      console.log('Account Created:', response)
+      if (response?.code == 'SUCCESS') {
+        toast.success('Account created successfully!', { autoClose: 3000 })
+        router.push(`/${locale}/account/owner`)
+      }
     } catch (error) {
       toast.error('create account error!', { autoClose: 3000 })
       console.error('Error Creating Account:', error)
@@ -95,7 +100,7 @@ const AccountCreateOwnerComponent = () => {
         <Grid container className='flex flex-col gap-6'>
           <Grid item xs={12} sm className='flex gap-2 justify-between'>
             <Typography variant='h5' className=' text-nowrap'>
-              Create Account
+              {dictionary['account']?.createOwner}
             </Typography>
           </Grid>
           <Divider />
@@ -104,7 +109,7 @@ const AccountCreateOwnerComponent = () => {
               <Grid item xs={12} sm>
                 <CustomTextField
                   fullWidth
-                  label='Username'
+                  label={dictionary?.username}
                   {...register('username')}
                   error={!!errors.username}
                   helperText={errors.username?.message}
@@ -117,20 +122,25 @@ const AccountCreateOwnerComponent = () => {
                   {...register('role')}
                   error={!!errors.role}
                   helperText={errors.role?.message}
-                  label='Select Role'
+                  label={dictionary['account']?.selectRole}
+                  disabled={pendingRole}
                 >
-                  <MenuItem value=''>
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value='admin'>Admin</MenuItem>
-                  <MenuItem value='user'>User</MenuItem>
+                  {roleListData?.code === 'SUCCESS'
+                    ? [
+                        ...roleListData?.data.map((item: any, idx: number) => (
+                          <MenuItem value={item?.role_id} key={idx} className='capitalize'>
+                            {item?.role_name}
+                          </MenuItem>
+                        ))
+                      ]
+                    : [<MenuItem value='' key='all'></MenuItem>]}
                 </CustomTextField>
               </Grid>
               <Grid container alignItems='start' className='flex gap-6'>
                 <Grid item xs={12} sm>
                   <CustomTextField
                     fullWidth
-                    label='Password'
+                    label={dictionary?.password}
                     type={isPasswordShown ? 'text' : 'password'}
                     {...register('password')}
                     error={!!errors.password}
@@ -153,7 +163,7 @@ const AccountCreateOwnerComponent = () => {
                 <Grid item xs={12} sm>
                   <CustomTextField
                     fullWidth
-                    label='Confirm Password'
+                    label={dictionary?.confirmPassword}
                     type={isConfirmPasswordShown ? 'text' : 'password'}
                     {...register('confirmPassword')}
                     error={!!errors.confirmPassword}
@@ -176,20 +186,20 @@ const AccountCreateOwnerComponent = () => {
               </Grid>
               <Grid item xs={12}>
                 <Typography variant='body2' className='text-warning'>
-                  Password must be at least 8 characters and contain a mix of letters, numbers, and special characters
+                  {dictionary['account']?.validatePasswordDetail}
                 </Typography>
               </Grid>
 
               <Grid item xs={12} sm={8}>
                 <div className='flex flex-col gap-2'>
                   <Typography className={isMinLength ? 'text-primary' : 'text-secondary'}>
-                    {isMinLength ? '✅' : '❌'} At least 8 characters
+                    {isMinLength ? '✅' : '❌'} {dictionary['account']?.validatePassword1}
                   </Typography>
                   <Typography className={hasNumber ? 'text-primary' : 'text-secondary'}>
-                    {hasNumber ? '✅' : '❌'} At least one number
+                    {hasNumber ? '✅' : '❌'} {dictionary['account']?.validatePassword2}
                   </Typography>
                   <Typography className={hasSpecialChar ? 'text-primary' : 'text-secondary'}>
-                    {hasSpecialChar ? '✅' : '❌'} At least one special character (!, @, #, etc.)
+                    {hasSpecialChar ? '✅' : '❌'} {dictionary['account']?.validatePassword3}
                   </Typography>
                 </div>
               </Grid>
@@ -202,10 +212,10 @@ const AccountCreateOwnerComponent = () => {
                     router.back()
                   }}
                 >
-                  Cancel
+                  {dictionary?.cancel}
                 </Button>
-                <Button variant='contained' type='submit'>
-                  Create Account
+                <Button variant='contained' type='submit' disabled={pendingCreate}>
+                  {dictionary['account']?.createOwner}
                 </Button>
               </div>
             </Grid>
