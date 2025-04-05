@@ -146,22 +146,37 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize, handleR
           </div>
         )
       }),
-      columnHelper.accessor('image', {
-        header: dictionary?.logo ?? 'Logo',
-        cell: ({ row }) => <img src={row.original.image} width={32} alt='providerImg' className=' rounded' />
-      }),
       columnHelper.accessor('category_code', {
         header: dictionary?.type ?? 'Type',
-        cell: ({ row }) => (
-          <div className='flex gap-1'>
-            <Chip
-              label={row.original.category_code}
-              variant='filled'
-              size='small'
-              className={`self-start rounded-sm text-white capitalize bg-${row.original.category_code}`}
-            />
-          </div>
-        )
+        cell: ({ row }) => {
+          const category = row.original.category_code
+
+          const getCategoryClass = (category: string) => {
+            switch (category) {
+              case 'slot':
+                return 'bg-slot'
+              case 'casino':
+                return 'bg-casino'
+              case 'sport':
+                return 'bg-sport'
+              case 'lottery':
+                return 'bg-lotto'
+              default:
+                return 'bg-gray-400'
+            }
+          }
+
+          return (
+            <div className='flex gap-1'>
+              <Chip
+                label={category}
+                variant='filled'
+                size='small'
+                className={`self-start rounded-sm text-white capitalize ${getCategoryClass(category)}`}
+              />
+            </div>
+          )
+        }
       }),
 
       columnHelper.accessor('currencies_code', {

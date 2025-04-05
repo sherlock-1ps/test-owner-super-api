@@ -34,10 +34,17 @@ export const metadata = {
 }
 
 const RootLayout = async ({ children, params }: ChildrenType & { params: { lang: Locale } }) => {
-  // Vars
   const headersList = headers()
-  const direction = i18n.langDirection[params.lang]
-  const dictionary = await getDictionary(params.lang)
+  // Vars
+  const { lang } = params
+
+  // Validate lang
+  if (!i18n.locales.includes(lang)) {
+    return
+  }
+
+  const direction = i18n.langDirection[lang]
+  const dictionary = await getDictionary(lang)
 
   return (
     <TranslationWrapper headersList={headersList} lang={params.lang}>

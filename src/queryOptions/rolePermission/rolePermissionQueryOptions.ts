@@ -1,4 +1,4 @@
-import { fetchRoleList, searchRoleList } from "@/app/sevices/rolePermission/rolePermission";
+import { fetchPermission, fetchRoleList, searchRoleList } from "@/app/sevices/rolePermission/rolePermission";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useFetchRoleListQueryOption(page: number, pageSize: number) {
@@ -19,3 +19,11 @@ export const useSearchRoleListMutationOption = () => {
 
   });
 };
+
+export function useFetchPermissionQueryOption() {
+
+  return useQuery({
+    queryKey: ['permissionList'],
+    queryFn: fetchPermission
+  });
+}

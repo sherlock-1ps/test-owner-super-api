@@ -131,12 +131,12 @@ export const updateStatusOperator = async (payload: UpdateStatusOperatorPayload)
   try {
 
 
-    const response = await Axios.patch("/operator/credential/update/status", payload);
+    const response = await Axios.patch("/operator/update/status", payload);
 
     return response.data;
   } catch (error) {
     console.error("Error updating status operator:", error);
-    axiosErrorHandler(error, "/operator/credential/update/status");
+    axiosErrorHandler(error, "/operator/update/status");
 
     throw error;
   }

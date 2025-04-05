@@ -167,7 +167,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
           )
         }
       }),
-      columnHelper.accessor('member', {
+      columnHelper.accessor('parent_role_id', {
         header: 'Date Last Login',
         cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
       }),

@@ -39,3 +39,19 @@ export const searchRoleList = async ({ page, pageSize, role_name }: { page: numb
   }
 
 };
+
+export const fetchPermission = async () => {
+  try {
+    const response = await Axios.get("/role/permission/getList");
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error fetch permission:", error);
+
+    axiosErrorHandler(error, '/role/permission/getList')
+    throw error;
+
+  }
+
+};
