@@ -54,8 +54,8 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: 'Super API Oneplaybet',
-  homePageUrl: '/dashboard/finance',
+  templateName: 'Super API Owner Oneplaybet',
+  homePageUrl: '/providers',
   settingsCookieName: 'vuexy-mui-next-demo-1',
   mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'

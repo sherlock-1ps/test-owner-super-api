@@ -6,13 +6,13 @@ const nextConfig = {
     return [
       {
         source: '/',
-        destination: '/th/dashboard/finance',
+        destination: '/th/providers',
         permanent: true,
         locale: false
       },
       {
         source: '/:lang(th|en|fr|ar)',
-        destination: '/:lang/dashboard/finance',
+        destination: '/:lang/providers',
         permanent: true,
         locale: false
       },

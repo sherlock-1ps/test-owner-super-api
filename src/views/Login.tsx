@@ -67,7 +67,9 @@ const LoginIllustration = styled('img')(({ theme }) => ({
   }
 }))
 
-const imageArray = ['/images/login/loginImage.png', '/images/login/login2Image.png', '/images/login/login3Image.png']
+// const imageArray = ['/images/login/loginImage.png', '/images/login/login2Image.png', '/images/login/login3Image.png']
+
+const imageArray = ['/images/login/loginImage.png']
 
 const MaskImg = styled('img')({
   blockSize: 'auto',
@@ -195,98 +197,100 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
         {!hidden && <MaskImg alt='mask' src={authBackground} />}
       </div>
-      <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
-        <div className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
-          <Logo />
-        </div>
-        <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
-          <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</Typography>
-            <Typography>Please login to your account.</Typography>
+      <div className='flex flex-1 bg-backgroundPaper items-center justify-center relative'>
+        <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
+          <div className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
+            <Logo />
           </div>
-          <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
-            <Typography variant='body2' color='primary'>
-              Username: <span className='font-medium'>owneruser</span> / Pass:{' '}
-              <span className='font-medium'>123456</span>
-            </Typography>
-          </Alert>
-          <form
-            noValidate
-            autoComplete='off'
-            action={() => {}}
-            onSubmit={handleSubmit(onSubmit)}
-            className='flex flex-col gap-6'
-          >
-            <Controller
-              name='username'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <CustomTextField
-                  {...field}
-                  autoFocus
-                  fullWidth
-                  type='username'
-                  label='Username'
-                  placeholder='Enter your username'
-                  onChange={e => {
-                    field.onChange(e.target.value)
-                    errorState !== null && setErrorState(null)
-                  }}
-                  {...((errors.username || errorState !== null) && {
-                    error: true,
-                    helperText: errors?.username?.message || errorState?.message[0]
-                  })}
-                />
-              )}
-            />
-            <Controller
-              name='password'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <CustomTextField
-                  {...field}
-                  fullWidth
-                  label='Password'
-                  placeholder='············'
-                  id='login-password'
-                  type={isPasswordShown ? 'text' : 'password'}
-                  onChange={e => {
-                    field.onChange(e.target.value)
-                    errorState !== null && setErrorState(null)
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={e => e.preventDefault()}>
-                          <i className={isPasswordShown ? 'tabler-eye' : 'tabler-eye-off'} />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                  {...((errors.password || errorState !== null) && {
-                    error: true,
-                    helperText: errors.password?.message ?? ''
-                  })}
-                />
-              )}
-            />
-            <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-              <FormControlLabel control={<Checkbox defaultChecked />} label='Remember me' />
-              <Typography
-                className='text-end'
-                color='primary'
-                component={Link}
-                href={getLocalizedUrl('/forgot-password', locale as Locale)}
-              >
-                Forgot password?
-              </Typography>
+          <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
+            <div className='flex flex-col gap-1'>
+              <Typography variant='h4'>{`${themeConfig.templateName}!`}</Typography>
+              <Typography>Please login to your account.</Typography>
             </div>
-            <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
-              {isLoading ? 'Loading...' : 'Login'}
-            </Button>
-            {/* <div className='flex justify-center items-center flex-wrap gap-2'>
+            <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
+              <Typography variant='body2' color='primary'>
+                Username: <span className='font-medium'>owneruser</span> / Pass:{' '}
+                <span className='font-medium'>123456</span>
+              </Typography>
+            </Alert>
+            <form
+              noValidate
+              autoComplete='off'
+              action={() => {}}
+              onSubmit={handleSubmit(onSubmit)}
+              className='flex flex-col gap-6'
+            >
+              <Controller
+                name='username'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    autoFocus
+                    fullWidth
+                    type='username'
+                    label='Username'
+                    placeholder='Enter your username'
+                    onChange={e => {
+                      field.onChange(e.target.value)
+                      errorState !== null && setErrorState(null)
+                    }}
+                    {...((errors.username || errorState !== null) && {
+                      error: true,
+                      helperText: errors?.username?.message || errorState?.message[0]
+                    })}
+                  />
+                )}
+              />
+              <Controller
+                name='password'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    label='Password'
+                    placeholder='············'
+                    id='login-password'
+                    type={isPasswordShown ? 'text' : 'password'}
+                    onChange={e => {
+                      field.onChange(e.target.value)
+                      errorState !== null && setErrorState(null)
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onClick={handleClickShowPassword}
+                            onMouseDown={e => e.preventDefault()}
+                          >
+                            <i className={isPasswordShown ? 'tabler-eye' : 'tabler-eye-off'} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                    {...(errors.password && { error: true, helperText: errors.password.message })}
+                  />
+                )}
+              />
+              <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
+                <FormControlLabel control={<Checkbox defaultChecked />} label='Remember me' />
+                {/* <Typography
+                  className='text-end'
+                  color='primary'
+                  component={Link}
+                  href={getLocalizedUrl('/forgot-password', locale as Locale)}
+                >
+                  Forgot password?
+                </Typography> */}
+              </div>
+              <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
+                {isLoading ? 'Loading...' : 'Login'}
+              </Button>
+              {/* <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>New on our platform?</Typography>
               <Typography component={Link} href={getLocalizedUrl('/register', locale as Locale)} color='primary'>
                 Create an account
@@ -302,7 +306,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
             >
               Sign in with Google
             </Button> */}
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
