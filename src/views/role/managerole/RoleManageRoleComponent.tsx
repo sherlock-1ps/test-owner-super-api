@@ -7,21 +7,31 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Card, CardContent, Divider, Grid, Typography } from '@mui/material'
 import CustomTextField from '@/@core/components/mui/TextField'
 import PermissionList from './PermissionList'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useCreateRoleMutationOption } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
+import { toast } from 'react-toastify'
+import PermissionListEdit from './PermissionListEdit'
 
 const RoleManageRoleComponent = () => {
   const router = useRouter()
   const { lang: locale } = useParams()
+  const searchParams = useSearchParams()
+  const role = searchParams.get('role')
+
+  const roleResult = role ? JSON.parse(decodeURIComponent(role as string)) : null
+
+  const { mutateAsync: callCreateRole, isPending: pendingCreateRole } = useCreateRoleMutationOption()
 
   const schema = z.object({
     roleName: z.string().min(1, 'Role Name is required'),
-    description: z.string().min(1, 'Description is required')
+    description: z.string().min(1, 'Description is required'),
+    permissions: z.array(z.string()).min(1, 'At least one permission is required')
   })
   const formMethods = useForm<RoleFormType>({
     resolver: zodResolver(schema),
     defaultValues: {
-      roleName: '',
-      description: ''
+      roleName: roleResult?.role_name || '',
+      description: roleResult?.description || ''
     }
   })
 
@@ -33,10 +43,26 @@ const RoleManageRoleComponent = () => {
     formState: { errors }
   } = formMethods
 
-  const onSubmit = (data: RoleFormType) => {
-    console.log('✅ Submitted Data:', data)
+  const onSubmit = async (data: RoleFormType) => {
+    // console.log('🎯 Role Name:', data.roleName)
+    // console.log('📝 Description:', data.description)
+    // console.log('🔐 Permission IDs:', data.permissions)
 
-    // handle create role logic here
+    try {
+      const response = await callCreateRole({
+        role_name: data.roleName,
+        description: data.description,
+        permissions: data.permissions
+      })
+
+      if (response?.code == 'SUCCESS') {
+        toast.success('Create Role Success!', { autoClose: 3000 })
+        router.push(`/${locale}/role`)
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('create role failed!', { autoClose: 3000 })
+    }
   }
 
   return (
@@ -47,13 +73,13 @@ const RoleManageRoleComponent = () => {
             <Grid container className='flex flex-col gap-6'>
               <Grid item xs={12} sm className='flex gap-2 justify-between'>
                 <Typography variant='h5' className='text-nowrap'>
-                  Create Role
+                  {roleResult ? 'Edit Role' : 'Create Role'}
                 </Typography>
               </Grid>
 
               <Divider />
 
-              <Grid container alignItems='end' className='flex gap-6'>
+              <Grid container alignItems='start' className='flex gap-6'>
                 <Grid item xs={12} sm={3}>
                   <CustomTextField
                     fullWidth
@@ -80,7 +106,7 @@ const RoleManageRoleComponent = () => {
               </Grid>
 
               <Grid item xs={12}>
-                <PermissionList />
+                {roleResult ? <PermissionListEdit {...roleResult} /> : <PermissionList />}
               </Grid>
             </Grid>
           </CardContent>

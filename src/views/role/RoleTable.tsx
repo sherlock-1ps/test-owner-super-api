@@ -63,6 +63,7 @@ import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProvid
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { OptionType } from '@/@core/components/option-menu/types'
+import { useDeleteRoleListMutationOption } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -107,6 +108,8 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
 
   // Hooks
   const { lang: locale } = useParams()
+
+  const { mutate: callDeleteRoleList } = useDeleteRoleListMutationOption()
 
   const columns = useMemo<ColumnDef<RoleConfig, any>[]>(
     () => [
@@ -176,6 +179,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
         id: 'action',
         header: '',
         cell: ({ row }) => {
+          const roleItem = encodeURIComponent(JSON.stringify(row.original))
           return (
             <div className='flex items-center'>
               <OptionMenu
@@ -188,7 +192,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
                         <Link
                           href={{
                             pathname: `/${locale}/role/managerole`,
-                            query: { role: 'OPB12345' }
+                            query: { role: roleItem }
                           }}
                           className='no-underline text-textSecondary'
                           onClick={e => e.stopPropagation()}
@@ -211,7 +215,9 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
                                     title='Confirm Delete Role'
                                     content1='Are you sure you want to delete Role Manager?'
                                     content2='This action can only be performed for roles that do not have any members assigned.'
-                                    onClick={() => {}}
+                                    onClick={() => {
+                                      callDeleteRoleList({ role_id: row.original.role_id })
+                                    }}
                                   />
                                 ),
                                 size: 'sm'

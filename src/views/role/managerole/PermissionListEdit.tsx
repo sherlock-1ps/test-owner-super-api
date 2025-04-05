@@ -1,6 +1,9 @@
 'use client'
 
-import { useFetchPermissionQueryOption } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
+import {
+  useFetchPermissionQueryOption,
+  useFetchUpdatePermissionQueryOption
+} from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 import { Button, Grid, Switch, Typography } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -19,9 +22,17 @@ const ICONS: Record<string, string> = {
 
 type SelectedPermissionMap = Record<string, Set<string>>
 
-const PermissionList = () => {
+const PermissionListEdit = (roleData: any) => {
+  console.log('roleData', roleData)
+
   const router = useRouter()
-  const { data: permissionList } = useFetchPermissionQueryOption()
+  const { data: permissionList } = useFetchUpdatePermissionQueryOption({
+    role_id: roleData?.role_id,
+    parent_role_id: roleData?.parent_role_id
+  })
+
+  console.log('permissionList', permissionList)
+
   const {
     handleSubmit,
     setValue,
@@ -181,6 +192,7 @@ const PermissionList = () => {
       </Grid>
 
       <Grid item xs={12} className='flex justify-end mt-4 gap-4'>
+        <Button>Reset to default</Button>
         <Button
           variant='outlined'
           onClick={() => {
@@ -189,12 +201,13 @@ const PermissionList = () => {
         >
           Cancel
         </Button>
+
         <Button type='submit' variant='contained'>
-          Create Role
+          Save Change
         </Button>
       </Grid>
     </>
   )
 }
 
-export default PermissionList
+export default PermissionListEdit

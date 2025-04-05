@@ -106,10 +106,11 @@ const NavbarContent = () => {
       <div className='flex items-center '>
         <NavToggle />
 
-        {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' && <NavSearch />}
+        {/* {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' && <NavSearch />} */}
       </div>
-      <LanguageDropdown />
-      <div className='flex-1 overflow-hidden'>
+      <div className='flex'>
+        <LanguageDropdown />
+        {/* <div className='flex-1 overflow-hidden'>
         <Marquee gradient={false} speed={40} pauseOnHover={true} delay={0}>
           <div style={{ width: '48px' }}></div>
           <div className='flex gap-3'>
@@ -122,18 +123,19 @@ const NavbarContent = () => {
           </div>
           <div style={{ width: '120px' }}></div>
         </Marquee>
-      </div>
-      <div className='flex gap-1 items-center'>
+      </div> */}
+        {/* <div className='flex gap-1 items-center'>
         <img alt='timezone' src='/images/icons/timezoneIcon.png' className='w-[24px] h-[24px]' />
         <Typography variant='h6'>GMT+7</Typography>
-      </div>
-      <div className='flex items-center'>
-        {/* <LanguageDropdown /> */}
-        {/* <ModeDropdown /> */}
-        {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' && <ShortcutsDropdown shortcuts={shortcuts} />}
+      </div> */}
+        <div className='flex items-center'>
+          {/* <LanguageDropdown /> */}
+          {/* <ModeDropdown /> */}
+          {/* {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' && <ShortcutsDropdown shortcuts={shortcuts} />} */}
 
-        {/* <NotificationsDropdown notifications={notifications} /> */}
-        <UserDropdown />
+          {/* <NotificationsDropdown notifications={notifications} /> */}
+          <UserDropdown />
+        </div>
       </div>
     </div>
   )
