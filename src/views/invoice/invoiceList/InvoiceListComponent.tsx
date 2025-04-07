@@ -113,7 +113,8 @@ const InvoiceListComponent = () => {
               <Divider />
             </Grid>
             <Grid item xs={12}>
-              <InvoiceListTable />
+              {/* <InvoiceListTable /> */}
+              <Typography variant='h5'>Coming soon ...</Typography>
             </Grid>
           </Grid>
         </CardContent>
