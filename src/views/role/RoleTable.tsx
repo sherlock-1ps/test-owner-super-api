@@ -63,7 +63,10 @@ import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProvid
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { OptionType } from '@/@core/components/option-menu/types'
-import { useDeleteRoleListMutationOption } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
+import {
+  useDeleteRoleListMutationOption,
+  useUpdateStatusMutationOption
+} from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -110,6 +113,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
   const { lang: locale } = useParams()
 
   const { mutate: callDeleteRoleList } = useDeleteRoleListMutationOption()
+  const { mutate: updateStatusRole, isPending: pendingUpdateStatus } = useUpdateStatusMutationOption()
 
   const columns = useMemo<ColumnDef<RoleConfig, any>[]>(
     () => [
@@ -157,13 +161,15 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
                             ?.replace('{{name}}', row.original.role_name)
                             .replace('{{key}}', 'role') ?? `Change this ${row.original.role_name} role status?`
                         }
-                        onClick={() => {}}
+                        onClick={() => {
+                          updateStatusRole({ role_id: row.original.role_id, is_enable: !row.original.is_enable })
+                        }}
                       />
                     ),
                     size: 'sm'
                   })
                 }}
-                // disabled={pendingStatus}
+                disabled={pendingUpdateStatus}
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>

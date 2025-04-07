@@ -25,7 +25,7 @@ import Grid from '@mui/material/Grid'
 
 import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import StepperWrapper from '@/@core/styles/stepper'
 import StepperCustomDot from '@components/stepper-dot'
 import { toast } from 'react-toastify'
@@ -88,6 +88,7 @@ const CreateProviderComponent = () => {
   const searchParams = useSearchParams()
   const operatorDraft = searchParams.get('operatorDraft')
   const { dictionary } = useDictionary()
+  const { lang: locale } = useParams()
 
   const operatorDraftData = operatorDraft ? JSON.parse(decodeURIComponent(operatorDraft as string)) : null
 
@@ -389,6 +390,7 @@ const CreateProviderComponent = () => {
 
       if (response?.code == 'SUCCESS') {
         toast.success('Create Success', { autoClose: 3000 })
+        router.push(`/${locale}/operators`)
       }
     } catch (error) {
       console.log('error', error)

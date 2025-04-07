@@ -41,6 +41,25 @@ export const searchRoleList = async ({ page, pageSize, role_name }: { page: numb
 
 };
 
+export const updateStatusRoleList = async ({ role_id, is_enable }: { role_id: string; is_enable: boolean }) => {
+  try {
+    const response = await Axios.patch("/role/update/status", {
+      role_id,
+      is_enable,
+    });
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error update role status:", error);
+
+    axiosErrorHandler(error, '/role/update/status')
+    throw error;
+
+  }
+
+};
+
 export const deleteRoleList = async ({ role_id }: { role_id: string }) => {
   try {
     const response = await Axios.patch("/role/delete", {

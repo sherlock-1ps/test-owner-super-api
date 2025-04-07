@@ -1,4 +1,4 @@
-import { createRole, deleteRoleList, fetchPermission, fetchPermissionExist, fetchRoleList, searchRoleList, updateRole } from "@/app/sevices/rolePermission/rolePermission";
+import { createRole, deleteRoleList, fetchPermission, fetchPermissionExist, fetchRoleList, searchRoleList, updateRole, updateStatusRoleList } from "@/app/sevices/rolePermission/rolePermission";
 import { RoleExistPayload } from "@/types/role/roleTypes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -21,16 +21,20 @@ export const useSearchRoleListMutationOption = () => {
   });
 };
 
-// export const useUpdateStatusMutationOption = () => {
+export const useUpdateStatusMutationOption = () => {
+  const queryClient = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: ,
-//     onError: (error) => {
-//       console.error("Error update status role List :", error);
-//     },
+  return useMutation({
+    mutationFn: updateStatusRoleList,
+    onError: (error) => {
+      console.error("Error update status role List :", error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["roleList"] });
+    },
 
-//   });
-// };
+  });
+};
 
 export const useDeleteRoleListMutationOption = () => {
   const queryClient = useQueryClient();

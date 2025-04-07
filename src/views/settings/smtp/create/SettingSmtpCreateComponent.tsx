@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useDictionary } from '@/contexts/DictionaryContext'
-import { useCreateSmtpMutationOption } from '@/queryOptions/smtp/settingSmtpQueryOptions'
+import { useCreateSmtpMutationOption, useEditSmtpMutationOption } from '@/queryOptions/smtp/settingSmtpQueryOptions'
 import { toast } from 'react-toastify'
 
 const SettingSmtpCreateComponent = () => {
@@ -29,6 +29,7 @@ const SettingSmtpCreateComponent = () => {
   const [isPasswordShown, setIsPasswordShown] = useState(false)
 
   const { mutateAsync, isPending: pendingCreateSmtp } = useCreateSmtpMutationOption()
+  const { mutateAsync: callEdit, isPending: pendingEditSmtp } = useEditSmtpMutationOption()
 
   const smtpSchema = z.object({
     host: z.string().min(1, dictionary['smtp']?.hostRequired),
@@ -60,7 +61,11 @@ const SettingSmtpCreateComponent = () => {
 
   const onSubmit = (data: SmtpFormValues) => {
     console.log('Form Submitted:', data)
-    handleCreateSmtp(data)
+    if (smtpData) {
+      handleEditSmtp(data)
+    } else {
+      handleCreateSmtp(data)
+    }
   }
 
   const handleCreateSmtp = async (data: SmtpFormValues) => {
@@ -80,6 +85,30 @@ const SettingSmtpCreateComponent = () => {
       }
     } catch (error) {
       toast.error('Create failed!', { autoClose: 3000 })
+      console.log('errror', error)
+    }
+  }
+
+  console.log('smtpData', smtpData)
+
+  const handleEditSmtp = async (data: SmtpFormValues) => {
+    try {
+      const result = await callEdit({
+        smtp_id: smtpData?.smtp_id,
+        host: data.host,
+        port: data.host,
+        smtp_username: data.smtp_username,
+        password: data.password,
+        sender_name: data.sender_name,
+        sender_email: data.sender_email
+      })
+
+      if (result?.code == 'SUCCESS') {
+        toast.success('Edit success!', { autoClose: 3000 })
+        router.push(`/${locale}/settings/smtp`)
+      }
+    } catch (error) {
+      toast.error('Edit SMTP failed!', { autoClose: 3000 })
       console.log('errror', error)
     }
   }
@@ -180,7 +209,7 @@ const SettingSmtpCreateComponent = () => {
                 >
                   {dictionary?.cancel}
                 </Button>
-                <Button variant='contained' type='submit' disabled={pendingCreateSmtp}>
+                <Button variant='contained' type='submit' disabled={pendingCreateSmtp || pendingEditSmtp}>
                   {smtpData ? dictionary['smtp']?.editSmtp : dictionary['smtp']?.addNewSmtp}
                 </Button>
               </div>

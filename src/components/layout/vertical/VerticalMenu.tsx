@@ -29,6 +29,7 @@ import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNav
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
 import { useAuthStore } from '@/store/authStore'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 // Menu Data Imports
 // import menuData from '@/data/navigation/verticalMenuData'
@@ -55,7 +56,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
   const verticalNavOptions = useVerticalNav()
   const params = useParams()
 
-  const profileData = useAuthStore(state => state.profile)
+  const { hasPermission } = useHasPermission()
 
   // Vars
   const { isBreakpointReached, transitionDuration } = verticalNavOptions
@@ -86,14 +87,17 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <MenuItem
-          href={`/${locale}/providers`}
-          icon={<i className='tabler-crown' />}
-          exactMatch={false}
-          activeUrl='/providers'
-        >
-          {dictionary['navigation'].providers}
-        </MenuItem>
+        {hasPermission('view-owner-4') && (
+          <MenuItem
+            href={`/${locale}/providers`}
+            icon={<i className='tabler-crown' />}
+            exactMatch={false}
+            activeUrl='/providers'
+          >
+            {dictionary['navigation'].providers}
+          </MenuItem>
+        )}
+
         <MenuItem
           href={`/${locale}/operators`}
           icon={<i className='tabler-building-skyscraper' />}

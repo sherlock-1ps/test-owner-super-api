@@ -62,6 +62,10 @@ import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import {
+  useDeleteSmtpMutationOption,
+  useUpdateStatusSmtpMutationOption
+} from '@/queryOptions/smtp/settingSmtpQueryOptions'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -108,6 +112,9 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
 
   // Hooks
   const { lang: locale } = useParams()
+
+  const { mutate, isPending } = useUpdateStatusSmtpMutationOption()
+  const { mutate: callDeleteSmtp } = useDeleteSmtpMutationOption()
 
   const columns = useMemo<ColumnDef<SmtpConfigType, any>[]>(
     () => [
@@ -172,12 +179,15 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                             ?.replace('{{name}}', row.original.smtp_username)
                             .replace('{{key}}', 'smtp') ?? `Change this ${row.original.smtp_username} status?`
                         }
-                        onClick={() => {}}
+                        onClick={() => {
+                          mutate({ smtp_id: row.original.smtp_id, is_enable: !row.original.is_enable })
+                        }}
                       />
                     ),
                     size: 'sm'
                   })
                 }}
+                disabled={isPending}
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>
@@ -188,17 +198,7 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
         id: 'action',
         header: '',
         cell: ({ row }) => {
-          const encodedSmtpData = encodeURIComponent(
-            JSON.stringify({
-              host: '123',
-              port: '500',
-              smtp_username: '78999',
-              password: '454',
-              sender_name: '555555',
-              sender_email: 'user@name.com',
-              is_enable: true
-            })
-          )
+          const encodedSmtpData = encodeURIComponent(JSON.stringify(row.original))
 
           return (
             <div className='flex items-center'>
@@ -237,7 +237,9 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                                 `Are you sure you want to delete the SMTP Server: ${row.original.smtp_username} ?`
                               }
                               content2=''
-                              onClick={() => {}}
+                              onClick={() => {
+                                callDeleteSmtp({ smtp_id: row.original.smtp_id })
+                              }}
                             />
                           ),
                           size: 'sm'

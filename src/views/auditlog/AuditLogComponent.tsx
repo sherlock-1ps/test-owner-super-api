@@ -310,13 +310,13 @@ const AuditLogComponent = () => {
                     )}
                   />
                 </Grid>
-                <Grid item xs={1}>
+                <Grid item xs={12} sm={2}>
                   <Button variant='outlined' fullWidth onClick={handleReset}>
                     {dictionary?.reset}
                   </Button>
                 </Grid>
 
-                <Grid item xs={2}>
+                <Grid item xs={12} sm={2}>
                   <Button type='submit' variant='contained' fullWidth>
                     {dictionary?.search}
                   </Button>
