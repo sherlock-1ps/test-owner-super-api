@@ -100,7 +100,7 @@ const RoleComponent = () => {
 
           {pendingRoleList && <Typography> {dictionary?.loading ?? 'Loading'}...</Typography>}
 
-          {roleListData?.data?.total && !pendingRoleList && !pendingSearchRoleList && (
+          {roleListData?.code == 'SUCCESS' && !pendingRoleList && !pendingSearchRoleList && (
             <Grid item xs={12}>
               <RoleTable
                 data={searchRoleListData?.data || roleListData?.data}
