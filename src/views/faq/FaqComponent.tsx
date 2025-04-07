@@ -91,7 +91,7 @@ const FaqComponent = () => {
           <Grid item xs={12}>
             {pendingFaqData && <p>{dictionary?.loading}....</p>}
 
-            {faqData?.data?.total && (
+            {Array.isArray(faqData?.data?.list) && (
               <FaqTable
                 data={searchFaqData?.data || faqData.data}
                 page={page}

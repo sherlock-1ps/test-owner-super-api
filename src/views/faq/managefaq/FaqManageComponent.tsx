@@ -64,6 +64,7 @@ const FaqManageComponent = () => {
       if (response?.code) {
         toast.success(dictionary['faq']?.createSuccessFaq, { autoClose: 3000 })
         reset()
+        router.back()
       }
     } catch (error) {
       toast.error(dictionary['faq']?.createErrorFaq, { autoClose: 3000 })

@@ -144,7 +144,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           <MenuItem href={`/${locale}/settings/smtp`}>{dictionary['navigation'].settingSmtp}</MenuItem>
         </SubMenu>
 
-        <SubMenu label={dictionary['navigation'].dashboards} icon={<i className='tabler-layout-dashboard' />}>
+        {/* <SubMenu label={dictionary['navigation'].dashboards} icon={<i className='tabler-layout-dashboard' />}>
           <MenuItem href={`/${locale}/dashboard/finance`}>{dictionary['navigation'].crm}</MenuItem>
         </SubMenu>
         <SubMenu label={dictionary['navigation'].report} icon={<i className='tabler-report-search' />}>
@@ -153,8 +153,8 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           <MenuItem href={`/${locale}/report/affiliate`}>{dictionary['navigation'].affiliateReport}</MenuItem>
           <MenuItem href={`/${locale}/report/cashback`}>{dictionary['navigation'].cashbackReport}</MenuItem>
           <MenuItem href={`/${locale}/report/promotion`}>{dictionary['navigation'].promotionReport}</MenuItem>
-        </SubMenu>
-        <MenuSection label={dictionary['navigation'].management}>
+        </SubMenu> */}
+        {/* <MenuSection label={dictionary['navigation'].management}>
           <SubMenu label={dictionary['navigation'].userManagement} icon={<i className='tabler-user' />}>
             <MenuItem href={`/${locale}/user/list`}>{dictionary['navigation'].userList}</MenuItem>
             <MenuItem href={`/${locale}/user/group`}>{dictionary['navigation'].group}</MenuItem>
@@ -224,21 +224,20 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             <MenuItem href={`/${locale}/setting/provider`}>{dictionary['navigation'].provider}</MenuItem>
             <MenuItem href={`/${locale}/setting/language`}>{dictionary['navigation'].language}</MenuItem>
           </SubMenu>
-        </MenuSection>
-        <MenuItem href={`/${locale}/pages/faq`} icon={<i className='tabler-help' />}>
+        </MenuSection> */}
+        {/* <MenuItem href={`/${locale}/pages/faq`} icon={<i className='tabler-help' />}>
           {dictionary['navigation'].faq}
         </MenuItem>
         <MenuItem href={`/${locale}/profile`} icon={<i className='tabler-user-square-rounded' />}>
           {dictionary['navigation'].userProfile}
-        </MenuItem>
+        </MenuItem> */}
         {process.env.NEXT_PUBLIC_ENVIRONMENT == 'prod' ? null : (
           <>
             <MenuSection label={dictionary['navigation'].appsPages}>
               <SubMenu
                 label={dictionary['navigation'].dashboards}
                 icon={<i className='tabler-layout-dashboard' />}
-
-                // suffix={<CustomChip label='5' size='small' color='error' round='true' />}
+                suffix={<CustomChip label='5' size='small' color='error' round='true' />}
               >
                 <MenuItem href={`/${locale}/dashboards/crm`}>{dictionary['navigation'].crm}</MenuItem>
                 <MenuItem href={`/${locale}/dashboards/analytics`}>{dictionary['navigation'].analytics}</MenuItem>
@@ -246,23 +245,23 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
                 <MenuItem href={`/${locale}/dashboards/academy`}>{dictionary['navigation'].academy}</MenuItem>
                 <MenuItem href={`/${locale}/dashboards/logistics`}>{dictionary['navigation'].logistics}</MenuItem>
               </SubMenu>
-              {/* <SubMenu label={dictionary['navigation'].frontPages} icon={<i className='tabler-files' />}>
-              <MenuItem href='/front-pages/landing-page' target='_blank'>
-                {dictionary['navigation'].landing}
-              </MenuItem>
-              <MenuItem href='/front-pages/pricing' target='_blank'>
-                {dictionary['navigation'].pricing}
-              </MenuItem>
-              <MenuItem href='/front-pages/payment' target='_blank'>
-                {dictionary['navigation'].payment}
-              </MenuItem>
-              <MenuItem href='/front-pages/checkout' target='_blank'>
-                {dictionary['navigation'].checkout}
-              </MenuItem>
-              <MenuItem href='/front-pages/help-center' target='_blank'>
-                {dictionary['navigation'].helpCenter}
-              </MenuItem>
-            </SubMenu> */}
+              <SubMenu label={dictionary['navigation'].frontPages} icon={<i className='tabler-files' />}>
+                <MenuItem href='/front-pages/landing-page' target='_blank'>
+                  {dictionary['navigation'].landing}
+                </MenuItem>
+                <MenuItem href='/front-pages/pricing' target='_blank'>
+                  {dictionary['navigation'].pricing}
+                </MenuItem>
+                <MenuItem href='/front-pages/payment' target='_blank'>
+                  {dictionary['navigation'].payment}
+                </MenuItem>
+                <MenuItem href='/front-pages/checkout' target='_blank'>
+                  {dictionary['navigation'].checkout}
+                </MenuItem>
+                <MenuItem href='/front-pages/help-center' target='_blank'>
+                  {dictionary['navigation'].helpCenter}
+                </MenuItem>
+              </SubMenu>
               <SubMenu label={dictionary['navigation'].eCommerce} icon={<i className='tabler-shopping-cart' />}>
                 <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>
                 <SubMenu label={dictionary['navigation'].products}>
@@ -353,7 +352,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
                 <MenuItem href={`/${locale}/pages/account-settings`}>
                   {dictionary['navigation'].accountSettings}
                 </MenuItem>
-                {/* <MenuItem href={`/${locale}/pages/faq`}>{dictionary['navigation'].faq}</MenuItem> */}
+                <MenuItem href={`/${locale}/pages/faq`}>{dictionary['navigation'].faq}</MenuItem>
                 <MenuItem href={`/${locale}/pages/pricing`}>{dictionary['navigation'].pricing}</MenuItem>
                 <SubMenu label={dictionary['navigation'].miscellaneous}>
                   <MenuItem href={`/${locale}/pages/misc/coming-soon`} target='_blank'>

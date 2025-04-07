@@ -8,7 +8,10 @@ import { Button, Card, CardContent, Divider, Grid, Typography } from '@mui/mater
 import CustomTextField from '@/@core/components/mui/TextField'
 import PermissionList from './PermissionList'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useCreateRoleMutationOption } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
+import {
+  useCreateRoleMutationOption,
+  useUpdateRoleMutationOption
+} from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 import { toast } from 'react-toastify'
 import PermissionListEdit from './PermissionListEdit'
 
@@ -21,11 +24,13 @@ const RoleManageRoleComponent = () => {
   const roleResult = role ? JSON.parse(decodeURIComponent(role as string)) : null
 
   const { mutateAsync: callCreateRole, isPending: pendingCreateRole } = useCreateRoleMutationOption()
+  const { mutateAsync: callUpdateRole, isPending: pendingUpdateRole } = useUpdateRoleMutationOption()
 
   const schema = z.object({
     roleName: z.string().min(1, 'Role Name is required'),
     description: z.string().min(1, 'Description is required'),
-    permissions: z.array(z.string()).min(1, 'At least one permission is required')
+    permissions: z.array(z.string()).min(1, 'At least one permission is required'),
+    role_id: z.string().optional()
   })
   const formMethods = useForm<RoleFormType>({
     resolver: zodResolver(schema),
@@ -47,6 +52,10 @@ const RoleManageRoleComponent = () => {
     // console.log('🎯 Role Name:', data.roleName)
     // console.log('📝 Description:', data.description)
     // console.log('🔐 Permission IDs:', data.permissions)
+    if (roleResult) {
+      handleUpdateRole(data)
+      return
+    }
 
     try {
       const response = await callCreateRole({
@@ -62,6 +71,25 @@ const RoleManageRoleComponent = () => {
     } catch (error) {
       console.log('error', error)
       toast.error('create role failed!', { autoClose: 3000 })
+    }
+  }
+
+  const handleUpdateRole = async (data: RoleFormType) => {
+    try {
+      const response = await callUpdateRole({
+        role_id: data.role_id ?? '',
+        role_name: data.roleName,
+        description: data.description,
+        permissions: data.permissions
+      })
+
+      if (response?.code == 'SUCCESS') {
+        toast.success('update Role Success!', { autoClose: 3000 })
+        router.push(`/${locale}/role`)
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('update role failed!', { autoClose: 3000 })
     }
   }
 

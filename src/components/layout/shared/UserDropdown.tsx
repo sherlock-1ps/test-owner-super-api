@@ -31,7 +31,8 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
-import { signOut } from '@/app/actions/auth/authAction'
+import Axios from '@/libs/axios/axios'
+import { useAuthStore } from '@/store/authStore'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -73,14 +74,14 @@ const UserDropdown = () => {
 
   const handleUserLogout = async () => {
     try {
-      // await signOut()
-      router.push('/login')
-      // await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
+      const response = await Axios.get('/logout')
+
+      if (response?.data?.code == 'SUCCESS') {
+        useAuthStore.getState().clearTokens()
+        // router.push(`${locale}/login`)
+      }
     } catch (error) {
       console.error(error)
-
-      // Show above error in a toast like following
-      // toastService.error((err as Error).message)
     }
   }
 

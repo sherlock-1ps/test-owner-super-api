@@ -62,6 +62,7 @@ import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useDeleteFaqMutationOption, useUpdateFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -75,7 +76,7 @@ declare module '@tanstack/table-core' {
 type FaqType = {
   faq_id: string
   question: string
-  status: boolean
+  is_enable: boolean
   update_at: string
 }
 
@@ -105,6 +106,9 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   // Hooks
   const { lang: locale } = useParams()
 
+  const { mutate, isPending: pendingUpdateStatus } = useUpdateFaqMutationOption()
+  const { mutate: deleteFaq } = useDeleteFaqMutationOption()
+
   const columns = useMemo<ColumnDef<FaqType, any>[]>(
     () => [
       columnHelper.display({
@@ -118,13 +122,13 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
         cell: ({ row }) => <Typography variant='h6'>{row.original.question}</Typography>
       }),
 
-      columnHelper.accessor('status', {
+      columnHelper.accessor('is_enable', {
         header: dictionary?.status,
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
               <Switch
-                checked={row.original.status}
+                checked={row.original.is_enable}
                 onChange={() => {
                   showDialog({
                     id: 'alertChangeFaqStatus',
@@ -138,14 +142,19 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                             ?.replace('{{name}}', row.original.question)
                             .replace('{{key}}', 'faq') ?? `Change this ${row.original.question} faq status?`
                         }
-                        onClick={() => {}}
+                        onClick={() => {
+                          mutate({ faq_id: row.original.faq_id, is_enable: !row.original.is_enable })
+                        }}
                       />
                     ),
                     size: 'sm'
                   })
                 }}
+                disabled={pendingUpdateStatus}
               />
-              <Typography>{row.original.status ? dictionary?.publish : dictionary?.unPublish}</Typography>
+              <Typography>
+                {row.original.is_enable ? dictionary['faq']?.publish : dictionary['faq']?.unPublish}
+              </Typography>
             </div>
           )
         }
@@ -172,7 +181,9 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                     `Are you sure you want to delete the FAQ titled "${row.original.question}"?`
                   }
                   content2=''
-                  onClick={() => {}}
+                  onClick={() => {
+                    deleteFaq({ faq_id: row.original.faq_id })
+                  }}
                 />
               ),
               size: 'sm'
@@ -197,11 +208,11 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                         className='no-underline text-textSecondary'
                         onClick={e => e.stopPropagation()}
                       >
-                        {dictionary?.editFaq}
+                        {dictionary['faq']?.editFaq}
                       </Link>
                     )
                   },
-                  row.original.status === false
+                  row.original.is_enable === false
                     ? {
                         text: dictionary?.delete,
                         menuItemProps: {

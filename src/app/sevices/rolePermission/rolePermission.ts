@@ -1,5 +1,5 @@
 import Axios from "@/libs/axios/axios";
-import { CreateRolePayload, RoleExistPayload } from "@/types/role/roleTypes";
+import { CreateRolePayload, RoleExistPayload, UpdateRolePayload } from "@/types/role/roleTypes";
 import { axiosErrorHandler } from "@/utils/axiosErrorHandler";
 
 export const fetchRoleList = async ({ page, pageSize }: { page: number; pageSize: number }) => {
@@ -71,6 +71,22 @@ export const createRole = async (payload: CreateRolePayload) => {
     console.error("Error create role:", error);
 
     axiosErrorHandler(error, '/role/create')
+    throw error;
+
+  }
+
+};
+
+export const updateRole = async (payload: UpdateRolePayload) => {
+  try {
+    const response = await Axios.post("/role/permission/update", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error update role:", error);
+
+    axiosErrorHandler(error, '/role/permission/update')
     throw error;
 
   }

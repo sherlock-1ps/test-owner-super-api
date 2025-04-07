@@ -49,6 +49,7 @@ import { signIn } from '@/app/actions/auth/authAction'
 import { useAuthStore } from '@/store/authStore'
 import { fetchProfile } from '@/app/sevices/profile/profile'
 import { toast } from 'react-toastify'
+import LanguageDropdown from '@/components/layout/shared/LanguageDropdown'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -201,6 +202,9 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
           <div className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
             <Logo />
+          </div>
+          <div className='absolute block-start-7 sm:block-end-[33px] inline-end-6 sm:inline-end-[38px]'>
+            <LanguageDropdown />
           </div>
           <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
             <div className='flex flex-col gap-1'>

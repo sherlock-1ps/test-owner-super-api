@@ -36,16 +36,4 @@ export const signIn = async (credentials: any) => {
   }
 }
 
-export const signOut = async () => {
-  try {
-    const response = await Axios.get('/logout')
-    console.log("response", response);
 
-
-    removeCookie("accessToken");
-    removeCookie("refreshToken");
-
-  } catch (error) {
-    axiosErrorHandler(error, '/login')
-  }
-}

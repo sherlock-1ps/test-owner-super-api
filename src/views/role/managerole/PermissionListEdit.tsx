@@ -5,6 +5,7 @@ import {
   useFetchUpdatePermissionQueryOption
 } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 import { Button, Grid, Switch, Typography } from '@mui/material'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -23,15 +24,12 @@ const ICONS: Record<string, string> = {
 type SelectedPermissionMap = Record<string, Set<string>>
 
 const PermissionListEdit = (roleData: any) => {
-  console.log('roleData', roleData)
-
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { data: permissionList } = useFetchUpdatePermissionQueryOption({
     role_id: roleData?.role_id,
     parent_role_id: roleData?.parent_role_id
   })
-
-  console.log('permissionList', permissionList)
 
   const {
     handleSubmit,
@@ -40,8 +38,15 @@ const PermissionListEdit = (roleData: any) => {
   } = useFormContext()
   const [selectedModule, setSelectedModule] = useState<string>('')
   const [selectedPermissions, setSelectedPermissions] = useState<SelectedPermissionMap>({})
+  const [defaultPermissions, setDefaultPermissions] = useState<SelectedPermissionMap>({})
 
   const topLevelKeys = Object.keys(permissionList?.data || {})
+
+  useEffect(() => {
+    return () => {
+      queryClient.removeQueries({ queryKey: ['permissionListExist'] })
+    }
+  }, [])
 
   useEffect(() => {
     if (!selectedModule && topLevelKeys.length > 0) {
@@ -53,23 +58,27 @@ const PermissionListEdit = (roleData: any) => {
 
       Object.entries(permissionList.data).forEach(([moduleKey, moduleValue]) => {
         if (Array.isArray(moduleValue)) {
-          const ids = moduleValue.map(p => p.permission_id)
+          const ids = moduleValue.filter(p => p.is_enable === true).map(p => p.permission_id)
           initialSelected[moduleKey] = new Set(ids)
-        } else if (typeof moduleValue === 'object') {
-          Object.entries(moduleValue ?? {}).forEach(([groupKey, groupValue]) => {
-            const ids = Array.isArray(groupValue) ? groupValue.map(p => p.permission_id) : []
+        } else if (typeof moduleValue === 'object' && moduleValue !== null) {
+          Object.entries(moduleValue).forEach(([groupKey, groupValue]) => {
+            const ids = Array.isArray(groupValue)
+              ? groupValue.filter(p => p.is_enable === true).map(p => p.permission_id)
+              : []
             initialSelected[groupKey] = new Set(ids)
           })
         }
       })
 
       setSelectedPermissions(initialSelected)
+      setDefaultPermissions(initialSelected)
     }
   }, [permissionList, selectedModule, topLevelKeys, selectedPermissions])
 
   useEffect(() => {
     const allSelectedIds = Object.values(selectedPermissions).flatMap(set => Array.from(set))
-    setValue('permissions', allSelectedIds, { shouldValidate: true }) // 👈 validate ทันทีเมื่อเปลี่ยน
+    setValue('role_id', roleData?.role_id)
+    setValue('permissions', allSelectedIds, { shouldValidate: true }) // validate ทันทีเมื่อเปลี่ยน
   }, [selectedPermissions, setValue])
 
   const selectedData = permissionList?.data[selectedModule]
@@ -192,7 +201,13 @@ const PermissionListEdit = (roleData: any) => {
       </Grid>
 
       <Grid item xs={12} className='flex justify-end mt-4 gap-4'>
-        <Button>Reset to default</Button>
+        <Button
+          onClick={() => {
+            setSelectedPermissions(defaultPermissions)
+          }}
+        >
+          Reset to default
+        </Button>
         <Button
           variant='outlined'
           onClick={() => {

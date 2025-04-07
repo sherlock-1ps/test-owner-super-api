@@ -1,4 +1,4 @@
-import { createRole, deleteRoleList, fetchPermission, fetchPermissionExist, fetchRoleList, searchRoleList } from "@/app/sevices/rolePermission/rolePermission";
+import { createRole, deleteRoleList, fetchPermission, fetchPermissionExist, fetchRoleList, searchRoleList, updateRole } from "@/app/sevices/rolePermission/rolePermission";
 import { RoleExistPayload } from "@/types/role/roleTypes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -63,14 +63,23 @@ export function useFetchUpdatePermissionQueryOption(payload: RoleExistPayload) {
   });
 }
 
-
-
 export const useCreateRoleMutationOption = () => {
 
   return useMutation({
     mutationFn: createRole,
     onError: (error) => {
       console.error("Error create role :", error);
+    },
+
+  });
+};
+
+export const useUpdateRoleMutationOption = () => {
+
+  return useMutation({
+    mutationFn: updateRole,
+    onError: (error) => {
+      console.error("Error update role :", error);
     },
 
   });
