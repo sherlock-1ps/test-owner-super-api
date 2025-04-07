@@ -1,4 +1,8 @@
 {
+  "username": "Username",
+  "password": "Password",
+  "loginButton": "Login",
+  "rememberMe": "Remember me",
   "loading": "Loading",
   "search": "Search",
   "searching": "Searching",
@@ -10,6 +14,10 @@
   "share": "Share",
   "status": "Status",
   "changeStatus": "Do you want to change the status",
+  "login": {
+    "pleaseLogin": "Please login to your account.",
+    "enterUsername": "Enter your username"
+  },
   "navigation": {
     "assistantsMenu": "Assistant",
     "bops": "Role&Permissions",

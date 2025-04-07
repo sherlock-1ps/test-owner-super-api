@@ -1,9 +1,11 @@
 {
-  "username": "Username",
+  "loginButton": "เข้าสู่ระบบ",
+  "rememberMe": "จดจำฉัน",
+  "username": "ชื่อบัญชี",
   "role": "Role",
   "searchUsername": "Search Username",
   "lastLogin": "Date Last Login",
-  "password": "Password",
+  "password": "รหัสผ่าน",
   "confirmPassword": "Confirm Password",
   "delete": "Delete",
   "checkLog": "Check Log",
@@ -36,6 +38,10 @@
   "status": "Status",
   "changeStatus": "Do you want to change the status",
   "changeStatusWithName": "Change this {{name}} {{key}} status?",
+  "login": {
+    "pleaseLogin": "โปรดกรอกเพื่อเข้าสู่ระบบ",
+    "enterUsername": "กรอกชื่ิอบัญชีผู้ใช้"
+  },
   "navigation": {
     "assistantsMenu": "ผู้ช่วย",
     "bops": "บทบาทและสิทธิ",

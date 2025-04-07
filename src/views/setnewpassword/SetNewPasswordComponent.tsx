@@ -95,8 +95,8 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
 
   const darkImg = '/images/pages/auth-mask-dark.png'
   const lightImg = '/images/pages/auth-mask-light.png'
-  const darkIllustration = '/images/illustrations/auth/v2-reset-password-dark.png'
-  const lightIllustration = '/images/illustrations/auth/v2-reset-password-light.png'
+  const darkIllustration = '/images/login/setPassImage.png'
+  const lightIllustration = '/images/login/setPassImage.png'
 
   const authBackground = useImageVariant(mode, lightImg, darkImg)
   const characterIllustration = useImageVariant(mode, lightIllustration, darkIllustration)

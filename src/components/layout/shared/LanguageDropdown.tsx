@@ -82,7 +82,7 @@ const LanguageDropdown = () => {
     <>
       <Button ref={anchorRef} onClick={handleToggle} className='text-textPrimary flex gap-1'>
         {lang == 'th' ? (
-          <img alt='lang' src='/images/lang/langTh.png' className='w-[24px] h-[24px]' />
+          <img alt='lang' src='/images/lang/langTH.png' className='w-[24px] h-[24px]' />
         ) : (
           <img alt='lang' src='/images/lang/langEN.png' className='w-[24px] h-[24px]' />
         )}

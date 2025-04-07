@@ -50,6 +50,7 @@ import { useAuthStore } from '@/store/authStore'
 import { fetchProfile } from '@/app/sevices/profile/profile'
 import { toast } from 'react-toastify'
 import LanguageDropdown from '@/components/layout/shared/LanguageDropdown'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -57,7 +58,6 @@ const LoginIllustration = styled('img')(({ theme }) => ({
   blockSize: 'auto',
   maxBlockSize: 680,
   maxInlineSize: '100%',
-  backgroundColor: 'black',
   margin: theme.spacing(12),
   borderRadius: 12,
   [theme.breakpoints.down(1536)]: {
@@ -102,6 +102,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [errorState, setErrorState] = useState<ErrorType | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const { dictionary } = useDictionary()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -209,11 +210,11 @@ const Login = ({ mode }: { mode: SystemMode }) => {
           <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
             <div className='flex flex-col gap-1'>
               <Typography variant='h4'>{`${themeConfig.templateName}!`}</Typography>
-              <Typography>Please login to your account.</Typography>
+              <Typography>{dictionary['login']?.pleaseLogin ?? 'Please login to your account.'}</Typography>
             </div>
             <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
               <Typography variant='body2' color='primary'>
-                Username: <span className='font-medium'>owneruser</span> / Pass:{' '}
+                {dictionary?.username ?? 'Username'}: <span className='font-medium'>owneruser</span> / Pass:{' '}
                 <span className='font-medium'>123456</span>
               </Typography>
             </Alert>
@@ -234,8 +235,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                     autoFocus
                     fullWidth
                     type='username'
-                    label='Username'
-                    placeholder='Enter your username'
+                    label={dictionary?.username ?? 'Username'}
+                    placeholder={dictionary['login']?.enterUsername ?? 'Enter your username'}
                     onChange={e => {
                       field.onChange(e.target.value)
                       errorState !== null && setErrorState(null)
@@ -255,7 +256,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                   <CustomTextField
                     {...field}
                     fullWidth
-                    label='Password'
+                    label={dictionary?.password ?? 'Password'}
                     placeholder='············'
                     id='login-password'
                     type={isPasswordShown ? 'text' : 'password'}
@@ -281,7 +282,10 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                 )}
               />
               <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-                <FormControlLabel control={<Checkbox defaultChecked />} label='Remember me' />
+                <FormControlLabel
+                  control={<Checkbox defaultChecked />}
+                  label={dictionary?.rememberMe ?? 'Remember me'}
+                />
                 {/* <Typography
                   className='text-end'
                   color='primary'
@@ -292,7 +296,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                 </Typography> */}
               </div>
               <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
-                {isLoading ? 'Loading...' : 'Login'}
+                {isLoading ? `${dictionary?.loading ?? 'Loading'}...` : (dictionary?.loginButton ?? 'Login')}
               </Button>
               {/* <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>New on our platform?</Typography>
