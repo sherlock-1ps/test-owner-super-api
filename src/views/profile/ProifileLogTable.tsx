@@ -59,8 +59,14 @@ import { getGroupLabelPlayer, getGroupPlayerGradient } from '@/utils/getGroupPla
 import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
 import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
-import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
-import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
+import ChangeEmailOperatorDialog from '@/components/dialogs/account/ChangeEmailOperatorDialog'
+import { useDictionary } from '@/contexts/DictionaryContext'
+import {
+  useChangeEmailAccountOperatorMutationOption,
+  useResetPasswordAccountOperatorMutationOption,
+  useUpdateStatusAccountOperatorMutationOption
+} from '@/queryOptions/account/accountQueryOptions'
+import { toast } from 'react-toastify'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -71,15 +77,15 @@ declare module '@tanstack/table-core' {
   }
 }
 
-type InvoiceTypeWithAction = InvoiceType & {
-  action?: string
-}
-
-type InvoiceStatusObj = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
-  }
+type AuditLogType = {
+  log_id: string
+  created_at: string
+  action: string
+  username: string
+  ip: string
+  device: string
+  location: string
+  status: string
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -95,328 +101,70 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-const dataMock = [
-  {
-    id: 1,
-    issuedDate: 837,
-    address: '7777 Mendez Plains',
-    company: 'Hall-Robbins PLC',
-    companyEmail: 'don85@johnson.com',
-    country: 'USA',
-    contact: '(616) 865-4180',
-    name: 'เติมงาน รับเพิ่มทันที',
-    service: 'Software Development',
-    total: 3428,
-    avatar: '',
-    avatarColor: 'primary',
-    invoiceStatus: 'Paid',
-    balance: '$724',
-    dueDate: '23 Feb 2025',
-    group: 3,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Alice Johnson',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 2,
-    issuedDate: 254,
-    address: '04033 Wesley Wall Apt. 961',
-    company: 'Mccann LLC and Sons',
-    companyEmail: 'brenda49@taylor.info',
-    country: 'Haiti',
-    contact: '(226) 204-8287',
-    name: 'โปรแรง! เติมงาน รับสิทธิพิเศษทันที',
-    service: 'UI/UX Design & Development',
-    total: 5219,
-    avatar: '/images/avatars/1.png',
-    invoiceStatus: 'Downloaded',
-    balance: 0,
-    dueDate: '15 Feb 2025',
-    group: 1,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Elijah Nguyen',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 3,
-    issuedDate: 793,
-    address: '5345 Robert Squares',
-    company: 'Leonard-Garcia and Sons',
-    companyEmail: 'smithtiffany@powers.com',
-    country: 'Denmark',
-    contact: '(955) 676-1076',
-    name: 'ดีลพิเศษ เติมงาน รับโบนัสทันที',
-    service: 'Unlimited Extended License',
-    total: 3719,
-    avatar: '/images/avatars/2.png',
-    invoiceStatus: 'Paid',
-    balance: 0,
-    dueDate: '03 Feb 2025',
-    group: 4,
-    bonus: 10,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Bob Smith',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 4,
-    issuedDate: 316,
-    address: '19022 Clark Parks Suite 149',
-    company: 'Smith, Miller and Henry LLC',
-    companyEmail: 'mejiageorge@lee-perez.com',
-    country: 'Cambodia',
-    contact: '(832) 323-6914',
-    name: 'โปรโมชั่นสุดคุ้ม รับงานฟรีทันที',
-    service: 'Software Development',
-    total: 4749,
-    avatar: '/images/avatars/3.png',
-    invoiceStatus: 'Sent',
-    balance: 0,
-    dueDate: '11 Feb 2025',
-    group: 5,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Charlie Brown',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 5,
-    issuedDate: 465,
-    address: '8534 Saunders Hill Apt. 583',
-    company: 'Garcia-Cameron and Sons',
-    companyEmail: 'brandon07@pierce.com',
-    country: 'Martinique',
-    contact: '(970) 982-3353',
-    name: 'ช้อปครบ รับของแถมฟรีทันที',
-    service: 'UI/UX Design & Development',
-    total: 4056,
-    avatar: '/images/avatars/4.png',
-    invoiceStatus: 'Draft',
-    balance: '$815',
-    dueDate: '30 Feb 2025',
-    group: 2,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Diana Prince',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 6,
-    issuedDate: 192,
-    address: '661 Perez Run Apt. 778',
-    company: 'Burnett-Young PLC',
-    companyEmail: 'guerrerobrandy@beasley-harper.com',
-    country: 'Botswana',
-    contact: '(511) 938-9617',
-    name: 'เติมงาน รับเพิ่มทันที',
-    service: 'UI/UX Design & Development',
-    total: 2771,
-    avatar: '',
-    avatarColor: 'secondary',
-    invoiceStatus: 'Paid',
-    balance: 0,
-    dueDate: '24 Feb 2025',
-    group: 1,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Elijah Nguyen',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 7,
-    issuedDate: 879,
-    address: '074 Long Union',
-    company: 'Wilson-Lee LLC',
-    companyEmail: 'williamshenry@moon-smith.com',
-    country: 'Montserrat',
-    contact: '(504) 859-2893',
-    name: 'โปรแรง! เติมงาน รับสิทธิพิเศษทันที',
-    service: 'UI/UX Design & Development',
-    total: 2713,
-    avatar: '',
-    avatarColor: 'success',
-    invoiceStatus: 'Draft',
-    balance: '$407',
-    dueDate: '22 Feb 2025',
-    group: 5,
-    bonus: 10,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Bob Smith',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 8,
-    issuedDate: 540,
-    address: '5225 Ford Cape Apt. 840',
-    company: 'Schwartz, Henry and Rhodes Group',
-    companyEmail: 'margaretharvey@russell-murray.com',
-    country: 'Oman',
-    contact: '(758) 403-7718',
-    name: 'โปรโมชั่นสุดคุ้ม รับงานฟรีทันที',
-    service: 'Template Customization',
-    total: 4309,
-    avatar: '/images/avatars/5.png',
-    invoiceStatus: 'Paid',
-    balance: '-$205',
-    dueDate: '10 Feb 2025',
-    group: 3,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Alice Johnson',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 9,
-    issuedDate: 701,
-    address: '23717 James Club Suite 277',
-    company: 'Henderson-Holder PLC',
-    companyEmail: 'dianarodriguez@villegas.com',
-    country: 'Cambodia',
-    contact: '(292) 873-8254',
-    name: 'ดีลพิเศษ เติมงาน รับโบนัสทันที',
-    service: 'Software Development',
-    total: 3367,
-    avatar: '/images/avatars/6.png',
-    invoiceStatus: 'Downloaded',
-    balance: 0,
-    dueDate: '24 Feb 2025',
-    group: 4,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Charlie Brown',
-      bankImage: 'kbank'
-    }
-  },
-  {
-    id: 10,
-    issuedDate: 150,
-    address: '4528 Myers Gateway',
-    company: 'Page-Wise PLC',
-    companyEmail: 'bwilson@norris-brock.com',
-    country: 'Guam',
-    contact: '(956) 803-2008',
-    name: 'ช้อปครบ รับของแถมฟรีทันที',
-    service: 'Software Development',
-    total: 4776,
-    avatar: '/images/avatars/7.png',
-    invoiceStatus: 'Downloaded',
-    balance: '$305',
-    dueDate: '02 Feb 2025',
-    group: 2,
-    bonus: 0,
-    bank: {
-      bankNumber: '987-2-32454-2',
-      bankName: 'Diana Prince',
-      bankImage: 'kbank'
-    }
-  }
-]
-
 // Column Definitions
-const columnHelper = createColumnHelper<InvoiceTypeWithAction>()
+const columnHelper = createColumnHelper<AuditLogType>()
 
-const ProifileLogTable = () => {
+const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
-  const [status, setStatus] = useState<InvoiceType['invoiceStatus']>('')
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(...[dataMock])
-  const [filteredData, setFilteredData] = useState(data)
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Hooks
   const { lang: locale } = useParams()
 
-  const columns = useMemo<ColumnDef<InvoiceTypeWithAction, any>[]>(
+  const columns = useMemo<ColumnDef<AuditLogType, any>[]>(
     () => [
-      columnHelper.accessor('company', {
-        header: 'Recent Login',
+      columnHelper.accessor('created_at', {
+        header: 'Data time',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.created_at}</Typography>
+      }),
+
+      columnHelper.accessor('action', {
+        header: 'Action',
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
-            <Typography variant='h6'>{row.original.company}</Typography>
+            <Typography variant='h6'>{row.original.action}</Typography>
           </div>
         )
       }),
-      columnHelper.accessor('id', {
-        header: 'Action',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.id}</Typography>
+      columnHelper.accessor('username', {
+        header: 'Username',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.username}</Typography>
       }),
-      columnHelper.accessor('companyEmail', {
+      columnHelper.accessor('device', {
         header: 'Device',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.companyEmail}</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{row.original.device}</Typography>
       }),
 
-      columnHelper.accessor('id', {
+      columnHelper.accessor('location', {
         header: 'Geolocation',
-        cell: ({ row }) => <Typography variant='h6'>1</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{row.original.location}</Typography>
       }),
-
-      columnHelper.accessor('balance', {
+      columnHelper.accessor('ip', {
+        header: 'IP',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.ip}</Typography>
+      }),
+      columnHelper.accessor('status', {
         header: 'Status',
-        cell: ({ row }) => {
-          return (
-            <div className='flex gap-1 items-center'>
-              <Switch checked={true} onChange={() => {}} />
-              <Typography>Enable</Typography>
-            </div>
-          )
-        }
-      }),
-      columnHelper.accessor('action', {
-        header: '',
         cell: ({ row }) => (
-          <div className='flex items-center'>
-            <OptionMenu
-              iconButtonProps={{ size: 'medium' }}
-              iconClassName='text-textSecondary'
-              options={[
-                {
-                  text: (
-                    <Link
-                      href={{
-                        pathname: `/${locale}/auditlog`,
-                        query: { username: 'OPB12345' }
-                      }}
-                      className='no-underline text-textSecondary'
-                      onClick={e => e.stopPropagation()}
-                    >
-                      View Log Detail
-                    </Link>
-                  )
-                }
-              ]}
-            />
-          </div>
-        ),
-        enableSorting: false
+          <Chip
+            color={row.original.status == 'success' ? 'success' : 'primary'}
+            label={row.original.status}
+            size='small'
+            variant='tonal'
+          />
+        )
       })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, filteredData]
+    [data]
   )
 
-  const table = useReactTable({
-    data: filteredData as InvoiceType[],
+  const table = useReactTable<AuditLogType>({
+    data: data.list,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -443,16 +191,6 @@ const ProifileLogTable = () => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
-
-  useEffect(() => {
-    const filteredData = data?.filter(invoice => {
-      if (status && invoice.invoiceStatus.toLowerCase().replace(/\s+/g, '-') !== status) return false
-
-      return true
-    })
-
-    setFilteredData(filteredData)
-  }, [status, data])
 
   return (
     <Card>
@@ -516,20 +254,13 @@ const ProifileLogTable = () => {
           )}
         </table>
       </div>
-
-      <TablePagination
-        component={() => (
-          <>
-            <TablePaginationComponent table={table} />
-          </>
-        )}
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
+      <TablePaginationComponent
+        table={table}
+        count={data.max_page}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
       />
     </Card>
   )

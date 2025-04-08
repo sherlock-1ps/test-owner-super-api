@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { SyntheticEvent } from 'react'
 
 // MUI Imports
@@ -23,16 +24,36 @@ import ProifileLogTable from './ProifileLogTable'
 
 // Types
 import type { Data } from '@/types/pages/profileTypes'
-import { useHasMounted } from '@/hooks/useHasMounted'
+import {
+  useSearchAuditLogOperatorMutationOption,
+  useSearchAuditLogOwnerMutationOption
+} from '@/queryOptions/auditlog/auditLogQueryOptions'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const ProfileComponent = ({ data }: { data?: Data }) => {
   const { showDialog } = useDialog()
-  // const hasMounted = useHasMounted()
+  const profileData = useAuthStore(state => state.profile)
+  // const { hasPermission } = useHasPermission()
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [currentTab, setCurrentTab] = useState('profile')
 
-  const profileData = useAuthStore(state => state.profile)
+  const { mutate, data: loginLogData, isPending, reset } = useSearchAuditLogOwnerMutationOption()
 
-  // if (!hasMounted) return <p>Loading.....</p>
+  useEffect(() => {
+    if (currentTab == 'profile') {
+      setPage(1)
+      setPageSize(10)
+      reset()
+    } else {
+      mutate({
+        action: ['LOGIN'],
+        username: profileData?.username,
+        page: page,
+        limit: pageSize
+      })
+    }
+  }, [page, pageSize, currentTab])
 
   return (
     <Grid container spacing={6}>
@@ -100,7 +121,17 @@ const ProfileComponent = ({ data }: { data?: Data }) => {
                 <Grid item xs={12} sm={9} className='flex flex-col gap-8'>
                   <Typography variant='h4'>Login Log</Typography>
                   <Divider />
-                  <ProifileLogTable />
+                  {isPending && <Typography variant='h6'>Loading...</Typography>}
+
+                  {loginLogData?.code == 'SUCCESS' && (
+                    <ProifileLogTable
+                      data={loginLogData?.data || { list: [] }}
+                      page={page}
+                      pageSize={pageSize}
+                      setPage={setPage}
+                      setPageSize={setPageSize}
+                    />
+                  )}
                 </Grid>
               )}
             </Grid>
