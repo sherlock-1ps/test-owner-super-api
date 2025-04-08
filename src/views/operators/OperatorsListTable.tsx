@@ -217,6 +217,7 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
         id: 'action',
         header: '',
         cell: ({ row }) => {
+          const operatorData = encodeURIComponent(JSON.stringify(row.original))
           return (
             <div className='flex items-center'>
               <OptionMenu
@@ -374,7 +375,7 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
                             <Link
                               href={{
                                 pathname: `/${locale}/auditlog`,
-                                query: { operator: 'OPB12345' }
+                                query: { operator: operatorData }
                               }}
                               className='no-underline text-textSecondary'
                               onClick={e => e.stopPropagation()}

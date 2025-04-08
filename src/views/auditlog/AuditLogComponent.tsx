@@ -24,7 +24,7 @@ import {
 
 import { useForm, Controller, FormProvider } from 'react-hook-form'
 import { format, addDays } from 'date-fns'
-import { forwardRef, useEffect, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AuditLogTable from './AuditLogTable'
@@ -35,6 +35,7 @@ import {
 } from '@/queryOptions/auditlog/auditLogQueryOptions'
 import { cleanPayload } from '@/utils/cleanPayload'
 import { AuditLogOperatorFilterPayload, AuditLogOwnerFilterPayload } from '@/types/auditLog/auditLogTypes'
+import AuditLogOperatorTable from './AuditLogOperatorTable'
 
 const schema = z.object({
   tab: z.enum(['owner', 'operator']),
@@ -58,19 +59,25 @@ const AuditLogComponent = () => {
   const { dictionary } = useDictionary()
   const searchParams = useSearchParams()
   const operatorFromURL = searchParams.get('operator')
+  const operatorSelected = operatorFromURL ? JSON.parse(decodeURIComponent(operatorFromURL as string)) : null
+  const ownerFromURL = searchParams.get('owner')
+  const ownerSelected = ownerFromURL ? JSON.parse(decodeURIComponent(ownerFromURL as string)) : null
+  const hasMounted = useRef(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+
+  console.log('ownerSelected', ownerSelected)
 
   const methods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      tab: 'owner',
+      tab: operatorSelected ? 'operator' : 'owner',
       start_date: new Date(),
       end_date: new Date(),
       menu_index: 'all',
       action: 'all',
-      username: '',
-      operator_prefix: ''
+      username: operatorSelected?.email ?? ownerSelected?.username ?? '',
+      operator_prefix: operatorSelected?.operator_prefix ?? ''
     }
   })
 
@@ -123,8 +130,20 @@ const AuditLogComponent = () => {
   }
 
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true
+      return
+    }
+
     handleReset()
   }, [tab])
+
+  useEffect(() => {
+    if (operatorSelected || ownerSelected) {
+      const formValues = methods.getValues()
+      onSubmit(formValues)
+    }
+  }, [])
 
   const buildPayload = (data: FormData, page: number, pageSize: number) => {
     const basePayload = {
@@ -332,7 +351,7 @@ const AuditLogComponent = () => {
               <Grid item xs={12}>
                 <Typography variant='h6'>
                   {ownerDataLog?.data?.total || operatorDataLog?.data?.total
-                    ? `Found ${ownerDataLog.data.total.toLocaleString() || operatorDataLog.data.total.toLocaleString()} activity results`
+                    ? `Found ${ownerDataLog?.data?.total?.toLocaleString() || operatorDataLog?.data?.total?.toLocaleString()} activity results`
                     : 'Search to discover the results of your input.'}
                 </Typography>
               </Grid>
@@ -346,10 +365,22 @@ const AuditLogComponent = () => {
                 </Grid>
               )}
 
-              {(operatorDataLog?.code == 'SUCCESS' || ownerDataLog?.code == 'SUCCESS') && (
+              {ownerDataLog?.code == 'SUCCESS' && (
                 <Grid item xs={12}>
                   <AuditLogTable
-                    data={operatorDataLog?.data || ownerDataLog?.data || { list: [] }}
+                    data={ownerDataLog?.data || { list: [] }}
+                    page={page}
+                    pageSize={pageSize}
+                    setPage={setPage}
+                    setPageSize={setPageSize}
+                  />
+                </Grid>
+              )}
+
+              {operatorDataLog?.code == 'SUCCESS' && (
+                <Grid item xs={12}>
+                  <AuditLogOperatorTable
+                    data={operatorDataLog?.data || { list: [] }}
                     page={page}
                     pageSize={pageSize}
                     setPage={setPage}

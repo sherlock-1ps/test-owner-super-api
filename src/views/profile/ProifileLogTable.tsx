@@ -157,6 +157,38 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
             variant='tonal'
           />
         )
+      }),
+
+      columnHelper.display({
+        id: 'action',
+        cell: ({ row }) => {
+          const ownerData = encodeURIComponent(JSON.stringify(row.original))
+          return (
+            <div className='flex items-center'>
+              <OptionMenu
+                iconButtonProps={{ size: 'medium' }}
+                iconClassName='text-textSecondary'
+                options={[
+                  {
+                    text: (
+                      <Link
+                        href={{
+                          pathname: `/${locale}/auditlog`,
+                          query: { owner: ownerData }
+                        }}
+                        className='no-underline text-textSecondary'
+                        onClick={e => e.stopPropagation()}
+                      >
+                        {dictionary?.checkLog}
+                      </Link>
+                    )
+                  }
+                ]}
+              />
+            </div>
+          )
+        },
+        enableSorting: false
       })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps

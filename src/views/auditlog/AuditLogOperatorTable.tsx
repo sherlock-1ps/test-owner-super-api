@@ -77,16 +77,16 @@ declare module '@tanstack/table-core' {
   }
 }
 
-type OperatorType = {
-  operator_id: string
-  operator_prefix: string
-  operator_name: string
+type AuditLogType = {
+  log_id: string
+  created_at: string
+  action: string
   email: string
-  currency: string
-  country: string
-  timezone: string
-  is_enable: boolean
-  role_name: string
+  operator_prefix: string
+  ip: string
+  device: string
+  location: string
+  status: string
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -103,9 +103,9 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 }
 
 // Column Definitions
-const columnHelper = createColumnHelper<OperatorType>()
+const columnHelper = createColumnHelper<AuditLogType>()
 
-const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
+const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
   // States
@@ -115,173 +115,60 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
   // Hooks
   const { lang: locale } = useParams()
 
-  const { mutate, isPending: pendingUpdate, error } = useUpdateStatusAccountOperatorMutationOption()
-
-  const { mutate: callResetPassword } = useResetPasswordAccountOperatorMutationOption()
-  const { mutate: callChangeEmail } = useChangeEmailAccountOperatorMutationOption()
-
-  const handleUpdateStatus = (operator: string, status: boolean) => {
-    mutate({
-      operator_id: operator,
-      is_enable: status
-    })
-  }
-
-  const handleResetPassword = (email: string) => {
-    callResetPassword({ email })
-  }
-  const handleChangeEmail = (email: string) => {}
-
-  useEffect(() => {
-    if (error) toast.error(error?.message)
-  }, [error])
-
-  const columns = useMemo<ColumnDef<OperatorType, any>[]>(
+  const columns = useMemo<ColumnDef<AuditLogType, any>[]>(
     () => [
-      columnHelper.display({
-        id: 'id',
-        header: 'ID',
-        cell: ({ row }) => <Typography variant='h6'>{row.index + 1}</Typography>
-      }),
-      columnHelper.accessor('operator_prefix', {
-        header: 'Prefix',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.operator_prefix}</Typography>
+      columnHelper.accessor('created_at', {
+        header: 'Data time',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.created_at}</Typography>
       }),
 
-      columnHelper.accessor('email', {
-        header: dictionary?.email,
+      columnHelper.accessor('action', {
+        header: 'Action',
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
-            <Typography variant='h6'>{row.original.email}</Typography>
+            <Typography variant='h6'>{row.original.action}</Typography>
           </div>
         )
       }),
-      columnHelper.accessor('role_name', {
-        header: dictionary?.role,
-        cell: ({ row }) => <Typography variant='h6'>{row.original.role_name}</Typography>
+      columnHelper.accessor('operator_prefix', {
+        header: 'Operator Prefix',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.operator_prefix}</Typography>
+      }),
+      columnHelper.accessor('email', {
+        header: 'Email',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.email}</Typography>
+      }),
+      columnHelper.accessor('device', {
+        header: 'Device',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.device}</Typography>
       }),
 
-      columnHelper.accessor('is_enable', {
-        header: dictionary?.status,
-        cell: ({ row }) => {
-          return (
-            <div className='flex gap-1 items-center'>
-              <Switch
-                checked={true}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus}
-                        // content1={`Change this ${row.original.operator_name} operator status?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.operator_name)
-                            .replace('{{key}}', 'operator') ??
-                          `Change this ${row.original.operator_name} operator status?`
-                        }
-                        onClick={() => {
-                          handleUpdateStatus(row.original.operator_id, !row.original.is_enable)
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
-                disabled={pendingUpdate}
-              />
-              <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
-            </div>
-          )
-        }
+      columnHelper.accessor('location', {
+        header: 'Geolocation',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.location}</Typography>
       }),
-      columnHelper.accessor('country', {
-        header: 'Date Last Login',
-        cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
+      columnHelper.accessor('ip', {
+        header: 'IP',
+        cell: ({ row }) => <Typography variant='h6'>{row.original.ip}</Typography>
       }),
-
-      columnHelper.display({
-        id: 'action',
-        header: '',
-        cell: ({ row }) => {
-          const operatorData = encodeURIComponent(JSON.stringify(row.original))
-          return (
-            <div className='flex items-center'>
-              <OptionMenu
-                iconButtonProps={{ size: 'medium' }}
-                iconClassName='text-textSecondary'
-                options={[
-                  {
-                    text: dictionary?.changeEmail,
-                    menuItemProps: {
-                      className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () =>
-                        showDialog({
-                          id: 'ChangeEmailOperatorDialog',
-                          component: (
-                            <ChangeEmailOperatorDialog
-                              id='ChangeEmailOperatorDialog'
-                              data={row.original.operator_name}
-                              onClick={() => {}}
-                            />
-                          ),
-                          size: 'sm'
-                        })
-                    }
-                  },
-                  {
-                    text: dictionary['operator']?.resetPassword,
-                    menuItemProps: {
-                      className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () =>
-                        showDialog({
-                          id: 'alertResetPasswordOperator',
-                          component: (
-                            <ConfirmAlert
-                              id='alertResetPasswordOperator'
-                              title={'Confirm Password Reset'}
-                              content1={`Are you sure you want to reset the password for ${row.original.email} ?`}
-                              content2='The system will send the password reset email to the user’s email address '
-                              onClick={() => {
-                                handleResetPassword(row.original.email)
-                              }}
-                            />
-                          ),
-                          size: 'sm'
-                        })
-                    }
-                  },
-
-                  {
-                    text: (
-                      <Link
-                        href={{
-                          pathname: `/${locale}/auditlog`,
-                          query: { operator: operatorData }
-                        }}
-                        className='no-underline text-textSecondary'
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {dictionary?.checkLog}
-                      </Link>
-                    )
-                  }
-                ]}
-              />
-            </div>
-          )
-        },
-        enableSorting: false
+      columnHelper.accessor('status', {
+        header: 'Status',
+        cell: ({ row }) => (
+          <Chip
+            color={row.original.status == 'success' ? 'success' : 'primary'}
+            label={row.original.status}
+            size='small'
+            variant='tonal'
+          />
+        )
       })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data]
   )
 
-  const table = useReactTable<OperatorType>({
+  const table = useReactTable<AuditLogType>({
     data: data.list,
     columns,
     filterFns: {
@@ -384,4 +271,4 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
   )
 }
 
-export default AccountOperatorTable
+export default AuditLogOperatorTable

@@ -197,71 +197,74 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdat
 
       columnHelper.display({
         id: 'action',
-        cell: ({ row }) => (
-          <div className='flex items-center'>
-            <OptionMenu
-              iconButtonProps={{ size: 'medium' }}
-              iconClassName='text-textSecondary'
-              options={[
-                {
-                  text: dictionary['account']?.changeRole,
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-textSecondary',
-                    onClick: () =>
-                      showDialog({
-                        id: 'RenameAccountDialog',
-                        component: (
-                          <RenameAccountDialog id='RenameAccountDialog' data={row.original} onClick={() => {}} />
-                        ),
-                        size: 'sm'
-                      })
-                  }
-                },
-                {
-                  text: dictionary['account']?.forceReset,
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-textSecondary',
-                    onClick: () =>
-                      showDialog({
-                        id: 'alertDialogConfirmResetPasswordCreateOperator',
-                        component: (
-                          <ConfirmAlert
-                            id='alertDialogConfirmResetPasswordCreateOperator'
-                            title={dictionary['operator']?.passwordReset}
-                            // content1={`Are you sure you want to force reset the password for ${row.original.username} ?`}
-                            content1={
-                              dictionary['account']?.resetPasswordTitle?.replace('{{name}}', row.original.username) ??
-                              `Are you sure you want to force reset the password for ${row.original.username} ?`
-                            }
-                            content2={dictionary['account']?.resetPasswordDetail}
-                            onClick={() => {
-                              handleResetPassword()
-                            }}
-                          />
-                        ),
-                        size: 'sm'
-                      })
-                  }
-                },
+        cell: ({ row }) => {
+          const ownerData = encodeURIComponent(JSON.stringify(row.original))
+          return (
+            <div className='flex items-center'>
+              <OptionMenu
+                iconButtonProps={{ size: 'medium' }}
+                iconClassName='text-textSecondary'
+                options={[
+                  {
+                    text: dictionary['account']?.changeRole,
+                    menuItemProps: {
+                      className: 'flex items-center gap-2 text-textSecondary',
+                      onClick: () =>
+                        showDialog({
+                          id: 'RenameAccountDialog',
+                          component: (
+                            <RenameAccountDialog id='RenameAccountDialog' data={row.original} onClick={() => {}} />
+                          ),
+                          size: 'sm'
+                        })
+                    }
+                  },
+                  {
+                    text: dictionary['account']?.forceReset,
+                    menuItemProps: {
+                      className: 'flex items-center gap-2 text-textSecondary',
+                      onClick: () =>
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary['operator']?.passwordReset}
+                              // content1={`Are you sure you want to force reset the password for ${row.original.username} ?`}
+                              content1={
+                                dictionary['account']?.resetPasswordTitle?.replace('{{name}}', row.original.username) ??
+                                `Are you sure you want to force reset the password for ${row.original.username} ?`
+                              }
+                              content2={dictionary['account']?.resetPasswordDetail}
+                              onClick={() => {
+                                handleResetPassword()
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                    }
+                  },
 
-                {
-                  text: (
-                    <Link
-                      href={{
-                        pathname: `/${locale}/auditlog`,
-                        query: { operator: 'OPB12345' }
-                      }}
-                      className='no-underline text-textSecondary'
-                      onClick={e => e.stopPropagation()}
-                    >
-                      {dictionary?.checkLog}
-                    </Link>
-                  )
-                }
-              ]}
-            />
-          </div>
-        ),
+                  {
+                    text: (
+                      <Link
+                        href={{
+                          pathname: `/${locale}/auditlog`,
+                          query: { owner: ownerData }
+                        }}
+                        className='no-underline text-textSecondary'
+                        onClick={e => e.stopPropagation()}
+                      >
+                        {dictionary?.checkLog}
+                      </Link>
+                    )
+                  }
+                ]}
+              />
+            </div>
+          )
+        },
         enableSorting: false
       })
     ],

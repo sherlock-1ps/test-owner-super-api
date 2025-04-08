@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 
 const Axios: AxiosInstance = axios.create({
-  baseURL: `https://api-dev.arawanglobal.com/backend-api-gateway-test`,
+  baseURL: `http://52.220.124.2:8080`,
   timeout: 15100,
 })
 
