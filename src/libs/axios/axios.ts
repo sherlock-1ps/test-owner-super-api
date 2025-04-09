@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 
 const Axios: AxiosInstance = axios.create({
-  baseURL: `http://52.220.124.2:8080`,
+  baseURL: process.env.NEXT_PUBLIC_END_POINT_URL,
   timeout: 15100,
 })
 

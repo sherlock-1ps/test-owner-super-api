@@ -48,6 +48,8 @@ import {
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import OperatorInfoDialog from '@/components/dialogs/operators/OperatorInfoDialog'
+import { useHasPermission } from '@/hooks/useHasPermission'
+import { OptionType } from '@/@core/components/option-menu/types'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -90,6 +92,7 @@ const columnHelper = createColumnHelper<OperatorType>()
 const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   const router = useRouter()
   // States
   const [rowSelection, setRowSelection] = useState({})
@@ -180,31 +183,35 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus}
-                        // content1={`Change this operator status?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.operator_name)
-                            .replace('{{key}}', 'operator') ??
-                          `Change this ${row.original.operator_name} operator status?`
-                        }
-                        onClick={() => {
-                          updateStateOperator({
-                            operator_id: row.original.operator_id,
-                            is_enable: !row.original.is_enable
-                          })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-5')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus}
+                              // content1={`Change this operator status?`}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.operator_name)
+                                  .replace('{{key}}', 'operator') ??
+                                `Change this ${row.original.operator_name} operator status?`
+                              }
+                              onClick={() => {
+                                updateStateOperator({
+                                  operator_id: row.original.operator_id,
+                                  is_enable: !row.original.is_enable
+                                })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={pendingStatus}
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
@@ -212,181 +219,171 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
           )
         }
       }),
-
       columnHelper.display({
         id: 'action',
         header: '',
         cell: ({ row }) => {
           const operatorData = encodeURIComponent(JSON.stringify(row.original))
+          const options: OptionType[] = []
+
+          if (row.original.is_draft) {
+            if (hasPermission('edit-owner-5')) {
+              options.push({
+                text: pendingFetchDraftOperator ? 'Loading...' : dictionary['operator']?.countinueSetting,
+                menuItemProps: {
+                  className: 'flex items-center gap-2 text-textSecondary',
+                  onClick: () => handleCountinueSetting(row.original.operator_prefix),
+                  disabled: pendingFetchDraftOperator
+                }
+              })
+            }
+
+            if (hasPermission('delete-owner-5')) {
+              options.push({
+                text: dictionary?.delete,
+                menuItemProps: {
+                  className: 'flex items-center gap-2 text-textSecondary',
+                  onClick: () =>
+                    showDialog({
+                      id: 'alertDialogConfirmDeleteCreateOperator',
+                      component: (
+                        <ConfirmAlert
+                          id='alertDialogConfirmDeleteCreateOperator'
+                          title={dictionary['operator']?.confirmDelete}
+                          content1={
+                            dictionary?.changeStatusWithName?.replace('{{name}}', row.original.operator_name) ??
+                            `Are you sure you want to delete Operator ${row.original.operator_name} ?`
+                          }
+                          onClick={() => {
+                            deleteDraftOperator({
+                              operator_prefix: row.original.operator_prefix
+                            })
+                          }}
+                        />
+                      ),
+                      size: 'sm'
+                    })
+                }
+              })
+            }
+          } else {
+            options.push(
+              {
+                text: (
+                  <Link
+                    href={{
+                      pathname: `/${locale}/operators/credential`,
+                      query: { credential: row.original.operator_prefix }
+                    }}
+                    className='no-underline text-textSecondary'
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {dictionary['operator']?.crendentialList}
+                  </Link>
+                )
+              },
+              {
+                text: dictionary?.profile,
+                menuItemProps: {
+                  className: 'flex items-center gap-2 text-textSecondary',
+                  onClick: () =>
+                    showDialog({
+                      id: 'OperatorInfoDialog',
+                      component: (
+                        <OperatorInfoDialog
+                          id='OperatorInfoDialog'
+                          onClick={() => {}}
+                          operatorId={row.original.operator_id}
+                        />
+                      ),
+                      size: 'sm'
+                    })
+                }
+              }
+            )
+
+            if (hasPermission('edit-owner-5')) {
+              options.push({
+                text: dictionary['operator']?.resetPassword,
+                menuItemProps: {
+                  className: 'flex items-center gap-2 text-textSecondary',
+                  onClick: () =>
+                    showDialog({
+                      id: 'alertDialogConfirmResetPasswordCreateOperator',
+                      component: (
+                        <ConfirmAlert
+                          id='alertDialogConfirmResetPasswordCreateOperator'
+                          title={dictionary['operator']?.passwordReset}
+                          content1={
+                            dictionary['operator']?.confirmPasswordReset
+                              ?.replace('{{name}}', row.original.operator_name)
+                              .replace('{{key}}', 'operator') ??
+                            `Are you sure you want to reset the password for Operator ${row.original.operator_name} ?`
+                          }
+                          onClick={() => {
+                            handleResetPasswordOperator(row.original.email)
+                          }}
+                        />
+                      ),
+                      size: 'sm'
+                    })
+                }
+              })
+            }
+
+            if (hasPermission('delete-owner-5')) {
+              options.push(
+                {
+                  text: dictionary?.delete,
+                  menuItemProps: {
+                    className: 'flex items-center gap-2 text-textSecondary',
+                    onClick: () =>
+                      showDialog({
+                        id: 'alertDialogConfirmDeleteCreateOperator',
+                        component: (
+                          <ConfirmAlert
+                            id='alertDialogConfirmDeleteCreateOperator'
+                            title={dictionary?.confirmDelete}
+                            content1={
+                              dictionary?.changeStatusWithName
+                                ?.replace('{{name}}', row.original.operator_name)
+                                .replace('{{key}}', 'operator') ??
+                              `Are you sure you want to delete Operator ${row.original.operator_name} ?`
+                            }
+                            onClick={() => {
+                              deleteOperator({
+                                operator_id: row.original.operator_id
+                              })
+                            }}
+                          />
+                        ),
+                        size: 'sm'
+                      })
+                  }
+                },
+                {
+                  text: (
+                    <Link
+                      href={{
+                        pathname: `/${locale}/auditlog`,
+                        query: { operator: operatorData }
+                      }}
+                      className='no-underline text-textSecondary'
+                      onClick={e => e.stopPropagation()}
+                    >
+                      {dictionary?.checkLog}
+                    </Link>
+                  )
+                }
+              )
+            }
+          }
+
           return (
             <div className='flex items-center'>
-              <OptionMenu
-                iconButtonProps={{ size: 'medium' }}
-                iconClassName='text-textSecondary'
-                options={
-                  row.original.is_draft
-                    ? [
-                        {
-                          text: pendingFetchDraftOperator ? 'Loading...' : dictionary['operator']?.countinueSetting,
-                          menuItemProps: {
-                            className: 'flex items-center gap-2 text-textSecondary',
-                            onClick: () => {
-                              handleCountinueSetting(row.original.operator_prefix)
-                            },
-                            disabled: pendingFetchDraftOperator
-                          }
-                        },
-
-                        {
-                          text: dictionary?.delete,
-                          menuItemProps: {
-                            className: 'flex items-center gap-2 text-textSecondary',
-                            onClick: () =>
-                              showDialog({
-                                id: 'alertDialogConfirmDeleteCreateOperator',
-                                component: (
-                                  <ConfirmAlert
-                                    id='alertDialogConfirmDeleteCreateOperator'
-                                    title={dictionary['operator']?.confirmDelete}
-                                    // content1={`Are you sure you want to delete Operator OnePlayBet1 ? `}
-                                    content1={
-                                      dictionary?.changeStatusWithName?.replace(
-                                        '{{name}}',
-                                        row.original.operator_name
-                                      ) ?? `Are you sure you want to delete Operator ${row.original.operator_name} ?`
-                                    }
-                                    onClick={() => {
-                                      deleteDraftOperator({
-                                        operator_prefix: row.original.operator_prefix
-                                      })
-                                    }}
-                                  />
-                                ),
-                                size: 'sm'
-                              })
-                          }
-                        }
-                      ]
-                    : [
-                        {
-                          text: (
-                            <Link
-                              href={{
-                                pathname: `/${locale}/operators/credential`,
-                                query: { credential: row.original.operator_prefix }
-                              }}
-                              className='no-underline text-textSecondary'
-                              onClick={e => e.stopPropagation()}
-                            >
-                              {dictionary['operator']?.crendentialList}
-                            </Link>
-                          )
-                        },
-                        {
-                          text: dictionary?.profile,
-                          menuItemProps: {
-                            className: 'flex items-center gap-2 text-textSecondary',
-                            onClick: () =>
-                              showDialog({
-                                id: 'OperatorInfoDialog',
-                                component: (
-                                  <OperatorInfoDialog
-                                    id='OperatorInfoDialog'
-                                    onClick={() => {}}
-                                    operatorId={row.original.operator_id}
-                                  />
-                                ),
-                                size: 'sm'
-                              })
-                          }
-                        },
-                        // {
-                        //   text: (
-                        //     <Link
-                        //       href={{
-                        //         pathname: `/${locale}/providers/name`,
-                        //         query: { provider: 'hello world' }
-                        //       }}
-                        //       className='no-underline text-textSecondary'
-                        //       onClick={e => e.stopPropagation()}
-                        //     >
-                        //       {dictionary?.profile}
-                        //     </Link>
-                        //   )
-                        // },
-                        {
-                          text: dictionary['operator']?.resetPassword,
-                          menuItemProps: {
-                            className: 'flex items-center gap-2 text-textSecondary',
-                            onClick: () =>
-                              showDialog({
-                                id: 'alertDialogConfirmResetPasswordCreateOperator',
-                                component: (
-                                  <ConfirmAlert
-                                    id='alertDialogConfirmResetPasswordCreateOperator'
-                                    title={dictionary['operator']?.passwordReset}
-                                    // content1={`Are you sure you want to reset the password for Operator OnePlayBet1 ?`}
-                                    content1={
-                                      dictionary['operator']?.confirmPasswordReset
-                                        ?.replace('{{name}}', row.original.operator_name)
-                                        .replace('{{key}}', 'operator') ??
-                                      `Are you sure you want to reset the password for Operator ${row.original.operator_name} ?`
-                                    }
-                                    onClick={() => {
-                                      handleResetPasswordOperator(row.original.email)
-                                    }}
-                                  />
-                                ),
-                                size: 'sm'
-                              })
-                          }
-                        },
-                        {
-                          text: dictionary?.delete,
-                          menuItemProps: {
-                            className: 'flex items-center gap-2 text-textSecondary',
-                            onClick: () =>
-                              showDialog({
-                                id: 'alertDialogConfirmDeleteCreateOperator',
-                                component: (
-                                  <ConfirmAlert
-                                    id='alertDialogConfirmDeleteCreateOperator'
-                                    title={dictionary?.confirmDelete}
-                                    // content1={`Are you sure you want to delete Operator OnePlayBet1 ? `}
-                                    content1={
-                                      dictionary?.changeStatusWithName
-                                        ?.replace('{{name}}', row.original.operator_name)
-                                        .replace('{{key}}', 'operator') ??
-                                      `Are you sure you want to delete Operator ${row.original.operator_name} ?`
-                                    }
-                                    onClick={() => {
-                                      deleteOperator({
-                                        operator_id: row.original.operator_id
-                                      })
-                                    }}
-                                  />
-                                ),
-                                size: 'sm'
-                              })
-                          }
-                        },
-                        {
-                          text: (
-                            <Link
-                              href={{
-                                pathname: `/${locale}/auditlog`,
-                                query: { operator: operatorData }
-                              }}
-                              className='no-underline text-textSecondary'
-                              onClick={e => e.stopPropagation()}
-                            >
-                              {dictionary?.checkLog}
-                            </Link>
-                          )
-                        }
-                      ]
-                }
-              />
+              {row.original.is_draft && !hasPermission('delete-owner-5') && !hasPermission('edit-owner-5') ? null : (
+                <OptionMenu iconButtonProps={{ size: 'medium' }} iconClassName='text-textSecondary' options={options} />
+              )}
             </div>
           )
         },

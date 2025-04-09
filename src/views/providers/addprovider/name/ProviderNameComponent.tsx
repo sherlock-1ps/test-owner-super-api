@@ -17,10 +17,12 @@ import { fetchGamesProviderQueryOption } from '@/queryOptions/provider/providerQ
 import { useDialog } from '@/hooks/useDialog'
 import AddGameDialog from '@/components/dialogs/provider/AddGameDialog'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const ProviderNameComponent = () => {
   const { dictionary } = useDictionary()
   const { showDialog } = useDialog()
+  const { hasPermission } = useHasPermission()
   const searchParams = useSearchParams()
   const provider = searchParams.get('provider')
   const providerName = searchParams.get('providerName')
@@ -99,25 +101,28 @@ const ProviderNameComponent = () => {
                     <Typography color={'secondary'}>{provider}</Typography>
                   </div>
                 </div>
-                <Button
-                  variant='contained'
-                  onClick={() => {
-                    showDialog({
-                      id: 'AddGameDialog',
-                      component: (
-                        <AddGameDialog
-                          id='AddGameDialog'
-                          data={gamesProviderData?.data}
-                          providerCode={provider ?? ''}
-                          onClick={() => {}}
-                        />
-                      ),
-                      size: 'sm'
-                    })
-                  }}
-                >
-                  {dictionary['provider']?.addGame ?? 'Add Game'}
-                </Button>
+
+                {hasPermission('create-owner-4') && (
+                  <Button
+                    variant='contained'
+                    onClick={() => {
+                      showDialog({
+                        id: 'AddGameDialog',
+                        component: (
+                          <AddGameDialog
+                            id='AddGameDialog'
+                            data={gamesProviderData?.data}
+                            providerCode={provider ?? ''}
+                            onClick={() => {}}
+                          />
+                        ),
+                        size: 'sm'
+                      })
+                    }}
+                  >
+                    {dictionary['provider']?.addGame ?? 'Add Game'}
+                  </Button>
+                )}
               </div>
 
               <Divider />

@@ -67,6 +67,7 @@ import {
   useDeleteRoleListMutationOption,
   useUpdateStatusMutationOption
 } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -105,6 +106,7 @@ const columnHelper = createColumnHelper<RoleConfig>()
 const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -148,27 +150,31 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus}
-                        // content1={`Change this operator status?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.role_name)
-                            .replace('{{key}}', 'role') ?? `Change this ${row.original.role_name} role status?`
-                        }
-                        onClick={() => {
-                          updateStatusRole({ role_id: row.original.role_id, is_enable: !row.original.is_enable })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-11')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus}
+                              // content1={`Change this operator status?`}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.role_name)
+                                  .replace('{{key}}', 'role') ?? `Change this ${row.original.role_name} role status?`
+                              }
+                              onClick={() => {
+                                updateStatusRole({ role_id: row.original.role_id, is_enable: !row.original.is_enable })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={pendingUpdateStatus}
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
@@ -186,54 +192,55 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
         header: '',
         cell: ({ row }) => {
           const roleItem = encodeURIComponent(JSON.stringify(row.original))
+          const options: OptionType[] = []
+
+          if (hasPermission('edit-owner-11')) {
+            options.push({
+              text: (
+                <Link
+                  href={{
+                    pathname: `/${locale}/role/managerole`,
+                    query: { role: roleItem }
+                  }}
+                  className='no-underline text-textSecondary'
+                  onClick={e => e.stopPropagation()}
+                >
+                  Edit Role
+                </Link>
+              )
+            })
+          }
+
+          if (hasPermission('delete-owner-11') && row.original.member === 0) {
+            options.push({
+              text: <span>Delete</span>,
+              menuItemProps: {
+                className: 'flex items-center gap-2 text-textSecondary',
+                onClick: () =>
+                  showDialog({
+                    id: 'alertDialogConfirmResetPasswordCreateOperator',
+                    component: (
+                      <ConfirmAlert
+                        id='alertDialogConfirmResetPasswordCreateOperator'
+                        title='Confirm Delete Role'
+                        content1='Are you sure you want to delete Role Manager?'
+                        content2='This action can only be performed for roles that do not have any members assigned.'
+                        onClick={() => {
+                          callDeleteRoleList({ role_id: row.original.role_id })
+                        }}
+                      />
+                    ),
+                    size: 'sm'
+                  })
+              }
+            })
+          }
+
           return (
             <div className='flex items-center'>
-              <OptionMenu
-                iconButtonProps={{ size: 'medium' }}
-                iconClassName='text-textSecondary'
-                options={
-                  [
-                    {
-                      text: (
-                        <Link
-                          href={{
-                            pathname: `/${locale}/role/managerole`,
-                            query: { role: roleItem }
-                          }}
-                          className='no-underline text-textSecondary'
-                          onClick={e => e.stopPropagation()}
-                        >
-                          Edit Role
-                        </Link>
-                      )
-                    },
-                    row.original.member === 0
-                      ? {
-                          text: <span>Delete</span>,
-                          menuItemProps: {
-                            className: 'flex items-center gap-2 text-textSecondary',
-                            onClick: () =>
-                              showDialog({
-                                id: 'alertDialogConfirmResetPasswordCreateOperator',
-                                component: (
-                                  <ConfirmAlert
-                                    id='alertDialogConfirmResetPasswordCreateOperator'
-                                    title='Confirm Delete Role'
-                                    content1='Are you sure you want to delete Role Manager?'
-                                    content2='This action can only be performed for roles that do not have any members assigned.'
-                                    onClick={() => {
-                                      callDeleteRoleList({ role_id: row.original.role_id })
-                                    }}
-                                  />
-                                ),
-                                size: 'sm'
-                              })
-                          }
-                        }
-                      : null
-                  ].filter(Boolean) as OptionType[]
-                }
-              />
+              {(hasPermission('edit-owner-11') || hasPermission('delete-owner-11')) && (
+                <OptionMenu iconButtonProps={{ size: 'medium' }} iconClassName='text-textSecondary' options={options} />
+              )}
             </div>
           )
         },

@@ -67,6 +67,8 @@ import {
 } from '@/queryOptions/account/accountQueryOptions'
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
+import { OptionType } from '@/@core/components/option-menu/types'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -111,6 +113,7 @@ const columnHelper = createColumnHelper<OwnerAccountType>()
 const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdateStatus }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -164,26 +167,31 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdat
               <Switch
                 checked={row.original.is_enable}
                 disabled={isPending}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.username)
-                            .replace('{{key}}', 'operator') ?? `Change this ${row.original.username} operator status?`
-                        }
-                        onClick={() => {
-                          mutate({ owner_id: row.original.owner_id, is_enable: !row.original.is_enable })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-9')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.username)
+                                  .replace('{{key}}', 'operator') ??
+                                `Change this ${row.original.username} operator status?`
+                              }
+                              onClick={() => {
+                                mutate({ owner_id: row.original.owner_id, is_enable: !row.original.is_enable })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
             </div>
@@ -199,69 +207,72 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdat
         id: 'action',
         cell: ({ row }) => {
           const ownerData = encodeURIComponent(JSON.stringify(row.original))
+          const options: OptionType[] = []
+
+          // ✅ Show Change Role if permission is allowed
+          if (hasPermission('edit-owner-9')) {
+            options.push({
+              text: dictionary['account']?.changeRole,
+              menuItemProps: {
+                className: 'flex items-center gap-2 text-textSecondary',
+                onClick: () =>
+                  showDialog({
+                    id: 'RenameAccountDialog',
+                    component: <RenameAccountDialog id='RenameAccountDialog' data={row.original} onClick={() => {}} />,
+                    size: 'sm'
+                  })
+              }
+            })
+          }
+
+          // ✅ Show Force Reset if permission is allowed
+          if (hasPermission('edit-owner-9')) {
+            options.push({
+              text: dictionary['account']?.forceReset,
+              menuItemProps: {
+                className: 'flex items-center gap-2 text-textSecondary',
+                onClick: () =>
+                  showDialog({
+                    id: 'alertDialogConfirmResetPasswordCreateOperator',
+                    component: (
+                      <ConfirmAlert
+                        id='alertDialogConfirmResetPasswordCreateOperator'
+                        title={dictionary['operator']?.passwordReset}
+                        content1={
+                          dictionary['account']?.resetPasswordTitle?.replace('{{name}}', row.original.username) ??
+                          `Are you sure you want to force reset the password for ${row.original.username} ?`
+                        }
+                        content2={dictionary['account']?.resetPasswordDetail}
+                        onClick={() => {
+                          handleResetPassword()
+                        }}
+                      />
+                    ),
+                    size: 'sm'
+                  })
+              }
+            })
+          }
+
+          // ✅ Always show audit log link
+          options.push({
+            text: (
+              <Link
+                href={{
+                  pathname: `/${locale}/auditlog`,
+                  query: { owner: ownerData }
+                }}
+                className='no-underline text-textSecondary'
+                onClick={e => e.stopPropagation()}
+              >
+                {dictionary?.checkLog}
+              </Link>
+            )
+          })
+
           return (
             <div className='flex items-center'>
-              <OptionMenu
-                iconButtonProps={{ size: 'medium' }}
-                iconClassName='text-textSecondary'
-                options={[
-                  {
-                    text: dictionary['account']?.changeRole,
-                    menuItemProps: {
-                      className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () =>
-                        showDialog({
-                          id: 'RenameAccountDialog',
-                          component: (
-                            <RenameAccountDialog id='RenameAccountDialog' data={row.original} onClick={() => {}} />
-                          ),
-                          size: 'sm'
-                        })
-                    }
-                  },
-                  {
-                    text: dictionary['account']?.forceReset,
-                    menuItemProps: {
-                      className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () =>
-                        showDialog({
-                          id: 'alertDialogConfirmResetPasswordCreateOperator',
-                          component: (
-                            <ConfirmAlert
-                              id='alertDialogConfirmResetPasswordCreateOperator'
-                              title={dictionary['operator']?.passwordReset}
-                              // content1={`Are you sure you want to force reset the password for ${row.original.username} ?`}
-                              content1={
-                                dictionary['account']?.resetPasswordTitle?.replace('{{name}}', row.original.username) ??
-                                `Are you sure you want to force reset the password for ${row.original.username} ?`
-                              }
-                              content2={dictionary['account']?.resetPasswordDetail}
-                              onClick={() => {
-                                handleResetPassword()
-                              }}
-                            />
-                          ),
-                          size: 'sm'
-                        })
-                    }
-                  },
-
-                  {
-                    text: (
-                      <Link
-                        href={{
-                          pathname: `/${locale}/auditlog`,
-                          query: { owner: ownerData }
-                        }}
-                        className='no-underline text-textSecondary'
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {dictionary?.checkLog}
-                      </Link>
-                    )
-                  }
-                ]}
-              />
+              <OptionMenu iconButtonProps={{ size: 'medium' }} iconClassName='text-textSecondary' options={options} />
             </div>
           )
         },

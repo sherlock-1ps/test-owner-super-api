@@ -14,6 +14,7 @@ import { searchProviders } from '@/app/sevices/provider/provider'
 import fetchProviderQueryOption, { fetchProviderTypeQueryOption } from '@/queryOptions/provider/providerQueryOptions'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { useAuthStore } from '@/store/authStore'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const ProviderListComponent = () => {
   const router = useRouter()
@@ -26,7 +27,9 @@ const ProviderListComponent = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const profileData = useAuthStore(state => state.profile)
-  console.log('99898989', profileData)
+  const { hasPermission } = useHasPermission()
+  // console.log('99898989', profileData)
+
   const {
     data: providersData,
     isPending: pendingProvider,
@@ -73,14 +76,17 @@ const ProviderListComponent = () => {
             <Typography variant='h5' className=' text-nowrap'>
               {dictionary['provider']?.providerList ?? 'Provider List'}
             </Typography>
-            <Button
-              variant='contained'
-              onClick={() => {
-                router.push(`/${locale}/providers/addprovider`)
-              }}
-            >
-              {dictionary['provider']?.addNewProvider ?? 'Add New Provider'}
-            </Button>
+
+            {hasPermission('create-owner-4') && (
+              <Button
+                variant='contained'
+                onClick={() => {
+                  router.push(`/${locale}/providers/addprovider`)
+                }}
+              >
+                {dictionary['provider']?.addNewProvider ?? 'Add New Provider'}
+              </Button>
+            )}
           </Grid>
           <Divider />
           <Grid container spacing={4} alignItems='end'>

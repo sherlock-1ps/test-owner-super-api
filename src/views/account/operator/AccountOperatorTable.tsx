@@ -67,6 +67,8 @@ import {
   useUpdateStatusAccountOperatorMutationOption
 } from '@/queryOptions/account/accountQueryOptions'
 import { toast } from 'react-toastify'
+import { useHasPermission } from '@/hooks/useHasPermission'
+import { OptionType } from '@/@core/components/option-menu/types'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -108,6 +110,7 @@ const columnHelper = createColumnHelper<OperatorType>()
 const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -169,28 +172,32 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={true}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus}
-                        // content1={`Change this ${row.original.operator_name} operator status?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.operator_name)
-                            .replace('{{key}}', 'operator') ??
-                          `Change this ${row.original.operator_name} operator status?`
-                        }
-                        onClick={() => {
-                          handleUpdateStatus(row.original.operator_id, !row.original.is_enable)
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-10')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus}
+                              // content1={`Change this ${row.original.operator_name} operator status?`}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.operator_name)
+                                  .replace('{{key}}', 'operator') ??
+                                `Change this ${row.original.operator_name} operator status?`
+                              }
+                              onClick={() => {
+                                handleUpdateStatus(row.original.operator_id, !row.original.is_enable)
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={pendingUpdate}
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
@@ -202,75 +209,78 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
         header: 'Date Last Login',
         cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
       }),
-
       columnHelper.display({
         id: 'action',
         header: '',
         cell: ({ row }) => {
           const operatorData = encodeURIComponent(JSON.stringify(row.original))
+          const options: OptionType[] = []
+
+          if (hasPermission('edit-owner-10')) {
+            options.push({
+              text: dictionary?.changeEmail,
+              menuItemProps: {
+                className: 'flex items-center gap-2 text-textSecondary',
+                onClick: () =>
+                  showDialog({
+                    id: 'ChangeEmailOperatorDialog',
+                    component: (
+                      <ChangeEmailOperatorDialog
+                        id='ChangeEmailOperatorDialog'
+                        data={row.original.operator_name}
+                        onClick={() => {}}
+                      />
+                    ),
+                    size: 'sm'
+                  })
+              }
+            })
+          }
+
+          if (hasPermission('edit-owner-10')) {
+            options.push({
+              text: dictionary['operator']?.resetPassword,
+              menuItemProps: {
+                className: 'flex items-center gap-2 text-textSecondary',
+                onClick: () =>
+                  showDialog({
+                    id: 'alertResetPasswordOperator',
+                    component: (
+                      <ConfirmAlert
+                        id='alertResetPasswordOperator'
+                        title={'Confirm Password Reset'}
+                        content1={`Are you sure you want to reset the password for ${row.original.email} ?`}
+                        content2='The system will send the password reset email to the user’s email address '
+                        onClick={() => {
+                          handleResetPassword(row.original.email)
+                        }}
+                      />
+                    ),
+                    size: 'sm'
+                  })
+              }
+            })
+          }
+
+          // ✅ Always show audit log
+          options.push({
+            text: (
+              <Link
+                href={{
+                  pathname: `/${locale}/auditlog`,
+                  query: { operator: operatorData }
+                }}
+                className='no-underline text-textSecondary'
+                onClick={e => e.stopPropagation()}
+              >
+                {dictionary?.checkLog}
+              </Link>
+            )
+          })
+
           return (
             <div className='flex items-center'>
-              <OptionMenu
-                iconButtonProps={{ size: 'medium' }}
-                iconClassName='text-textSecondary'
-                options={[
-                  {
-                    text: dictionary?.changeEmail,
-                    menuItemProps: {
-                      className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () =>
-                        showDialog({
-                          id: 'ChangeEmailOperatorDialog',
-                          component: (
-                            <ChangeEmailOperatorDialog
-                              id='ChangeEmailOperatorDialog'
-                              data={row.original.operator_name}
-                              onClick={() => {}}
-                            />
-                          ),
-                          size: 'sm'
-                        })
-                    }
-                  },
-                  {
-                    text: dictionary['operator']?.resetPassword,
-                    menuItemProps: {
-                      className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () =>
-                        showDialog({
-                          id: 'alertResetPasswordOperator',
-                          component: (
-                            <ConfirmAlert
-                              id='alertResetPasswordOperator'
-                              title={'Confirm Password Reset'}
-                              content1={`Are you sure you want to reset the password for ${row.original.email} ?`}
-                              content2='The system will send the password reset email to the user’s email address '
-                              onClick={() => {
-                                handleResetPassword(row.original.email)
-                              }}
-                            />
-                          ),
-                          size: 'sm'
-                        })
-                    }
-                  },
-
-                  {
-                    text: (
-                      <Link
-                        href={{
-                          pathname: `/${locale}/auditlog`,
-                          query: { operator: operatorData }
-                        }}
-                        className='no-underline text-textSecondary'
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {dictionary?.checkLog}
-                      </Link>
-                    )
-                  }
-                ]}
-              />
+              <OptionMenu iconButtonProps={{ size: 'medium' }} iconClassName='text-textSecondary' options={options} />
             </div>
           )
         },

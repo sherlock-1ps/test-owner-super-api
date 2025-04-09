@@ -66,6 +66,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateGameProvider, updateStatusGame } from '@/app/sevices/provider/provider'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { useUpdateStatusGameProviderMutationOption } from '@/queryOptions/operator/operatorQueryOptions'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -103,6 +104,7 @@ const columnHelper = createColumnHelper<GameType>()
 const SelectedProviderTable = ({ data = [], page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -158,31 +160,35 @@ const SelectedProviderTable = ({ data = [], page, pageSize, setPage, setPageSize
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus ?? 'Do you want to change the status'}
-                        // content1={`Change this ${row.original.game_name} status game ?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.game_name)
-                            .replace('{{key}}', dictionary?.game) ??
-                          `Change this ${row.original.game_name} provider status?`
-                        }
-                        onClick={() => {
-                          toggleGameProviderStatus({
-                            game_credential_id: row.original.game_credential_id,
-                            is_enable: !row.original.is_enable
-                          })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-5')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus ?? 'Do you want to change the status'}
+                              // content1={`Change this ${row.original.game_name} status game ?`}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.game_name)
+                                  .replace('{{key}}', dictionary?.game) ??
+                                `Change this ${row.original.game_name} provider status?`
+                              }
+                              onClick={() => {
+                                toggleGameProviderStatus({
+                                  game_credential_id: row.original.game_credential_id,
+                                  is_enable: !row.original.is_enable
+                                })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={pendingUpdate}
               />
               <Typography>

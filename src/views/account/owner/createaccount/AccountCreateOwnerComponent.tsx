@@ -23,6 +23,7 @@ import { useCreateAccountOwnerMutationOption } from '@/queryOptions/account/acco
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { useFetchConfigRoleQueryOption } from '@/queryOptions/config/configQueryOptions'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 // Zod Schema for Validation
 const accountSchema = z
@@ -46,6 +47,7 @@ const AccountCreateOwnerComponent = () => {
   const router = useRouter()
   const { lang: locale } = useParams()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
 
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
@@ -214,9 +216,11 @@ const AccountCreateOwnerComponent = () => {
                 >
                   {dictionary?.cancel}
                 </Button>
-                <Button variant='contained' type='submit' disabled={pendingCreate}>
-                  {dictionary['account']?.createOwner}
-                </Button>
+                {hasPermission('create-owner-9') && (
+                  <Button variant='contained' type='submit' disabled={pendingCreate}>
+                    {dictionary['account']?.createOwner}
+                  </Button>
+                )}
               </div>
             </Grid>
           </form>

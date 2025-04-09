@@ -55,6 +55,7 @@ const UserDropdown = () => {
   const router = useRouter()
   const { settings } = useSettings()
   const { lang: locale } = useParams()
+  const username = useAuthStore(state => state.profile?.username)
 
   const handleDropdownOpen = () => {
     !open ? setOpen(true) : setOpen(false)
@@ -102,7 +103,8 @@ const UserDropdown = () => {
           className='cursor-pointer bs-[38px] is-[38px]'
         /> */}
         <Button ref={anchorRef} onClick={handleDropdownOpen} className='flex gap-2 items-center justify-center'>
-          AdminSuperAPI {open ? <i className='tabler-chevron-up' /> : <i className='tabler-chevron-down' />}
+          {username}
+          {open ? <i className='tabler-chevron-up' /> : <i className='tabler-chevron-down' />}
         </Button>
       </Badge>
       <Popper

@@ -12,12 +12,14 @@ import { useParams, useRouter } from 'next/navigation'
 import SettingSmtpTable from './SettingSmtpTable'
 import { fetchSettingSmtpQueryOption } from '@/queryOptions/smtp/settingSmtpQueryOptions'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const SettingsSmtpComponent = () => {
   const router = useRouter()
   const params = useParams()
   const { lang: locale } = params
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -32,14 +34,16 @@ const SettingsSmtpComponent = () => {
             <Typography variant='h5' className=' text-nowrap'>
               SMTP Server
             </Typography>
-            <Button
-              variant='contained'
-              onClick={() => {
-                router.push(`/${locale}/settings/smtp/create`)
-              }}
-            >
-              {dictionary['smtp']?.addNewSmtp ?? 'Add New SMTP Server'}
-            </Button>
+            {hasPermission('create-owner-14') && (
+              <Button
+                variant='contained'
+                onClick={() => {
+                  router.push(`/${locale}/settings/smtp/create`)
+                }}
+              >
+                {dictionary['smtp']?.addNewSmtp ?? 'Add New SMTP Server'}
+              </Button>
+            )}
           </Grid>
           <Divider />
 

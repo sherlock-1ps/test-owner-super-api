@@ -17,11 +17,13 @@ import {
 } from '@/queryOptions/account/accountQueryOptions'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { useFetchConfigRoleQueryOption } from '@/queryOptions/config/configQueryOptions'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const AccountOwnerComponent = () => {
   const router = useRouter()
   const params = useParams()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
 
   // Vars
   const { lang: locale } = params
@@ -85,14 +87,16 @@ const AccountOwnerComponent = () => {
             <Typography variant='h5' className=' text-nowrap'>
               {dictionary['account']?.ownerList}
             </Typography>
-            <Button
-              variant='contained'
-              onClick={() => {
-                router.push(`/${locale}/account/owner/createowner`)
-              }}
-            >
-              {dictionary['account']?.createOwner}
-            </Button>
+            {hasPermission('create-owner-9') && (
+              <Button
+                variant='contained'
+                onClick={() => {
+                  router.push(`/${locale}/account/owner/createowner`)
+                }}
+              >
+                {dictionary['account']?.createOwner}
+              </Button>
+            )}
           </Grid>
           <Divider />
           <Grid container alignItems='end' className='flex gap-6'>

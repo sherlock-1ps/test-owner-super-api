@@ -51,6 +51,7 @@ import { fetchProfile } from '@/app/sevices/profile/profile'
 import { toast } from 'react-toastify'
 import LanguageDropdown from '@/components/layout/shared/LanguageDropdown'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { extractViewRoutesFromPermissions } from '@/utils/viewPemissionRoutes'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -159,12 +160,14 @@ const Login = ({ mode }: { mode: SystemMode }) => {
     if (res?.code == 'SUCCESS') {
       useAuthStore.getState().setTokens(res.data.token, res.data.refresh_token)
       const resultProfile = await fetchProfile()
-      console.log('resultProfile', resultProfile?.data)
       if (resultProfile?.data?.is_first_login) {
         router.push(`/${locale}/setnewpassword?owner=${resultProfile?.data?.owner_id}`)
       } else {
         useAuthStore.getState().setProfile(resultProfile.data)
-        const redirectURL = searchParams.get('redirectTo') ?? '/'
+
+        const availableRoutes = extractViewRoutesFromPermissions(resultProfile?.data?.permission)
+
+        const redirectURL = searchParams.get('redirectTo') ?? `${availableRoutes[0]}`
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))
       }
     } else {

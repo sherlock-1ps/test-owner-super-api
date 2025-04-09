@@ -25,13 +25,16 @@ import {
 import CredentialProviderTable from './CredentialProviderTable'
 import { useDialog } from '@/hooks/useDialog'
 import AddNewProviderDialog from '@/components/dialogs/operators/AddNewProviderDialog'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const CredentialProviderListComponent = () => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
+
   const provider = searchParams.get('provider')
 
   const providerResult = provider ? JSON.parse(decodeURIComponent(provider as string)) : null
@@ -125,26 +128,28 @@ const CredentialProviderListComponent = () => {
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6} className='flex gap-2 justify-end'>
-              <Button
-                variant='contained'
-                startIcon={<i className='tabler-plus' />}
-                className='max-sm:is-full'
-                onClick={() => {
-                  showDialog({
-                    id: 'AddNewProviderDialog',
-                    component: (
-                      <AddNewProviderDialog
-                        id='AddNewProviderDialog'
-                        credential={providerResult?.credential_id}
-                        onClick={() => {}}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
-              >
-                Add New Provider
-              </Button>
+              {hasPermission('create-owner-5') && (
+                <Button
+                  variant='contained'
+                  startIcon={<i className='tabler-plus' />}
+                  className='max-sm:is-full'
+                  onClick={() => {
+                    showDialog({
+                      id: 'AddNewProviderDialog',
+                      component: (
+                        <AddNewProviderDialog
+                          id='AddNewProviderDialog'
+                          credential={providerResult?.credential_id}
+                          onClick={() => {}}
+                        />
+                      ),
+                      size: 'sm'
+                    })
+                  }}
+                >
+                  Add New Provider
+                </Button>
+              )}
             </Grid>
             <Grid item xs={12}>
               <Divider />

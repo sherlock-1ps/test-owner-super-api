@@ -63,6 +63,7 @@ import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProvid
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateProvider } from '@/app/sevices/provider/provider'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -103,6 +104,7 @@ const columnHelper = createColumnHelper<Provider>()
 const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   // States
   const [rowSelection, setRowSelection] = useState({})
   // const [data, setData] = useState(...[dataMock])
@@ -194,30 +196,34 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize, handleR
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus ?? 'Do you want to change the status'}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.provider_name)
-                            .replace('{{key}}', dictionary['provider']?.provider) ??
-                          `Change this ${row.original.provider_name} provider status?`
-                        }
-                        onClick={() => {
-                          toggleProviderStatus({
-                            provider_code: row.original.provider_code,
-                            is_enable: !row.original.is_enable
-                          })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-view-4')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus ?? 'Do you want to change the status'}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.provider_name)
+                                  .replace('{{key}}', dictionary['provider']?.provider) ??
+                                `Change this ${row.original.provider_name} provider status?`
+                              }
+                              onClick={() => {
+                                toggleProviderStatus({
+                                  provider_code: row.original.provider_code,
+                                  is_enable: !row.original.is_enable
+                                })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={pendingUpdate}
               />
               <Typography>
@@ -227,55 +233,58 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize, handleR
           )
         }
       }),
-
       columnHelper.display({
         id: 'action',
-        cell: ({ row }) => (
-          <div className='flex items-center'>
-            <OptionMenu
-              iconButtonProps={{ size: 'medium' }}
-              iconClassName='text-textSecondary'
-              options={[
-                {
-                  text: (
-                    <Link
-                      href={{
-                        pathname: `/${locale}/providers/name`,
-                        query: {
-                          provider: row.original.provider_code,
-                          providerName: row.original.provider_name,
-                          providerImg: row.original.image
-                        }
-                      }}
-                      className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
-                      onClick={e => e.stopPropagation()}
-                    >
-                      {dictionary['provider']?.viewGame ?? 'View Game'}
-                    </Link>
-                  )
-                },
-                {
-                  text: dictionary['provider']?.changeLogo ?? 'Change Logo',
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-textSecondary',
-                    onClick: () =>
-                      showDialog({
-                        id: 'ChangeProviderLogoDialog',
-                        component: (
-                          <ChangeProviderLogoDialog
-                            id='ChangeProviderLogoDialog'
-                            data={row.original}
-                            onClick={() => {}}
-                          />
-                        ),
-                        size: 'sm'
-                      })
+        cell: ({ row }) => {
+          const viewGameOption = {
+            text: (
+              <Link
+                href={{
+                  pathname: `/${locale}/providers/name`,
+                  query: {
+                    provider: row.original.provider_code,
+                    providerName: row.original.provider_name,
+                    providerImg: row.original.image
                   }
+                }}
+                className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                onClick={e => e.stopPropagation()}
+              >
+                {dictionary['provider']?.viewGame ?? 'View Game'}
+              </Link>
+            )
+          }
+
+          const changeLogoOption = hasPermission('edit-owner-4')
+            ? {
+                text: dictionary['provider']?.changeLogo ?? 'Change Logo',
+                menuItemProps: {
+                  className: 'flex items-center gap-2 text-textSecondary',
+                  onClick: () =>
+                    showDialog({
+                      id: 'ChangeProviderLogoDialog',
+                      component: (
+                        <ChangeProviderLogoDialog
+                          id='ChangeProviderLogoDialog'
+                          data={row.original}
+                          onClick={() => {}}
+                        />
+                      ),
+                      size: 'sm'
+                    })
                 }
-              ]}
-            />
-          </div>
-        ),
+              }
+            : null
+
+          const options = [viewGameOption]
+          if (changeLogoOption) options.push(changeLogoOption)
+
+          return (
+            <div className='flex items-center'>
+              <OptionMenu iconButtonProps={{ size: 'medium' }} iconClassName='text-textSecondary' options={options} />
+            </div>
+          )
+        },
         enableSorting: false
       })
     ],

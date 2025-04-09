@@ -17,6 +17,9 @@ import type { SystemMode } from '@core/types'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
+import { useParams } from 'next/navigation'
+import { useAuthStore } from '@/store/authStore'
+import { extractViewRoutesFromPermissions } from '@/utils/viewPemissionRoutes'
 
 // Styled Components
 const MaskImg = styled('img')({
@@ -37,6 +40,9 @@ const NotFound = ({ mode }: { mode: SystemMode }) => {
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const miscBackground = useImageVariant(mode, lightImg, darkImg)
+  const { lang: locale } = useParams()
+  const profile = useAuthStore(state => state.profile)
+  const availableRoutes = extractViewRoutesFromPermissions(profile?.permission || [])
 
   return (
     <div className='flex items-center justify-center min-bs-[100dvh] relative p-6 overflow-x-hidden'>
@@ -48,8 +54,8 @@ const NotFound = ({ mode }: { mode: SystemMode }) => {
           <Typography variant='h4'>Page Not Found ⚠️</Typography>
           <Typography>we couldn&#39;t find the page you are looking for.</Typography>
         </div>
-        <Button href='/' component={Link} variant='contained'>
-          Back To Home
+        <Button href={`/${locale}/${availableRoutes[0]}`} component={Link} variant='contained'>
+          Back To Route
         </Button>
         <img
           alt='error-404-illustration'

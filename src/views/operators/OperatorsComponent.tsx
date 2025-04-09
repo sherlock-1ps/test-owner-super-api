@@ -17,12 +17,13 @@ import {
   useSearchOperatorMutationOption
 } from '@/queryOptions/operator/operatorQueryOptions'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const OperatorsComponent = () => {
   const router = useRouter()
   const params = useParams()
   const { dictionary } = useDictionary()
-
+  const { hasPermission } = useHasPermission()
   // Vars
   const { lang: locale } = params
 
@@ -75,14 +76,16 @@ const OperatorsComponent = () => {
             <Typography variant='h5' className=' text-nowrap'>
               {dictionary['operator']?.operatorList ?? 'Operator List'}
             </Typography>
-            <Button
-              variant='contained'
-              onClick={() => {
-                router.push(`/${locale}/operators/createoperator`)
-              }}
-            >
-              {dictionary['operator']?.createOperator ?? 'Create Operator'}
-            </Button>
+            {hasPermission('create-owner-5') && (
+              <Button
+                variant='contained'
+                onClick={() => {
+                  router.push(`/${locale}/operators/createoperator`)
+                }}
+              >
+                {dictionary['operator']?.createOperator ?? 'Create Operator'}
+              </Button>
+            )}
           </Grid>
           <Divider />
           <Grid container alignItems='end' className='flex gap-6'>

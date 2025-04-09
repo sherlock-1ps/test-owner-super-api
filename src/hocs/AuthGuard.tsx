@@ -30,6 +30,7 @@ import AuthRedirect from '@/components/AuthRedirect'
 import { useAuthStore } from '@/store/authStore'
 import type { Locale } from '@configs/i18n'
 import type { PropsWithChildren } from 'react'
+import PermissionRedirect from './PermissionRedirect'
 
 interface AuthGuardProps extends PropsWithChildren {
   locale: Locale
@@ -48,7 +49,13 @@ const AuthGuard = ({ children, locale, session }: AuthGuardProps) => {
 
   const isLoggedIn = !!session && !!accessToken && !!profile
 
-  return isLoggedIn ? <>{children}</> : <AuthRedirect lang={locale} />
+  return isLoggedIn ? (
+    <PermissionRedirect lang={locale} permission={profile?.permission}>
+      {children}
+    </PermissionRedirect>
+  ) : (
+    <AuthRedirect lang={locale} />
+  )
 }
 
 export default AuthGuard

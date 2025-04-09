@@ -65,6 +65,8 @@ import ThumbnailProviderDialog from '@/components/dialogs/provider/ThumbnailProv
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateGameProvider, updateStatusGame } from '@/app/sevices/provider/provider'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
+import { OptionType } from '@/@core/components/option-menu/types'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -105,6 +107,7 @@ const columnHelper = createColumnHelper<Game>()
 const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -165,31 +168,35 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize, ha
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus ?? 'Do you want to change the status'}
-                        // content1={`Change this ${row.original.game_name} status game ?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.game_name)
-                            .replace('{{key}}', dictionary?.game) ??
-                          `Change this ${row.original.game_name} provider status?`
-                        }
-                        onClick={() => {
-                          toggleGameProviderStatus({
-                            game_id: row.original.game_id,
-                            is_enable: !row.original.is_enable
-                          })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-4')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus ?? 'Do you want to change the status'}
+                              // content1={`Change this ${row.original.game_name} status game ?`}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.game_name)
+                                  .replace('{{key}}', dictionary?.game) ??
+                                `Change this ${row.original.game_name} provider status?`
+                              }
+                              onClick={() => {
+                                toggleGameProviderStatus({
+                                  game_id: row.original.game_id,
+                                  is_enable: !row.original.is_enable
+                                })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={pendingUpdate}
               />
               <Typography>
@@ -199,59 +206,60 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize, ha
           )
         }
       }),
-
       columnHelper.display({
         id: 'action',
         header: '',
-        cell: ({ row }) => (
-          <div className='flex items-center'>
-            <OptionMenu
-              iconButtonProps={{ size: 'medium' }}
-              iconClassName='text-textSecondary'
-              options={[
-                {
-                  text: dictionary?.rename ?? 'Rename',
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-textSecondary',
-                    onClick: () =>
-                      showDialog({
-                        id: 'RenameProviderDialog',
-                        component: (
-                          <RenameProviderDialog id='RenameProviderDialog' data={row.original} onClick={() => {}} />
-                        ),
-                        size: 'sm'
-                      })
-                  }
-                },
-                {
-                  text: dictionary['provider']?.changeThumbnail ?? 'Change Thumbnail',
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-textSecondary',
-                    onClick: () =>
-                      showDialog({
-                        id: 'ThumbnailProviderDialog',
-                        component: (
-                          <ThumbnailProviderDialog
-                            id='ThumbnailProviderDialog'
-                            data={row.original}
-                            onClick={() => {}}
-                          />
-                        ),
-                        size: 'sm'
-                      })
-                  }
-                },
-                {
-                  text: 'Copy UID',
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-primary',
-                    onClick: () => handleCopyGameId(row.original.game_id)
-                  }
+        cell: ({ row }) => {
+          const options: OptionType[] = []
+
+          if (hasPermission('edit-owner-4')) {
+            options.push(
+              {
+                text: dictionary?.rename ?? 'Rename',
+                menuItemProps: {
+                  className: 'flex items-center gap-2 text-textSecondary',
+                  onClick: () =>
+                    showDialog({
+                      id: 'RenameProviderDialog',
+                      component: (
+                        <RenameProviderDialog id='RenameProviderDialog' data={row.original} onClick={() => {}} />
+                      ),
+                      size: 'sm'
+                    })
                 }
-              ]}
-            />
-          </div>
-        ),
+              },
+              {
+                text: dictionary['provider']?.changeThumbnail ?? 'Change Thumbnail',
+                menuItemProps: {
+                  className: 'flex items-center gap-2 text-textSecondary',
+                  onClick: () =>
+                    showDialog({
+                      id: 'ThumbnailProviderDialog',
+                      component: (
+                        <ThumbnailProviderDialog id='ThumbnailProviderDialog' data={row.original} onClick={() => {}} />
+                      ),
+                      size: 'sm'
+                    })
+                }
+              }
+            )
+          }
+
+          // This one is always shown
+          options.push({
+            text: 'Copy UID',
+            menuItemProps: {
+              className: 'flex items-center gap-2 text-primary',
+              onClick: () => handleCopyGameId(row.original.game_id)
+            }
+          })
+
+          return (
+            <div className='flex items-center'>
+              <OptionMenu iconButtonProps={{ size: 'medium' }} iconClassName='text-textSecondary' options={options} />
+            </div>
+          )
+        },
         enableSorting: false
       })
     ],

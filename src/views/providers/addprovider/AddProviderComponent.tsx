@@ -14,6 +14,7 @@ import {
 import { createProvider } from '@/app/sevices/provider/provider'
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const AddProviderComponent = () => {
   const router = useRouter()
@@ -21,6 +22,7 @@ const AddProviderComponent = () => {
   const { dictionary } = useDictionary()
   const queryClient = useQueryClient()
   const { lang: locale } = params
+  const { hasPermission } = useHasPermission()
 
   const [fileImg, setFileImg] = useState<File | null>(null)
 
@@ -256,6 +258,14 @@ const AddProviderComponent = () => {
                     ? `${dictionary?.loading ?? 'Loading'}...`
                     : (dictionary['provider']?.addNewProvider ?? 'Add New Provider')}
                 </Button>
+
+                {hasPermission('create-owner-4') && (
+                  <Button variant='contained' color='primary' type='submit' disabled={isPending}>
+                    {isPending
+                      ? `${dictionary?.loading ?? 'Loading'}...`
+                      : (dictionary['provider']?.addNewProvider ?? 'Add New Provider')}
+                  </Button>
+                )}
               </Grid>
             </Grid>
           </form>

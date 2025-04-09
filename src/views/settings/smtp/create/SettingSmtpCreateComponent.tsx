@@ -16,12 +16,14 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { useCreateSmtpMutationOption, useEditSmtpMutationOption } from '@/queryOptions/smtp/settingSmtpQueryOptions'
 import { toast } from 'react-toastify'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const SettingSmtpCreateComponent = () => {
   const { dictionary } = useDictionary()
   const router = useRouter()
   const searchParams = useSearchParams()
   const data = searchParams.get('data')
+  const { hasPermission } = useHasPermission()
   const { lang: locale } = useParams()
 
   const smtpData = data ? JSON.parse(decodeURIComponent(data as string)) : null
@@ -209,9 +211,11 @@ const SettingSmtpCreateComponent = () => {
                 >
                   {dictionary?.cancel}
                 </Button>
-                <Button variant='contained' type='submit' disabled={pendingCreateSmtp || pendingEditSmtp}>
-                  {smtpData ? dictionary['smtp']?.editSmtp : dictionary['smtp']?.addNewSmtp}
-                </Button>
+                {hasPermission('create-owner-14') && (
+                  <Button variant='contained' type='submit' disabled={pendingCreateSmtp || pendingEditSmtp}>
+                    {smtpData ? dictionary['smtp']?.editSmtp : dictionary['smtp']?.addNewSmtp}
+                  </Button>
+                )}
               </div>
             </Grid>
           </form>

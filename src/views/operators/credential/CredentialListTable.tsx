@@ -45,6 +45,7 @@ import {
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import CustomAvatar from '@/@core/components/mui/Avatar'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -88,6 +89,7 @@ const columnHelper = createColumnHelper<credentialType>()
 const CredentialListTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   const router = useRouter()
   // States
   const [rowSelection, setRowSelection] = useState({})
@@ -177,31 +179,35 @@ const CredentialListTable = ({ data, page, pageSize, setPage, setPageSize, handl
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus}
-                        // content1={`Change this operator status?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.credential_prefix)
-                            .replace('{{key}}', 'prefix') ??
-                          `Change this ${row.original.credential_prefix} prefix status?`
-                        }
-                        onClick={() => {
-                          updateStateCredential({
-                            credential_id: row.original.credential_id,
-                            is_enable: !row.original.is_enable
-                          })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-5')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus}
+                              // content1={`Change this operator status?`}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.credential_prefix)
+                                  .replace('{{key}}', 'prefix') ??
+                                `Change this ${row.original.credential_prefix} prefix status?`
+                              }
+                              onClick={() => {
+                                updateStateCredential({
+                                  credential_id: row.original.credential_id,
+                                  is_enable: !row.original.is_enable
+                                })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={pendingStatus}
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>

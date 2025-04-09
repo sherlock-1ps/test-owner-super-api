@@ -15,9 +15,11 @@ import {
   useSearchRoleListMutationOption
 } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useHasPermission } from '@/hooks/useHasPermission'
 
 const RoleComponent = () => {
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   const router = useRouter()
   const params = useParams()
   const [search, setSearch] = useState('')
@@ -62,14 +64,16 @@ const RoleComponent = () => {
             <Typography variant='h5' className=' text-nowrap'>
               Role & Permission
             </Typography>
-            <Button
-              variant='contained'
-              onClick={() => {
-                router.push(`/${locale}/role/managerole`)
-              }}
-            >
-              Create Role
-            </Button>
+            {hasPermission('create-owner-11') && (
+              <Button
+                variant='contained'
+                onClick={() => {
+                  router.push(`/${locale}/role/managerole`)
+                }}
+              >
+                Create Role
+              </Button>
+            )}
           </Grid>
           <Divider />
           <Grid container alignItems='end' className='flex gap-6'>

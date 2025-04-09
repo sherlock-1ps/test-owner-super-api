@@ -66,6 +66,8 @@ import {
   useDeleteSmtpMutationOption,
   useUpdateStatusSmtpMutationOption
 } from '@/queryOptions/smtp/settingSmtpQueryOptions'
+import { useHasPermission } from '@/hooks/useHasPermission'
+import { OptionType } from '@/@core/components/option-menu/types'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -106,6 +108,7 @@ const columnHelper = createColumnHelper<SmtpConfigType>()
 const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
+  const { hasPermission } = useHasPermission()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
@@ -166,27 +169,31 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
             <div className='flex gap-1 items-center'>
               <Switch
                 checked={row.original.is_enable}
-                onChange={() => {
-                  showDialog({
-                    id: 'alertDialogConfirmResetPasswordCreateOperator',
-                    component: (
-                      <ConfirmAlert
-                        id='alertDialogConfirmResetPasswordCreateOperator'
-                        title={dictionary?.changeStatus}
-                        // content1={`Change this ${row.original.smtp_username} status?`}
-                        content1={
-                          dictionary?.changeStatusWithName
-                            ?.replace('{{name}}', row.original.smtp_username)
-                            .replace('{{key}}', 'smtp') ?? `Change this ${row.original.smtp_username} status?`
-                        }
-                        onClick={() => {
-                          mutate({ smtp_id: row.original.smtp_id, is_enable: !row.original.is_enable })
-                        }}
-                      />
-                    ),
-                    size: 'sm'
-                  })
-                }}
+                onChange={
+                  hasPermission('edit-owner-14')
+                    ? () => {
+                        showDialog({
+                          id: 'alertDialogConfirmResetPasswordCreateOperator',
+                          component: (
+                            <ConfirmAlert
+                              id='alertDialogConfirmResetPasswordCreateOperator'
+                              title={dictionary?.changeStatus}
+                              // content1={`Change this ${row.original.smtp_username} status?`}
+                              content1={
+                                dictionary?.changeStatusWithName
+                                  ?.replace('{{name}}', row.original.smtp_username)
+                                  .replace('{{key}}', 'smtp') ?? `Change this ${row.original.smtp_username} status?`
+                              }
+                              onClick={() => {
+                                mutate({ smtp_id: row.original.smtp_id, is_enable: !row.original.is_enable })
+                              }}
+                            />
+                          ),
+                          size: 'sm'
+                        })
+                      }
+                    : () => {}
+                }
                 disabled={isPending}
               />
               <Typography>{row.original.is_enable ? dictionary?.enable : dictionary?.disabled}</Typography>
@@ -199,55 +206,58 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
         header: '',
         cell: ({ row }) => {
           const encodedSmtpData = encodeURIComponent(JSON.stringify(row.original))
+          const options: OptionType[] = []
+
+          if (hasPermission('edit-owner-14')) {
+            options.push({
+              text: (
+                <Link
+                  href={{
+                    pathname: `/${locale}/settings/smtp/create`,
+                    query: { data: encodedSmtpData }
+                  }}
+                  className='no-underline text-textSecondary'
+                  onClick={e => e.stopPropagation()}
+                >
+                  {dictionary['smtp']?.editSmtp}
+                </Link>
+              )
+            })
+          }
+
+          if (hasPermission('delete-owner-14')) {
+            options.push({
+              text: dictionary?.delete,
+              menuItemProps: {
+                className: 'flex items-center gap-2 text-textSecondary',
+                onClick: () =>
+                  showDialog({
+                    id: 'alertDialogConfirmResetPasswordCreateOperator',
+                    component: (
+                      <ConfirmAlert
+                        id='alertDialogConfirmResetPasswordCreateOperator'
+                        title={dictionary['smtp']?.deleteSmtp}
+                        content1={
+                          dictionary?.changeStatusWithName?.replace('{{name}}', row.original.smtp_username) ??
+                          `Are you sure you want to delete the SMTP Server: ${row.original.smtp_username} ?`
+                        }
+                        content2=''
+                        onClick={() => {
+                          callDeleteSmtp({ smtp_id: row.original.smtp_id })
+                        }}
+                      />
+                    ),
+                    size: 'sm'
+                  })
+              }
+            })
+          }
 
           return (
             <div className='flex items-center'>
-              <OptionMenu
-                iconButtonProps={{ size: 'medium' }}
-                iconClassName='text-textSecondary'
-                options={[
-                  {
-                    text: (
-                      <Link
-                        href={{
-                          pathname: `/${locale}/settings/smtp/create`,
-                          query: { data: encodedSmtpData }
-                        }}
-                        className='no-underline text-textSecondary'
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {dictionary['smtp']?.editSmtp}
-                      </Link>
-                    )
-                  },
-                  {
-                    text: dictionary?.delete,
-                    menuItemProps: {
-                      className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () =>
-                        showDialog({
-                          id: 'alertDialogConfirmResetPasswordCreateOperator',
-                          component: (
-                            <ConfirmAlert
-                              id='alertDialogConfirmResetPasswordCreateOperator'
-                              title={dictionary['smtp']?.deleteSmtp}
-                              // content1='Are you sure you want to delete the SMTP Server: ‘smtp.mailserver.com’ ? '
-                              content1={
-                                dictionary?.changeStatusWithName?.replace('{{name}}', row.original.smtp_username) ??
-                                `Are you sure you want to delete the SMTP Server: ${row.original.smtp_username} ?`
-                              }
-                              content2=''
-                              onClick={() => {
-                                callDeleteSmtp({ smtp_id: row.original.smtp_id })
-                              }}
-                            />
-                          ),
-                          size: 'sm'
-                        })
-                    }
-                  }
-                ]}
-              />
+              {(hasPermission('edit-owner-14') || hasPermission('delete-owner-14')) && (
+                <OptionMenu iconButtonProps={{ size: 'medium' }} iconClassName='text-textSecondary' options={options} />
+              )}
             </div>
           )
         },
