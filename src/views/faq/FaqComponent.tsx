@@ -27,8 +27,6 @@ const FaqComponent = () => {
   const { data: faqData, isPending: pendingFaqData } = fetchFaqQueryOption(page, pageSize)
   const { mutate, data: searchFaqData, reset } = useSearchFaqMutationOption()
 
-  console.log('faqData', faqData)
-
   const handleSearch = async (username: any) => {
     if (!search) return
 
@@ -38,6 +36,12 @@ const FaqComponent = () => {
   useEffect(() => {
     if (!search) reset()
   }, [search])
+
+  useEffect(() => {
+    if (search && searchFaqData) {
+      mutate({ page, pageSize, title: search })
+    }
+  }, [page, pageSize])
 
   return (
     <Card>
@@ -93,7 +97,7 @@ const FaqComponent = () => {
 
             {Array.isArray(faqData?.data?.list) && (
               <FaqTable
-                data={searchFaqData?.data || faqData.data}
+                data={searchFaqData?.data || faqData.data || { list: [] }}
                 page={page}
                 pageSize={pageSize}
                 setPage={setPage}

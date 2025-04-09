@@ -207,7 +207,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
           <div className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
             <Logo />
           </div>
-          <div className='absolute block-start-7 sm:block-end-[33px] inline-end-6 sm:inline-end-[38px]'>
+          <div className='absolute block-start-4 sm:block-start-7 sm:block-end-[33px] inline-end-2 sm:inline-end-[25px]'>
             <LanguageDropdown />
           </div>
           <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
