@@ -27,3 +27,29 @@ export const searchAuditLogOperator = async (payload: AuditLogOperatorFilterPayl
     throw error
   }
 }
+
+export const fetchDetailOwnerLog = async ({ log_id }: { log_id: string }) => {
+  try {
+
+    const response = await Axios.post('/log/owner/get', { log_id })
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching detail owner log:', error)
+    axiosErrorHandler(error, '/log/owner/get')
+    throw error
+  }
+}
+
+export const fetchDetailOperatorLog = async ({ log_id }: { log_id: string }) => {
+  try {
+
+    const response = await Axios.post('/log/operator/get', { log_id })
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching detail operator log:', error)
+    axiosErrorHandler(error, '/log/operator/get')
+    throw error
+  }
+}

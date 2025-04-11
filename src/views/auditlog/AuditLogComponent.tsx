@@ -55,6 +55,17 @@ const CustomInput = forwardRef(({ label, start, end, ...rest }: any, ref) => {
   return <CustomTextField fullWidth inputRef={ref} {...rest} label={label} value={`${startDate}${endDateStr}`} />
 })
 
+type Transaction = {
+  id: string
+  amount: number
+  status: string
+  email: string
+  date: string
+  method: string
+  description: string
+  transactionId: string
+}
+
 const AuditLogComponent = () => {
   const { dictionary } = useDictionary()
   const searchParams = useSearchParams()
@@ -65,8 +76,6 @@ const AuditLogComponent = () => {
   const hasMounted = useRef(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-
-  console.log('ownerSelected', ownerSelected)
 
   const methods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -212,187 +221,189 @@ const AuditLogComponent = () => {
   }, [page, pageSize])
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
-        <Card>
-          <CardContent>
-            <div className='flex flex-col gap-6'>
-              <Typography variant='h5'>{dictionary['audit']?.auditLog}</Typography>
-              <Divider />
-              <Grid container spacing={4}>
-                {/* Date Range */}
-                <Grid item xs={12} sm>
-                  <Controller
-                    name='start_date'
-                    control={control}
-                    render={({ field }) => (
-                      <AppReactDatepicker
-                        selectsRange
-                        startDate={watch('start_date')}
-                        endDate={watch('end_date')}
-                        onChange={([start, end]) => {
-                          methods.setValue('start_date', start ?? undefined)
-                          methods.setValue('end_date', end ?? undefined)
-                        }}
-                        customInput={
-                          <CustomInput label='Date Range' start={watch('start_date')} end={watch('end_date')} />
-                        }
-                        shouldCloseOnSelect={false}
-                      />
-                    )}
-                  />
-                </Grid>
-
-                {/* Menu Select */}
-                <Grid item xs={12} sm>
-                  <Controller
-                    name='menu_index'
-                    control={control}
-                    render={({ field }) => (
-                      <CustomTextField select fullWidth {...field} label='Menu' disabled={pendingMenuList}>
-                        <MenuItem value='all'>All</MenuItem>
-                        {menuList?.code === 'SUCCESS' &&
-                          menuList.data.map((item: any) => (
-                            <MenuItem key={item.menu_index} value={item.menu_index}>
-                              {item.menu_name}
-                            </MenuItem>
-                          ))}
-                      </CustomTextField>
-                    )}
-                  />
-                </Grid>
-
-                {/* Action Select */}
-                <Grid item xs={12} sm>
-                  <Controller
-                    name='action'
-                    control={control}
-                    render={({ field }) => (
-                      <CustomTextField select fullWidth {...field} label='Action' disabled={pendingActionList}>
-                        <MenuItem value='all'>All</MenuItem>
-                        {actionList?.code === 'SUCCESS' &&
-                          actionList.data.action_log.map((item: string) => (
-                            <MenuItem key={item} value={item}>
-                              {item}
-                            </MenuItem>
-                          ))}
-                      </CustomTextField>
-                    )}
-                  />
-                </Grid>
-              </Grid>
-
-              {/* Radio + Search Fields */}
-              <Grid container spacing={4} alignItems='end'>
-                <Grid item xs={12} sm>
-                  <Controller
-                    name='tab'
-                    control={control}
-                    render={({ field }) => (
-                      <RadioGroup row {...field}>
-                        <FormControlLabel value='operator' control={<Radio />} label='Operator' />
-                        <FormControlLabel value='owner' control={<Radio />} label='Owner' />
-                      </RadioGroup>
-                    )}
-                  />
-                </Grid>
-
-                <Grid item xs={6} sm>
-                  <Controller
-                    name='operator_prefix'
-                    control={control}
-                    render={({ field }) => (
-                      <CustomTextField
-                        fullWidth
-                        label='Operator Prefix'
-                        size='small'
-                        disabled={tab === 'owner'}
-                        placeholder='Search Operator'
-                        {...field}
-                      />
-                    )}
-                  />
-                </Grid>
-
-                <Grid item xs={6} sm>
-                  <Controller
-                    name='username'
-                    control={control}
-                    render={({ field }) => (
-                      <CustomTextField
-                        fullWidth
-                        label={tab === 'owner' ? 'Username' : 'Email'}
-                        placeholder={tab === 'owner' ? 'Search Username' : 'Search Email'}
-                        size='small'
-                        {...field}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={2}>
-                  <Button variant='outlined' fullWidth onClick={handleReset}>
-                    {dictionary?.reset}
-                  </Button>
-                </Grid>
-
-                <Grid item xs={12} sm={2}>
-                  <Button type='submit' variant='contained' fullWidth>
-                    {dictionary?.search}
-                  </Button>
-                </Grid>
-              </Grid>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Typography variant='h6'>
-                  {ownerDataLog?.data?.total || operatorDataLog?.data?.total
-                    ? `Found ${ownerDataLog?.data?.total?.toLocaleString() || operatorDataLog?.data?.total?.toLocaleString()} activity results`
-                    : 'Search to discover the results of your input.'}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
+    <>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+          <Card>
+            <CardContent>
+              <div className='flex flex-col gap-6'>
+                <Typography variant='h5'>{dictionary['audit']?.auditLog}</Typography>
                 <Divider />
-              </Grid>
+                <Grid container spacing={4}>
+                  {/* Date Range */}
+                  <Grid item xs={12} sm>
+                    <Controller
+                      name='start_date'
+                      control={control}
+                      render={({ field }) => (
+                        <AppReactDatepicker
+                          selectsRange
+                          startDate={watch('start_date')}
+                          endDate={watch('end_date')}
+                          onChange={([start, end]) => {
+                            methods.setValue('start_date', start ?? undefined)
+                            methods.setValue('end_date', end ?? undefined)
+                          }}
+                          customInput={
+                            <CustomInput label='Date Range' start={watch('start_date')} end={watch('end_date')} />
+                          }
+                          shouldCloseOnSelect={false}
+                        />
+                      )}
+                    />
+                  </Grid>
 
-              {(pendingOwnerData || pendingOperatorData) && (
-                <Grid item xs={12}>
-                  <p>{dictionary?.loading}...</p>
-                </Grid>
-              )}
+                  {/* Menu Select */}
+                  <Grid item xs={12} sm>
+                    <Controller
+                      name='menu_index'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField select fullWidth {...field} label='Menu' disabled={pendingMenuList}>
+                          <MenuItem value='all'>All</MenuItem>
+                          {menuList?.code === 'SUCCESS' &&
+                            menuList.data.map((item: any) => (
+                              <MenuItem key={item.menu_index} value={item.menu_index}>
+                                {item.menu_name}
+                              </MenuItem>
+                            ))}
+                        </CustomTextField>
+                      )}
+                    />
+                  </Grid>
 
-              {ownerDataLog?.code == 'SUCCESS' && (
-                <Grid item xs={12}>
-                  <AuditLogTable
-                    data={ownerDataLog?.data || { list: [] }}
-                    page={page}
-                    pageSize={pageSize}
-                    setPage={setPage}
-                    setPageSize={setPageSize}
-                  />
+                  {/* Action Select */}
+                  <Grid item xs={12} sm>
+                    <Controller
+                      name='action'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField select fullWidth {...field} label='Action' disabled={pendingActionList}>
+                          <MenuItem value='all'>All</MenuItem>
+                          {actionList?.code === 'SUCCESS' &&
+                            actionList.data.action_log.map((item: string) => (
+                              <MenuItem key={item} value={item}>
+                                {item}
+                              </MenuItem>
+                            ))}
+                        </CustomTextField>
+                      )}
+                    />
+                  </Grid>
                 </Grid>
-              )}
 
-              {operatorDataLog?.code == 'SUCCESS' && (
-                <Grid item xs={12}>
-                  <AuditLogOperatorTable
-                    data={operatorDataLog?.data || { list: [] }}
-                    page={page}
-                    pageSize={pageSize}
-                    setPage={setPage}
-                    setPageSize={setPageSize}
-                  />
+                {/* Radio + Search Fields */}
+                <Grid container spacing={4} alignItems='end'>
+                  <Grid item xs={12} sm>
+                    <Controller
+                      name='tab'
+                      control={control}
+                      render={({ field }) => (
+                        <RadioGroup row {...field}>
+                          <FormControlLabel value='operator' control={<Radio />} label='Operator' />
+                          <FormControlLabel value='owner' control={<Radio />} label='Owner' />
+                        </RadioGroup>
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={6} sm>
+                    <Controller
+                      name='operator_prefix'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField
+                          fullWidth
+                          label='Operator Prefix'
+                          size='small'
+                          disabled={tab === 'owner'}
+                          placeholder='Search Operator'
+                          {...field}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={6} sm>
+                    <Controller
+                      name='username'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField
+                          fullWidth
+                          label={tab === 'owner' ? 'Username' : 'Email'}
+                          placeholder={tab === 'owner' ? 'Search Username' : 'Search Email'}
+                          size='small'
+                          {...field}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2}>
+                    <Button variant='outlined' fullWidth onClick={handleReset}>
+                      {dictionary?.reset}
+                    </Button>
+                  </Grid>
+
+                  <Grid item xs={12} sm={2}>
+                    <Button type='submit' variant='contained' fullWidth>
+                      {dictionary?.search}
+                    </Button>
+                  </Grid>
                 </Grid>
-              )}
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+      </FormProvider>
+
+      <Card>
+        <CardContent>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+              <Typography variant='h6'>
+                {ownerDataLog?.data?.total || operatorDataLog?.data?.total
+                  ? `Found ${ownerDataLog?.data?.total?.toLocaleString() || operatorDataLog?.data?.total?.toLocaleString()} activity results`
+                  : 'Search to discover the results of your input.'}
+              </Typography>
             </Grid>
-          </CardContent>
-        </Card>
-      </form>
-    </FormProvider>
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+
+            {(pendingOwnerData || pendingOperatorData) && (
+              <Grid item xs={12}>
+                <p>{dictionary?.loading}...</p>
+              </Grid>
+            )}
+
+            {ownerDataLog?.code == 'SUCCESS' && (
+              <Grid item xs={12}>
+                <AuditLogTable
+                  data={ownerDataLog?.data || { list: [] }}
+                  page={page}
+                  pageSize={pageSize}
+                  setPage={setPage}
+                  setPageSize={setPageSize}
+                />
+              </Grid>
+            )}
+
+            {operatorDataLog?.code == 'SUCCESS' && (
+              <Grid item xs={12}>
+                <AuditLogOperatorTable
+                  data={operatorDataLog?.data || { list: [] }}
+                  page={page}
+                  pageSize={pageSize}
+                  setPage={setPage}
+                  setPageSize={setPageSize}
+                />
+              </Grid>
+            )}
+          </Grid>
+        </CardContent>
+      </Card>
+    </>
   )
 }
 

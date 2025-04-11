@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Fragment } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -33,9 +33,10 @@ import {
   getFacetedUniqueValues,
   getFacetedMinMaxValues,
   getPaginationRowModel,
-  getSortedRowModel
+  getSortedRowModel,
+  getExpandedRowModel
 } from '@tanstack/react-table'
-import type { ColumnDef, FilterFn } from '@tanstack/react-table'
+import type { ColumnDef, ExpandedState, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
@@ -67,6 +68,7 @@ import {
   useUpdateStatusAccountOperatorMutationOption
 } from '@/queryOptions/account/accountQueryOptions'
 import { toast } from 'react-toastify'
+import { useFetchDetailLogOperatorMutationOption } from '@/queryOptions/auditlog/auditLogQueryOptions'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -89,6 +91,23 @@ type AuditLogType = {
   status: string
 }
 
+type DetailLogData = {
+  [log_id: string]: {
+    log_id: string
+    created_at: string
+    action: string
+    email: string
+    operator_prefix: string
+    payload: string
+    old_value: string
+    response: string
+    ip: string
+    device: string
+    location: string
+    status: string
+  }
+}
+
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
   const itemRank = rankItem(row.getValue(columnId), value)
@@ -108,12 +127,10 @@ const columnHelper = createColumnHelper<AuditLogType>()
 const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
-  // States
-  const [rowSelection, setRowSelection] = useState({})
-  const [globalFilter, setGlobalFilter] = useState('')
+  const [expanded, setExpanded] = useState<ExpandedState>({})
+  const [expandedData, setExpandedData] = useState<DetailLogData>({})
 
-  // Hooks
-  const { lang: locale } = useParams()
+  const { mutateAsync } = useFetchDetailLogOperatorMutationOption()
 
   const columns = useMemo<ColumnDef<AuditLogType, any>[]>(
     () => [
@@ -162,7 +179,30 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
             variant='tonal'
           />
         )
-      })
+      }),
+      {
+        id: 'expand',
+        cell: ({ row }) => (
+          <button
+            onClick={async () => {
+              row.toggleExpanded()
+              const logId = row.original.log_id
+              if (!expandedData[logId]) {
+                const res = await mutateAsync({ log_id: logId })
+                if (res?.data) {
+                  setExpandedData(prev => ({ ...prev, [logId]: res.data }))
+                }
+              }
+            }}
+          >
+            {row.getIsExpanded() ? (
+              <i className='tabler-chevron-up text-xl' />
+            ) : (
+              <i className='tabler-chevron-down text-xl' />
+            )}
+          </button>
+        )
+      }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data]
@@ -175,8 +215,7 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
       fuzzy: fuzzyFilter
     },
     state: {
-      rowSelection,
-      globalFilter
+      expanded
     },
     initialState: {
       pagination: {
@@ -186,15 +225,15 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
     enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
     // globalFilterFn: fuzzyFilter,
-    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues()
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
+    onExpandedChange: setExpanded,
+    getExpandedRowModel: getExpandedRowModel()
   })
 
   return (
@@ -205,12 +244,7 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id} className='bg-primary text-white'>
                 {headerGroup.headers.map(header => (
-                  <th
-                    key={header.id}
-                    style={{
-                      width: header.index === 7 ? 50 : 'auto'
-                    }}
-                  >
+                  <th key={header.id}>
                     {header.isPlaceholder ? null : (
                       <>
                         <div
@@ -246,15 +280,78 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
               {table
                 .getRowModel()
                 .rows.slice(0, table.getState().pagination.pageSize)
-                .map(row => {
-                  return (
-                    <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                .map(row => (
+                  <Fragment key={row.id}>
+                    <tr className={classnames({ selected: row.getIsSelected() })}>
                       {row.getVisibleCells().map(cell => (
                         <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                       ))}
                     </tr>
-                  )
-                })}
+                    {row.getIsExpanded() && expandedData[row.original.log_id] && (
+                      <tr key={`${row.id}-expanded`}>
+                        <td colSpan={columns.length} className=' bg-primaryLighter'>
+                          <div className='p-2 flex flex-col gap-2 '>
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Datetime :</Typography>
+                              <Typography variant='h6'>{expandedData[row.original.log_id]?.created_at}</Typography>
+                            </div>
+
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Email :</Typography>
+                              <Typography variant='h6'>{expandedData[row.original.log_id]?.email}</Typography>
+                            </div>
+
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Action :</Typography>
+                              <Typography variant='h6'>{expandedData[row.original.log_id]?.action}</Typography>
+                            </div>
+
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Log ID :</Typography>
+                              <Typography variant='h6'>{expandedData[row.original.log_id]?.log_id}</Typography>
+                            </div>
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Payload :</Typography>
+                              <div className=' rounded-sm border w-full p-2 bg-primaryLighter'>
+                                <Typography variant='h6'>
+                                  {JSON.stringify(expandedData[row.original.log_id]?.payload, null, 2)}
+                                </Typography>
+                              </div>
+                            </div>
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Old Value :</Typography>
+                              <div className=' rounded-sm border w-full p-2 bg-primaryLighter'>
+                                <Typography variant='h6'>
+                                  {JSON.stringify(expandedData[row.original.log_id]?.old_value, null, 2)}
+                                </Typography>
+                              </div>
+                            </div>
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Response :</Typography>
+                              <div className=' rounded-sm border w-full p-2 bg-primaryLighter'>
+                                <Typography variant='h6'>
+                                  {JSON.stringify(expandedData[row.original.log_id]?.response, null, 2)}
+                                </Typography>
+                              </div>
+                            </div>
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>IP :</Typography>
+                              <Typography variant='h6'>{expandedData[row.original.log_id]?.ip}</Typography>
+                            </div>
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Device :</Typography>
+                              <Typography variant='h6'>{expandedData[row.original.log_id]?.device}</Typography>
+                            </div>
+                            <div className='flex gap-6'>
+                              <Typography className='w-[112px]'>Geolocation :</Typography>
+                              <Typography variant='h6'>{expandedData[row.original.log_id]?.location}</Typography>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                ))}
             </tbody>
           )}
         </table>

@@ -1,4 +1,4 @@
-import { searchAuditLogOperator, searchAuditLogOwner } from "@/app/sevices/auditLog/auditLog";
+import { fetchDetailOperatorLog, fetchDetailOwnerLog, searchAuditLogOperator, searchAuditLogOwner } from "@/app/sevices/auditLog/auditLog";
 import { useMutation } from "@tanstack/react-query";
 
 export const useSearchAuditLogOwnerMutationOption = () => {
@@ -19,6 +19,28 @@ export const useSearchAuditLogOperatorMutationOption = () => {
     mutationFn: searchAuditLogOperator,
     onError: (error) => {
       console.error("Error search operator log:", error);
+    },
+
+  });
+};
+
+export const useFetchDetailLogOwnerMutationOption = () => {
+
+  return useMutation({
+    mutationFn: fetchDetailOwnerLog,
+    onError: (error) => {
+      console.error("Error search detail owner log:", error);
+    },
+
+  });
+};
+
+export const useFetchDetailLogOperatorMutationOption = () => {
+
+  return useMutation({
+    mutationFn: fetchDetailOperatorLog,
+    onError: (error) => {
+      console.error("Error search detail operator log:", error);
     },
 
   });
