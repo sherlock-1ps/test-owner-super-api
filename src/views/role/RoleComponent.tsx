@@ -107,7 +107,7 @@ const RoleComponent = () => {
           {roleListData?.code == 'SUCCESS' && !pendingRoleList && !pendingSearchRoleList && (
             <Grid item xs={12}>
               <RoleTable
-                data={searchRoleListData?.data || roleListData?.data}
+                data={searchRoleListData?.data || roleListData?.data || { list: [] }}
                 page={page}
                 pageSize={pageSize}
                 setPage={setPage}

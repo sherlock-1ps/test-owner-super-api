@@ -829,7 +829,7 @@ const CreateProviderComponent = () => {
               <Grid item xs={12}>
                 <div className='flex flex-col'>
                   <Typography>Contract</Typography>
-                  <Typography color={'text.primary'}>{formValues.contract}</Typography>
+                  <Typography color={'text.primary'}>{formValues?.contract}</Typography>
                 </div>
               </Grid>
             )}
@@ -844,12 +844,14 @@ const CreateProviderComponent = () => {
             <Grid item xs={12} className='flex gap-16'>
               <div className='flex flex-col'>
                 <Typography>Credential Prefix</Typography>
-                <Typography color={'text.primary'}>OBT - G1PX78</Typography>
+                <Typography color={'text.primary'}>
+                  {formValues?.prefix} - {formValues?.credential}
+                </Typography>
               </div>
               {formValues?.description && (
                 <div className='flex flex-col'>
                   <Typography>Description</Typography>
-                  <Typography color={'text.primary'}>{formValues.description}</Typography>
+                  <Typography color={'text.primary'}>{formValues?.description}</Typography>
                 </div>
               )}
             </Grid>

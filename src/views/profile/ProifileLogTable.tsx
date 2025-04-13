@@ -160,7 +160,7 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
       }),
 
       columnHelper.display({
-        id: 'action',
+        id: 'option',
         cell: ({ row }) => {
           const ownerData = encodeURIComponent(JSON.stringify(row.original))
           return (
@@ -232,12 +232,7 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id} className='bg-primary text-white'>
                 {headerGroup.headers.map(header => (
-                  <th
-                    key={header.id}
-                    style={{
-                      width: header.index === 7 ? 50 : 'auto'
-                    }}
-                  >
+                  <th key={header.id}>
                     {header.isPlaceholder ? null : (
                       <>
                         <div
@@ -248,10 +243,6 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                           onClick={header.column.getToggleSortingHandler()}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                          {{
-                            asc: <i className='tabler-chevron-up text-xl' />,
-                            desc: <i className='tabler-chevron-down text-xl' />
-                          }[header.column.getIsSorted() as 'asc' | 'desc'] ?? null}
                         </div>
                       </>
                     )}
