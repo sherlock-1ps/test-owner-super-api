@@ -42,7 +42,7 @@ const CredentialProviderListComponent = () => {
   const [type, setType] = useState('all')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(100)
 
   console.log('providerResult', providerResult)
   const {
@@ -143,7 +143,7 @@ const CredentialProviderListComponent = () => {
                           onClick={() => {}}
                         />
                       ),
-                      size: 'sm'
+                      size: 'md'
                     })
                   }}
                 >

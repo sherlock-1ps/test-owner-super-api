@@ -207,7 +207,7 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
     },
     initialState: {
       pagination: {
-        pageSize: 10
+        pageSize: 999
       }
     },
     enableRowSelection: true, //enable row selection for all rows

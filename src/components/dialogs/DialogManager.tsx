@@ -14,7 +14,8 @@ const DialogManager = () => {
     <>
       {dialogs.map(dialog => (
         <Dialog
-          fullWidth={dialog.size == 'sm' ? true : false}
+          // fullWidth={dialog.size == 'sm' ? true : false}
+          fullWidth={true}
           fullScreen={false}
           maxWidth={dialog.size == 'sm' ? 'sm' : 'md'}
           key={dialog.id}

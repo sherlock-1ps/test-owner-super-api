@@ -213,7 +213,11 @@ const SelectedProviderTable = ({ data = [], page, pageSize, setPage, setPageSize
       rowSelection,
       globalFilter
     },
-    initialState: {},
+    initialState: {
+      pagination: {
+        pageSize: 999
+      }
+    },
     enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
     // globalFilterFn: fuzzyFilter,

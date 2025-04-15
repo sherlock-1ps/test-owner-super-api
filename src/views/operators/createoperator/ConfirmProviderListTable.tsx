@@ -115,7 +115,9 @@ const ConfirmProviderListTable = ({ dataTable, category }: any) => {
       }),
       columnHelper.accessor('percent_holder', {
         header: 'Holder %',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.percent_holder} %</Typography>
+        cell: ({ row }) => (
+          <Typography variant='h6'>{row.original.percent_holder - Number(row.original.selectShare)} %</Typography>
+        )
       }),
       columnHelper.accessor('selectShare', {
         header: 'Credential %',

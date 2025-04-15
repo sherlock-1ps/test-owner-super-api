@@ -219,7 +219,7 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
     },
     initialState: {
       pagination: {
-        pageSize: 10
+        pageSize: 999
       }
     },
     enableRowSelection: true, //enable row selection for all rows
@@ -313,7 +313,7 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
                             <div className='flex gap-6'>
                               <Typography className='w-[112px]'>Payload :</Typography>
                               <div className=' rounded-sm border w-full p-2 bg-primaryLighter'>
-                                <Typography variant='h6'>
+                                <Typography variant='h6' className='text-wrap'>
                                   {JSON.stringify(expandedData[row.original.log_id]?.payload, null, 2)}
                                 </Typography>
                               </div>
@@ -321,7 +321,7 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
                             <div className='flex gap-6'>
                               <Typography className='w-[112px]'>Old Value :</Typography>
                               <div className=' rounded-sm border w-full p-2 bg-primaryLighter'>
-                                <Typography variant='h6'>
+                                <Typography variant='h6' className='text-wrap'>
                                   {JSON.stringify(expandedData[row.original.log_id]?.old_value, null, 2)}
                                 </Typography>
                               </div>
@@ -329,7 +329,7 @@ const AuditLogOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: a
                             <div className='flex gap-6'>
                               <Typography className='w-[112px]'>Response :</Typography>
                               <div className=' rounded-sm border w-full p-2 bg-primaryLighter'>
-                                <Typography variant='h6'>
+                                <Typography variant='h6' className='text-wrap'>
                                   {JSON.stringify(expandedData[row.original.log_id]?.response, null, 2)}
                                 </Typography>
                               </div>

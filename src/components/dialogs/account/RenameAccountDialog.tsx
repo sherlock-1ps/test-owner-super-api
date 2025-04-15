@@ -51,7 +51,7 @@ const RenameAccountDialog = ({ id, onClick, data }: confirmProps) => {
       <Grid item xs={12} className='flex gap-4'>
         <CustomTextField fullWidth type='text' label='Old Role' placeholder='' disabled value={data?.role?.role_name} />
 
-        <CustomTextField
+        {/* <CustomTextField
           select
           fullWidth
           value={role}
@@ -69,6 +69,25 @@ const RenameAccountDialog = ({ id, onClick, data }: confirmProps) => {
                 ))
               ]
             : [<MenuItem value='' key='all'></MenuItem>]}
+        </CustomTextField> */}
+        <CustomTextField
+          select
+          fullWidth
+          value={role}
+          onChange={e => setRole(e.target.value)}
+          label={dictionary['account']?.newRole}
+          disabled={pendingRole}
+        >
+          <MenuItem value='' disabled>
+            Select role
+          </MenuItem>
+
+          {roleListData?.code === 'SUCCESS' &&
+            roleListData.data.map((item: any, idx: number) => (
+              <MenuItem value={item.role_id} key={idx} className='capitalize'>
+                {item.role_name}
+              </MenuItem>
+            ))}
         </CustomTextField>
       </Grid>
 
