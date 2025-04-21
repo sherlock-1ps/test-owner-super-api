@@ -14,9 +14,11 @@ import {
 } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 import { toast } from 'react-toastify'
 import PermissionListEdit from './PermissionListEdit'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 const RoleManageRoleComponent = () => {
   const router = useRouter()
+  const { dictionary } = useDictionary()
   const { lang: locale } = useParams()
   const searchParams = useSearchParams()
   const role = searchParams.get('role')
@@ -65,12 +67,12 @@ const RoleManageRoleComponent = () => {
       })
 
       if (response?.code == 'SUCCESS') {
-        toast.success('Create Role Success!', { autoClose: 3000 })
+        toast.success(dictionary['roleSection']?.createRoleSuccess, { autoClose: 3000 })
         router.push(`/${locale}/role`)
       }
     } catch (error) {
       console.log('error', error)
-      toast.error('create role failed!', { autoClose: 3000 })
+      toast.error(dictionary['roleSection']?.createRoleFailed, { autoClose: 3000 })
     }
   }
 
@@ -84,12 +86,12 @@ const RoleManageRoleComponent = () => {
       })
 
       if (response?.code == 'SUCCESS') {
-        toast.success('update Role Success!', { autoClose: 3000 })
+        toast.success(dictionary['roleSection']?.updateRoleSuccess, { autoClose: 3000 })
         router.push(`/${locale}/role`)
       }
     } catch (error) {
       console.log('error', error)
-      toast.error('update role failed!', { autoClose: 3000 })
+      toast.error(dictionary['roleSection']?.updateRoleFailed, { autoClose: 3000 })
     }
   }
 
@@ -111,7 +113,7 @@ const RoleManageRoleComponent = () => {
                 <Grid item xs={12} sm={3}>
                   <CustomTextField
                     fullWidth
-                    label='Role Name'
+                    label={dictionary['roleSection']?.roleName}
                     {...register('roleName')}
                     error={!!errors.roleName}
                     helperText={errors.roleName?.message}
@@ -121,7 +123,7 @@ const RoleManageRoleComponent = () => {
                 <Grid item xs={12} sm>
                   <CustomTextField
                     fullWidth
-                    label='Description'
+                    label={dictionary?.description}
                     {...register('description')}
                     error={!!errors.description}
                     helperText={errors.description?.message}
@@ -130,7 +132,7 @@ const RoleManageRoleComponent = () => {
               </Grid>
 
               <Grid item xs={12}>
-                <Typography variant='h6'>Permission</Typography>
+                <Typography variant='h6'>{dictionary?.permission}</Typography>
               </Grid>
 
               <Grid item xs={12}>

@@ -221,7 +221,7 @@ const AuditLogComponent = () => {
   }, [page, pageSize])
 
   return (
-    <>
+    <div className='flex flex-col gap-6'>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
           <Card>
@@ -245,7 +245,11 @@ const AuditLogComponent = () => {
                             methods.setValue('end_date', end ?? undefined)
                           }}
                           customInput={
-                            <CustomInput label='Date Range' start={watch('start_date')} end={watch('end_date')} />
+                            <CustomInput
+                              label={dictionary?.dateRange}
+                              start={watch('start_date')}
+                              end={watch('end_date')}
+                            />
                           }
                           shouldCloseOnSelect={false}
                         />
@@ -259,7 +263,13 @@ const AuditLogComponent = () => {
                       name='menu_index'
                       control={control}
                       render={({ field }) => (
-                        <CustomTextField select fullWidth {...field} label='Menu' disabled={pendingMenuList}>
+                        <CustomTextField
+                          select
+                          fullWidth
+                          {...field}
+                          label={dictionary?.menu}
+                          disabled={pendingMenuList}
+                        >
                           <MenuItem value='all'>All</MenuItem>
                           {menuList?.code === 'SUCCESS' &&
                             menuList.data.map((item: any) => (
@@ -278,7 +288,13 @@ const AuditLogComponent = () => {
                       name='action'
                       control={control}
                       render={({ field }) => (
-                        <CustomTextField select fullWidth {...field} label='Action' disabled={pendingActionList}>
+                        <CustomTextField
+                          select
+                          fullWidth
+                          {...field}
+                          label={dictionary?.action}
+                          disabled={pendingActionList}
+                        >
                           <MenuItem value='all'>All</MenuItem>
                           {actionList?.code === 'SUCCESS' &&
                             actionList.data.action_log.map((item: string) => (
@@ -331,8 +347,8 @@ const AuditLogComponent = () => {
                       render={({ field }) => (
                         <CustomTextField
                           fullWidth
-                          label={tab === 'owner' ? 'Username' : 'Email'}
-                          placeholder={tab === 'owner' ? 'Search Username' : 'Search Email'}
+                          label={tab === 'owner' ? dictionary?.username : dictionary?.email}
+                          placeholder={tab === 'owner' ? dictionary?.searchUsername : dictionary?.searchEmail}
                           size='small'
                           {...field}
                         />
@@ -363,8 +379,8 @@ const AuditLogComponent = () => {
             <Grid item xs={12}>
               <Typography variant='h6'>
                 {ownerDataLog?.data?.total || operatorDataLog?.data?.total
-                  ? `Found ${ownerDataLog?.data?.total?.toLocaleString() || operatorDataLog?.data?.total?.toLocaleString()} activity results`
-                  : 'Search to discover the results of your input.'}
+                  ? `${dictionary['audit']?.found} ${ownerDataLog?.data?.total?.toLocaleString() || operatorDataLog?.data?.total?.toLocaleString()} ${dictionary['audit']?.activityResult}`
+                  : dictionary['audit']?.searchLog}
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -403,7 +419,7 @@ const AuditLogComponent = () => {
           </Grid>
         </CardContent>
       </Card>
-    </>
+    </div>
   )
 }
 

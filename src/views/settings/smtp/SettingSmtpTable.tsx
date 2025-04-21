@@ -337,7 +337,7 @@ const SettingSmtpTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

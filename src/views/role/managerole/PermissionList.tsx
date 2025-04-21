@@ -1,5 +1,6 @@
 'use client'
 
+import { useDictionary } from '@/contexts/DictionaryContext'
 import { useFetchPermissionQueryOption } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 import { Button, Grid, Switch, Typography } from '@mui/material'
 import { useRouter } from 'next/navigation'
@@ -21,6 +22,7 @@ type SelectedPermissionMap = Record<string, Set<string>>
 
 const PermissionList = () => {
   const router = useRouter()
+  const { dictionary } = useDictionary()
   const { data: permissionList } = useFetchPermissionQueryOption()
   const {
     handleSubmit,
@@ -148,7 +150,7 @@ const PermissionList = () => {
         .map(([groupKey, value]) => renderPermissionGroup(groupKey, value as any[]))
     }
 
-    return <p>Loading....</p>
+    return <p>{dictionary?.loading} ....</p>
   }
 
   return (
@@ -187,10 +189,10 @@ const PermissionList = () => {
             router.back()
           }}
         >
-          Cancel
+          {dictionary?.cancel}
         </Button>
         <Button type='submit' variant='contained'>
-          Create Role
+          {dictionary?.createRole}
         </Button>
       </Grid>
     </>

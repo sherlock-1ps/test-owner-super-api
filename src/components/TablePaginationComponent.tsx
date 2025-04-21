@@ -1,6 +1,7 @@
 import { MenuItem, Pagination, Typography } from '@mui/material'
 import CustomTextField from '@/@core/components/mui/TextField'
 import type { Table } from '@tanstack/react-table'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 interface TablePaginationComponentProps<TData> {
   table: Table<TData>
@@ -21,12 +22,13 @@ const TablePaginationComponent = <TData,>({
 }: TablePaginationComponentProps<TData>) => {
   // const pageSize = table.getState().pagination.pageSize
   // const pageIndex = table.getState().pagination.pageIndex
+  const { dictionary } = useDictionary()
 
   return (
     <div className='flex justify-between items-center flex-wrap pli-6 border-bs bs-auto plb-[12.5px] gap-2'>
       <div className='flex gap-2 items-center'>
         <div className='flex items-center gap-2'>
-          <Typography className='hidden sm:block'>Show</Typography>
+          <Typography className='hidden sm:block'>{dictionary?.show ?? 'Show'}</Typography>
           <CustomTextField
             select
             value={pageSize}

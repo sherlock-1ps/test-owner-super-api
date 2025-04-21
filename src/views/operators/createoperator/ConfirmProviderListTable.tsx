@@ -62,6 +62,7 @@ import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import GameCredentialProviderDialog from '@/components/dialogs/operators/GameCredentialProviderDialog'
 import { ProviderCredentialType } from '@/types/operator/operatorTypes'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -90,6 +91,7 @@ const columnHelper = createColumnHelper<ProviderCredentialType>()
 
 const ConfirmProviderListTable = ({ dataTable, category }: any) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(...[dataTable])
@@ -192,7 +194,7 @@ const ConfirmProviderListTable = ({ dataTable, category }: any) => {
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData ?? 'No data available'}
                 </td>
               </tr>
             </tbody>

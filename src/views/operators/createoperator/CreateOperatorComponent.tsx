@@ -248,11 +248,11 @@ const CreateProviderComponent = () => {
       const result = await deleteDraftOperator({ operator_prefix: prefix })
 
       if (result?.code == 'SUCCESS') {
-        toast.success('delete draft success!', { autoClose: 3000 })
+        toast.success(dictionary['operator']?.deleteDraft, { autoClose: 3000 })
         router.back()
       }
     } catch (error) {
-      toast.error('delete draft failed!', { autoClose: 3000 })
+      toast.error(dictionary['operator']?.errorDeleteDraft, { autoClose: 3000 })
       console.log('error', error)
     }
   }
@@ -319,9 +319,9 @@ const CreateProviderComponent = () => {
       if (errorCase.response?.data?.code == 'DUPPLICATE_CREDENTIAL_FAILED') {
         setError('prefix', {
           type: 'manual',
-          message: 'This prefix already exists!'
+          message: dictionary['operator']?.errorPrefixDuplicate
         })
-        toast.error('duplicate credential!', { autoClose: 3000 })
+        toast.error(dictionary['operator']?.errorPrefixDuplicate, { autoClose: 3000 })
       }
     }
   }
@@ -389,7 +389,7 @@ const CreateProviderComponent = () => {
       const response = await confirmCreateOperator(payload)
 
       if (response?.code == 'SUCCESS') {
-        toast.success('Create Success', { autoClose: 3000 })
+        toast.success(dictionary['operator']?.createOperatorSuccess, { autoClose: 3000 })
         router.push(`/${locale}/operators`)
       }
     } catch (error) {
@@ -450,7 +450,7 @@ const CreateProviderComponent = () => {
                   <CustomTextField
                     fullWidth
                     type='email'
-                    label='Email'
+                    label={dictionary?.email}
                     placeholder=''
                     {...register('email')}
                     {...field}
@@ -467,7 +467,7 @@ const CreateProviderComponent = () => {
                 render={({ field }) => (
                   <CustomTextField
                     fullWidth
-                    label='Password'
+                    label={dictionary?.password}
                     placeholder='············'
                     id='stepper-alternative-password'
                     type={isShowPassword.isPasswordShown ? 'text' : 'password'}
@@ -500,7 +500,7 @@ const CreateProviderComponent = () => {
                 render={({ field }) => (
                   <CustomTextField
                     fullWidth
-                    label='Confirm Password'
+                    label={dictionary?.confirmPassword}
                     placeholder='············'
                     id='stepper-alternative-confirm-password'
                     type={isShowPassword.isConfirmPasswordShown ? 'text' : 'password'}
@@ -548,7 +548,7 @@ const CreateProviderComponent = () => {
                     select
                     fullWidth
                     defaultValue={''}
-                    label='Currency'
+                    label={dictionary?.currency}
                     {...register('currency')}
                     {...field}
                     error={!!errors.currency}
@@ -589,7 +589,7 @@ const CreateProviderComponent = () => {
                     select
                     fullWidth
                     defaultValue={'all'}
-                    label='Select Country'
+                    label={dictionary?.selectCountry}
                     {...register('country')}
                     {...field}
                     error={!!errors.country}
@@ -631,7 +631,7 @@ const CreateProviderComponent = () => {
                     select
                     fullWidth
                     defaultValue={''}
-                    label='Timezone'
+                    label={dictionary?.timezone}
                     {...register('timezone')}
                     {...field}
                     error={!!errors.timezone}
@@ -661,7 +661,7 @@ const CreateProviderComponent = () => {
                     fullWidth
                     rows={8}
                     multiline
-                    label='Contract or Address Detail (Optional)'
+                    label={dictionary?.contract}
                     placeholder=''
                     sx={{ '& .MuiInputBase-root.MuiFilledInput-root': { alignItems: 'baseline' } }}
                     {...register('contract')}
@@ -722,7 +722,7 @@ const CreateProviderComponent = () => {
               <Grid container spacing={4} alignItems='center'>
                 {/* Instruction Text */}
                 <Grid item xs={12} md={4}>
-                  <Typography color='text.primary'>Choose at least 1 provider to create credentials</Typography>
+                  <Typography color='text.primary'>{dictionary['operator']?.atLeastProvider}</Typography>
                 </Grid>
 
                 {/* Radio Buttons */}
@@ -748,7 +748,7 @@ const CreateProviderComponent = () => {
                 {/* Apply Button */}
                 <Grid item xs={6} sm={1} md={1} alignSelf={'end'}>
                   <Button fullWidth variant='contained' disabled={!stateSetPercent.inputValue}>
-                    Apply
+                    {dictionary?.apply}
                   </Button>
                 </Grid>
               </Grid>
@@ -803,25 +803,25 @@ const CreateProviderComponent = () => {
             </Grid>
             <Grid item xs={12} className='flex gap-16'>
               <div className='flex flex-col'>
-                <Typography>Email Address</Typography>
+                <Typography>{dictionary?.email}</Typography>
                 <Typography color={'text.primary'}>{formValues?.email}</Typography>
               </div>
               <div className='flex flex-col'>
-                <Typography>Password</Typography>
+                <Typography>{dictionary?.password}</Typography>
                 <Typography color={'text.primary'}>{formValues?.password}</Typography>
               </div>
             </Grid>
             <Grid item xs={12} className='flex gap-16'>
               <div className='flex flex-col'>
-                <Typography>Currency</Typography>
+                <Typography>{dictionary?.currency}</Typography>
                 <Typography color={'text.primary'}>{formValues?.currency}</Typography>
               </div>
               <div className='flex flex-col'>
-                <Typography>Country</Typography>
+                <Typography>{dictionary?.country}</Typography>
                 <Typography color={'text.primary'}>{formValues?.country}</Typography>
               </div>
               <div className='flex flex-col'>
-                <Typography>Timezone</Typography>
+                <Typography>{dictionary?.timezone}</Typography>
                 <Typography color={'text.primary'}>{formValues?.timezone}</Typography>
               </div>
             </Grid>
@@ -850,7 +850,7 @@ const CreateProviderComponent = () => {
               </div>
               {formValues?.description && (
                 <div className='flex flex-col'>
-                  <Typography>Description</Typography>
+                  <Typography>{dictionary?.description}</Typography>
                   <Typography color={'text.primary'}>{formValues?.description}</Typography>
                 </div>
               )}
@@ -884,15 +884,15 @@ const CreateProviderComponent = () => {
   const renderTitle = (activeStep: number) => {
     switch (activeStep) {
       case 0:
-        return 'Create Operator'
+        return dictionary['operator']?.createOperator
 
       case 1:
-        return 'Credential Setting'
+        return dictionary['operator']?.credentialSetting
       case 2:
-        return 'Your summary'
+        return dictionary['operator']?.credentialSummary
 
       default:
-        return 'Create Operator'
+        return dictionary['operator']?.createOperator
     }
   }
 
@@ -920,7 +920,7 @@ const CreateProviderComponent = () => {
         <CardContent>
           {activeStep === steps.length ? (
             <>
-              <Typography className='mlb-2 mli-1'>All steps are completed!</Typography>
+              <Typography className='mlb-2 mli-1'>{dictionary['operator']?.stepComplete}!</Typography>
               <div className='flex justify-end mt-4  gap-4'>
                 <Button
                   variant='tonal'
@@ -929,10 +929,10 @@ const CreateProviderComponent = () => {
                   color='secondary'
                   startIcon={<DirectionalIcon ltrIconClass='tabler-arrow-left' rtlIconClass='tabler-' />}
                 >
-                  Previous
+                  {dictionary?.previous}
                 </Button>
                 <Button variant='contained' color='success' endIcon={<i className='tabler-check' />}>
-                  Create Operator
+                  {dictionary['operator']?.createOperator}
                 </Button>
               </div>
             </>
@@ -970,7 +970,7 @@ const CreateProviderComponent = () => {
                       }}
                       disabled={pendingDeleteDraft}
                     >
-                      Discard
+                      {dictionary?.discard}
                     </Button>
 
                     <div className='flex gap-4'>
@@ -983,7 +983,7 @@ const CreateProviderComponent = () => {
                           <DirectionalIcon ltrIconClass='tabler-arrow-left' rtlIconClass='tabler-arrow-right' />
                         }
                       >
-                        Previous
+                        {dictionary?.previous}
                       </Button>
                       <Button
                         type='submit'
@@ -1000,10 +1000,10 @@ const CreateProviderComponent = () => {
                         }
                       >
                         {pendingCreateOperator
-                          ? 'Loading...'
+                          ? `${dictionary?.loading}...`
                           : activeStep === steps.length - 1
-                            ? 'Create Operator'
-                            : 'Next'}
+                            ? dictionary['operator']?.createOperator
+                            : dictionary?.next}
                       </Button>
                     </div>
                   </Grid>

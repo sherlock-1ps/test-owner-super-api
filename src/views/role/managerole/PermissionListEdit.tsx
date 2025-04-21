@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
+import { useDictionary } from '@/contexts/DictionaryContext'
 import {
   useFetchPermissionQueryOption,
   useFetchUpdatePermissionQueryOption
@@ -25,6 +27,7 @@ type SelectedPermissionMap = Record<string, Set<string>>
 
 const PermissionListEdit = (roleData: any) => {
   const router = useRouter()
+  const { dictionary } = useDictionary()
   const queryClient = useQueryClient()
   const { data: permissionList } = useFetchUpdatePermissionQueryOption({
     role_id: roleData?.role_id,
@@ -168,7 +171,7 @@ const PermissionListEdit = (roleData: any) => {
         .map(([groupKey, value]) => renderPermissionGroup(groupKey, value as any[]))
     }
 
-    return <p>Loading....</p>
+    return <p>{dictionary?.loading} ....</p>
   }
 
   return (
@@ -206,7 +209,7 @@ const PermissionListEdit = (roleData: any) => {
             setSelectedPermissions(defaultPermissions)
           }}
         >
-          Reset to default
+          {dictionary?.resetDefault}
         </Button>
         <Button
           variant='outlined'
@@ -214,11 +217,11 @@ const PermissionListEdit = (roleData: any) => {
             router.back()
           }}
         >
-          Cancel
+          {dictionary?.cancel}
         </Button>
 
         <Button type='submit' variant='contained'>
-          Save Change
+          {dictionary?.saveChange}
         </Button>
       </Grid>
     </>

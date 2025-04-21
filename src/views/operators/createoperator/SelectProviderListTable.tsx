@@ -63,6 +63,7 @@ import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import GameCredentialProviderDialog from '@/components/dialogs/operators/GameCredentialProviderDialog'
 import type { ProviderCredentialType } from '@/types/operator/operatorTypes'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -96,6 +97,7 @@ const SelectProviderListTable = ({ dataTable, category, updateMain }: any) => {
   const [data, setData] = useState(...[dataTable])
   const [dataModify, setDataModify] = useState<ProviderCredentialType[]>(...[dataTable])
   const [globalFilter, setGlobalFilter] = useState('')
+  const { dictionary } = useDictionary()
 
   // Hooks
   const { lang: locale } = useParams()
@@ -181,7 +183,7 @@ const SelectProviderListTable = ({ dataTable, category, updateMain }: any) => {
 
       columnHelper.display({
         id: 'provider',
-        header: 'Select All Slot Provider',
+        header: dictionary['operator']?.selectProvider,
         enableSorting: false,
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -298,7 +300,7 @@ const SelectProviderListTable = ({ dataTable, category, updateMain }: any) => {
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

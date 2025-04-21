@@ -61,11 +61,12 @@ const AddProviderComponent = () => {
     mutationFn: createProvider,
     onSuccess() {
       setFileImg(null)
-      toast.success('Create Provider successfully!', { autoClose: 2000 })
+      toast.success(dictionary['provider']?.createSuccess, { autoClose: 2000 })
       router.push(`/${locale}/providers`)
     },
 
     onError: error => {
+      toast.error(dictionary['provider']?.errorCreateSuccess, { autoClose: 2000 })
       console.error('Error creating game provider:', error)
     },
     onSettled: () => {

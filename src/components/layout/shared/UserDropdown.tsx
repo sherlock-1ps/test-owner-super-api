@@ -33,6 +33,7 @@ import { useSettings } from '@core/hooks/useSettings'
 import { getLocalizedUrl } from '@/utils/i18n'
 import Axios from '@/libs/axios/axios'
 import { useAuthStore } from '@/store/authStore'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -45,6 +46,7 @@ const BadgeContentSpan = styled('span')({
 })
 
 const UserDropdown = () => {
+  const { dictionary } = useDictionary()
   // States
   const [open, setOpen] = useState(false)
 
@@ -167,7 +169,7 @@ const UserDropdown = () => {
                       onClick={handleUserLogout}
                       sx={{ '& .MuiButton-endIcon': { marginInlineStart: 1.5 } }}
                     >
-                      Logout
+                      {dictionary?.logout ?? 'logout'}
                     </Button>
                   </div>
                 </MenuList>

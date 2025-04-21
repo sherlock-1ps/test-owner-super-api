@@ -98,7 +98,7 @@ const FaqManageComponent = () => {
           <Grid container className='flex flex-col gap-6'>
             <Grid item xs={12} sm className='flex gap-2 justify-between'>
               <Typography variant='h5' className='text-nowrap'>
-                {faqData ? 'Edit FAQ' : 'Add New FAQ'}
+                {faqData ? dictionary['faq']?.editFaq : dictionary['faq']?.addFaq}
               </Typography>
             </Grid>
             <Divider />

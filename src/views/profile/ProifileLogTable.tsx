@@ -117,12 +117,12 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
   const columns = useMemo<ColumnDef<AuditLogType, any>[]>(
     () => [
       columnHelper.accessor('created_at', {
-        header: 'Data time',
+        header: dictionary?.dateTime,
         cell: ({ row }) => <Typography variant='h6'>{row.original.created_at}</Typography>
       }),
 
       columnHelper.accessor('action', {
-        header: 'Action',
+        header: dictionary?.action,
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -131,16 +131,16 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
         )
       }),
       columnHelper.accessor('username', {
-        header: 'Username',
+        header: dictionary?.username,
         cell: ({ row }) => <Typography variant='h6'>{row.original.username}</Typography>
       }),
       columnHelper.accessor('device', {
-        header: 'Device',
+        header: dictionary?.device,
         cell: ({ row }) => <Typography variant='h6'>{row.original.device}</Typography>
       }),
 
       columnHelper.accessor('location', {
-        header: 'Geolocation',
+        header: dictionary?.geolocation,
         cell: ({ row }) => <Typography variant='h6'>{row.original.location}</Typography>
       }),
       columnHelper.accessor('ip', {
@@ -148,7 +148,7 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
         cell: ({ row }) => <Typography variant='h6'>{row.original.ip}</Typography>
       }),
       columnHelper.accessor('status', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => (
           <Chip
             color={row.original.status == 'success' ? 'success' : 'primary'}
@@ -255,7 +255,7 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

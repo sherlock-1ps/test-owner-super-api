@@ -69,6 +69,7 @@ import {
 } from '@/queryOptions/account/accountQueryOptions'
 import { toast } from 'react-toastify'
 import { useFetchDetailLogOwnerMutationOption } from '@/queryOptions/auditlog/auditLogQueryOptions'
+import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -129,12 +130,12 @@ const AuditLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
   const columns = useMemo<ColumnDef<AuditLogType, any>[]>(
     () => [
       columnHelper.accessor('created_at', {
-        header: 'Data time',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.created_at}</Typography>
+        header: dictionary?.dateTime ?? 'Date Time',
+        cell: ({ row }) => <Typography variant='h6'>{FormatShowDate(row.original.created_at)}</Typography>
       }),
 
       columnHelper.accessor('action', {
-        header: 'Action',
+        header: dictionary?.action ?? 'Action',
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -143,16 +144,16 @@ const AuditLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
         )
       }),
       columnHelper.accessor('username', {
-        header: 'Username',
+        header: dictionary?.username,
         cell: ({ row }) => <Typography variant='h6'>{row.original.username}</Typography>
       }),
       columnHelper.accessor('device', {
-        header: 'Device',
+        header: dictionary?.device ?? 'Device',
         cell: ({ row }) => <Typography variant='h6'>{row.original.device}</Typography>
       }),
 
       columnHelper.accessor('location', {
-        header: 'Geolocation',
+        header: dictionary?.geolocation ?? 'Geolocation',
         cell: ({ row }) => <Typography variant='h6'>{row.original.location}</Typography>
       }),
       columnHelper.accessor('ip', {
@@ -160,7 +161,7 @@ const AuditLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
         cell: ({ row }) => <Typography variant='h6'>{row.original.ip}</Typography>
       }),
       columnHelper.accessor('status', {
-        header: 'Status',
+        header: dictionary?.status ?? 'Status',
         cell: ({ row }) => (
           <Chip
             color={row.original.status == 'success' ? 'success' : 'primary'}
@@ -254,7 +255,7 @@ const AuditLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>
@@ -275,7 +276,7 @@ const AuditLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                         <td colSpan={columns.length} className=' bg-primaryLighter'>
                           <div className='p-2 flex flex-col gap-2 '>
                             <div className='flex gap-6'>
-                              <Typography className='w-[112px]'>Datetime :</Typography>
+                              <Typography className='w-[112px]'>{dictionary?.dateTime} :</Typography>
                               <Typography variant='h6'>{expandedData[row.original.log_id]?.created_at}</Typography>
                             </div>
                             <div className='flex gap-6'>
@@ -291,7 +292,7 @@ const AuditLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                               </div>
                             </div>
                             <div className='flex gap-6'>
-                              <Typography className='w-[112px]'>Old Value :</Typography>
+                              <Typography className='w-[112px]'>{dictionary['audit']?.oldValue} :</Typography>
                               <div className=' rounded-sm border w-full p-2 bg-primaryLighter'>
                                 <Typography variant='h6' className='text-wrap'>
                                   {JSON.stringify(expandedData[row.original.log_id]?.old_value, null, 2)}
@@ -311,11 +312,11 @@ const AuditLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
                               <Typography variant='h6'>{expandedData[row.original.log_id]?.ip}</Typography>
                             </div>
                             <div className='flex gap-6'>
-                              <Typography className='w-[112px]'>Device :</Typography>
+                              <Typography className='w-[112px]'>{dictionary?.device} :</Typography>
                               <Typography variant='h6'>{expandedData[row.original.log_id]?.device}</Typography>
                             </div>
                             <div className='flex gap-6'>
-                              <Typography className='w-[112px]'>Geolocation :</Typography>
+                              <Typography className='w-[112px]'>{dictionary?.geolocation} :</Typography>
                               <Typography variant='h6'>{expandedData[row.original.log_id]?.location}</Typography>
                             </div>
                           </div>

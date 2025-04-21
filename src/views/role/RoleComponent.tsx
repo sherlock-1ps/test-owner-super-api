@@ -62,7 +62,7 @@ const RoleComponent = () => {
         <Grid container className='flex flex-col gap-6'>
           <Grid item xs={12} sm className='flex gap-2 justify-between'>
             <Typography variant='h5' className=' text-nowrap'>
-              Role & Permission
+              {dictionary['roleSection']?.rolePermission}
             </Typography>
             {hasPermission('create-owner-11') && (
               <Button
@@ -71,7 +71,7 @@ const RoleComponent = () => {
                   router.push(`/${locale}/role/managerole`)
                 }}
               >
-                Create Role
+                {dictionary?.createRole}
               </Button>
             )}
           </Grid>
@@ -81,9 +81,9 @@ const RoleComponent = () => {
               <CustomTextField
                 fullWidth
                 value={search}
-                label={'Role'}
+                label={dictionary?.role}
                 onChange={e => setSearch(e.target.value)}
-                placeholder={'Search Role'}
+                placeholder={dictionary?.searchRole}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
@@ -97,7 +97,7 @@ const RoleComponent = () => {
             </Grid>
             <Grid item xs={12} sm>
               <Button variant='contained' onClick={handleSearch}>
-                Search
+                {dictionary?.search}
               </Button>
             </Grid>
           </Grid>

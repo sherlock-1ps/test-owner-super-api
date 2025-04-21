@@ -69,6 +69,7 @@ import {
 import { toast } from 'react-toastify'
 import { useHasPermission } from '@/hooks/useHasPermission'
 import { OptionType } from '@/@core/components/option-menu/types'
+import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -85,7 +86,7 @@ type OperatorType = {
   operator_name: string
   email: string
   currency: string
-  country: string
+  last_login: string
   timezone: string
   is_enable: boolean
   role_name: string
@@ -205,9 +206,9 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
           )
         }
       }),
-      columnHelper.accessor('country', {
-        header: 'Date Last Login',
-        cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
+      columnHelper.accessor('last_login', {
+        header: dictionary?.lastLogin,
+        cell: ({ row }) => <Typography variant='h6'>{FormatShowDate(row.original.last_login)}</Typography>
       }),
       columnHelper.display({
         id: 'action',
@@ -248,9 +249,12 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
                     component: (
                       <ConfirmAlert
                         id='alertResetPasswordOperator'
-                        title={'Confirm Password Reset'}
-                        content1={`Are you sure you want to reset the password for ${row.original.email} ?`}
-                        content2='The system will send the password reset email to the user’s email address '
+                        title={dictionary?.titleConfirmResetPass}
+                        content1={
+                          dictionary['account']?.confirmResetPass?.replace('{{name}}', row.original.email) ??
+                          `Are you sure you want to reset the password for ${row.original.email} ?`
+                        }
+                        content2={dictionary['account']?.resetPass}
                         onClick={() => {
                           handleResetPassword(row.original.email)
                         }}
@@ -360,7 +364,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

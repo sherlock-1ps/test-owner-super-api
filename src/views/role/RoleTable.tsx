@@ -68,6 +68,7 @@ import {
   useUpdateStatusMutationOption
 } from '@/queryOptions/rolePermission/rolePermissionQueryOptions'
 import { useHasPermission } from '@/hooks/useHasPermission'
+import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -98,6 +99,7 @@ type RoleConfig = {
   is_enable: boolean
   operator_prefix: string
   member: number
+  update_at: string
 }
 
 // Column Definitions
@@ -126,7 +128,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
       }),
 
       columnHelper.accessor('role_name', {
-        header: 'Role',
+        header: dictionary?.role,
 
         cell: ({ row }) => (
           <div className='flex flex-col'>
@@ -135,16 +137,16 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
         )
       }),
       columnHelper.accessor('description', {
-        header: 'Description',
+        header: dictionary?.description,
         cell: ({ row }) => <Typography variant='h6'>{row.original.description}</Typography>
       }),
       columnHelper.accessor('member', {
-        header: 'Member',
+        header: dictionary?.member,
         cell: ({ row }) => <Typography variant='h6'>{row.original.member}</Typography>
       }),
 
       columnHelper.accessor('is_enable', {
-        header: 'Status',
+        header: dictionary?.status,
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
@@ -182,9 +184,9 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
           )
         }
       }),
-      columnHelper.accessor('parent_role_id', {
-        header: 'Date Last Login',
-        cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
+      columnHelper.accessor('update_at', {
+        header: dictionary?.lastUpdate,
+        cell: ({ row }) => <Typography variant='h6'>{FormatShowDate(row.original.update_at)}</Typography>
       }),
 
       columnHelper.display({
@@ -205,7 +207,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
                   className='no-underline text-textSecondary'
                   onClick={e => e.stopPropagation()}
                 >
-                  Edit Role
+                  {dictionary['roleSection']?.editRole}
                 </Link>
               )
             })
@@ -213,7 +215,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
 
           if (hasPermission('delete-owner-11') && row.original.member === 0) {
             options.push({
-              text: <span>Delete</span>,
+              text: <span>{dictionary?.delete}</span>,
               menuItemProps: {
                 className: 'flex items-center gap-2 text-textSecondary',
                 onClick: () =>
@@ -222,9 +224,9 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
                     component: (
                       <ConfirmAlert
                         id='alertDialogConfirmResetPasswordCreateOperator'
-                        title='Confirm Delete Role'
-                        content1='Are you sure you want to delete Role Manager?'
-                        content2='This action can only be performed for roles that do not have any members assigned.'
+                        title={dictionary['roleSection']?.confirmDeleteRole}
+                        content1={dictionary['roleSection']?.deleteRoleDetail}
+                        content2={dictionary['roleSection']?.deleteRoleDetail2}
                         onClick={() => {
                           callDeleteRoleList({ role_id: row.original.role_id })
                         }}
@@ -320,7 +322,7 @@ const RoleTable = ({ data, page, pageSize, setPage, setPageSize, handleRefetchSe
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  {dictionary?.noData}
                 </td>
               </tr>
             </tbody>

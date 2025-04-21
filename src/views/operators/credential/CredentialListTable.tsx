@@ -46,6 +46,7 @@ import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import CustomAvatar from '@/@core/components/mui/Avatar'
 import { useHasPermission } from '@/hooks/useHasPermission'
+import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -216,8 +217,8 @@ const CredentialListTable = ({ data, page, pageSize, setPage, setPageSize, handl
         }
       }),
       columnHelper.accessor('update_at', {
-        header: 'Date Last Update',
-        cell: ({ row }) => <Typography variant='h6'>{row.original.update_at}</Typography>
+        header: dictionary?.lastUpdate,
+        cell: ({ row }) => <Typography variant='h6'>{FormatShowDate(row.original.update_at)}</Typography>
       }),
 
       columnHelper.display({

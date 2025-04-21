@@ -147,10 +147,16 @@ const ProviderListComponent = () => {
           <Grid item xs={12}>
             {pendingProvider && <Typography> {dictionary?.loading ?? 'Loading'}...</Typography>}
             {errorProvider && (
-              <Typography className='text-error'>Error fetching providers: {errorProvider.message}</Typography>
+              <Typography className='text-error'>
+                {dictionary?.errorFetch} : {errorProvider.message}
+              </Typography>
             )}
             {isSearchingPending && <Typography>{dictionary?.searching ?? 'Searching'} providers...</Typography>}
-            {searchError && <Typography className='text-error'>Error searching: {searchError.message}</Typography>}
+            {searchError && (
+              <Typography className='text-error'>
+                {dictionary?.errorSearch}: {searchError.message}
+              </Typography>
+            )}
 
             {providersData?.data?.total && !isSearchingPending && !pendingProvider && (
               <ProviderListTable

@@ -63,6 +63,7 @@ import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProvid
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { useDeleteFaqMutationOption, useUpdateFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
+import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -161,7 +162,7 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
       }),
       columnHelper.accessor('update_at', {
         header: dictionary?.lastLogin,
-        cell: ({ row }) => <Typography variant='h6'>Jan 1, 2025 14:30</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{FormatShowDate(row.original.update_at)}</Typography>
       }),
 
       columnHelper.display({

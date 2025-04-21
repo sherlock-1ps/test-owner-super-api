@@ -69,6 +69,7 @@ import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
 import { useHasPermission } from '@/hooks/useHasPermission'
 import { OptionType } from '@/@core/components/option-menu/types'
+import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -91,7 +92,7 @@ type OwnerAccountType = {
   permission: any[] | null
   is_owner: boolean
   is_enable: boolean
-  is_first_login: boolean
+  last_login: string
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -156,7 +157,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdat
       }),
       columnHelper.accessor('role.role_name', {
         header: dictionary?.role,
-        cell: ({ row }) => <Typography variant='h6'>{row.original.role.role_name}</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{row.original.role.role_name ?? ''}</Typography>
       }),
 
       columnHelper.accessor('is_enable', {
@@ -198,9 +199,9 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdat
           )
         }
       }),
-      columnHelper.accessor('is_first_login', {
-        header: 'Date Last Login',
-        cell: ({ row }) => <Typography variant='h6'>ererer</Typography>
+      columnHelper.accessor('last_login', {
+        header: dictionary?.lastLogin,
+        cell: ({ row }) => <Typography variant='h6'>{FormatShowDate(row.original.last_login)}</Typography>
       }),
 
       columnHelper.display({

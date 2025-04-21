@@ -38,9 +38,50 @@
   "status": "สถานะ",
   "changeStatus": "ต้องการเปลี่ยนสถานะ",
   "changeStatusWithName": "เปลี่ยนสถานะ {{name}} {{key}} ?",
+  "show": "Show",
+  "backToLogin": "Back to login",
+  "validatePassAtLeast": "Password must be at least 6 characters",
+  "validateConfirmPassAtLeast": "Confirm password must be at least 6 characters",
+  "validateMismatchPass": "Passwords do not match",
+  "invalidPass": "Invalid password",
+  "internalError": "Internal Server Error",
+  "userNotFound": "User not found",
+  "gameName": "Game Name",
+  "searchGame": "Search game",
+  "selectCountry": "Select Country",
+  "contract": "Contract or Address Detail (Optional)",
+  "apply": "Apply",
+  "description": "Description",
+  "previous": "Previous",
+  "discard": "Discard",
+  "next": "Next",
+  "fieldRequired": "This field is required",
+  "dateTime": "Data time",
+  "action": "Action",
+  "device": "Device",
+  "geolocation": "Geolocation",
+  "dateRange": "Date Range",
+  "menu": "Menu",
+  "searchRole": "Search Role",
+  "member": "Member",
+  "lastUpdate": "Date Last Update",
+  "resetDefault": "Reset to Default",
+  "saveChange": "Save Change",
+  "myProfile": "My Profile",
+  "accountDetail": "Account Detail",
+  "changePass": "Change Password",
+  "logout": "Logout",
   "login": {
     "pleaseLogin": "โปรดกรอกเพื่อเข้าสู่ระบบ",
-    "enterUsername": "กรอกชื่ิอบัญชีผู้ใช้"
+    "enterUsername": "กรอกชื่ิอบัญชีผู้ใช้",
+    "setNewPassword": "Set New Password",
+    "detailResetPass": "You have successfully logged in using the temporary password. Please set a new password to secure your account.",
+    "newPassword": "New Password",
+    "saveLogin": "Save and Login",
+    "successSetPassword": "Password updated successfully",
+    "failedSetPassword": "Failed to update password",
+    "errorFetch": "Error fetching",
+    "errorSearch": "Error searching"
   },
   "navigation": {
     "assistantsMenu": "ผู้ช่วย",
@@ -211,7 +252,9 @@
     "oldGameName": "ชื่อเกมเก่า",
     "newGameName": "ชื่อเกมใหม่",
     "changeThumbnail": "เปลี่ยนภาพปก",
-    "changeGameThumbnail": "เปลี่ยนภาพปกเกม"
+    "changeGameThumbnail": "เปลี่ยนภาพปกเกม",
+    "createSuccess": "Create Provider successfully",
+    "errorCreateSuccess": "Error creating game provider"
   },
   "operator": {
     "operatorList": "รายชื่อผู้ใช้งาน",
@@ -238,7 +281,16 @@
     "resetPassword": "เปลี่ยนรหัสผ่าน",
     "passwordReset": "ยืนยันการเปลี่ยนรหัสผ่าน",
     "confirmPasswordReset": "คุณต้องการเปลี่ยนรหัสผ่านของ Operator {{name}} ใช่หรือไม่",
-    "countinueSetting": "ดำเนินการตั้งค่าต่อไป"
+    "countinueSetting": "ดำเนินการตั้งค่าต่อไป",
+    "deleteDraft": "Delete draft success",
+    "errorDeleteDraft": "Delete draft failed",
+    "errorPrefixDuplicate": "This prefix already exists",
+    "createOperatorSuccess": "Create Operator Success",
+    "atLeastProvider": "Choose at least 1 provider to create credentials",
+    "credentialSetting": "Credential Setting",
+    "credentialSummary": "Your summary",
+    "stepComplete": "All steps are completed",
+    "selectProvider": "Select All Slot Provider"
   },
   "smtp": {
     "addNewSmtp": "เพิ่ม SMTP Server ใหม่",
@@ -287,12 +339,32 @@
     "selectPrefix": "โปรดเลือก Prefix",
     "operatorEmailChange": "เปลี่ยน Email สำหรับรายชื่อ {{name}} Operator",
     "changeEmailDetail": "เมื่อเปลี่ยน Email แล้ว จะไม่สามารถใช้ Email เดิมสำหรับการเข้าใช้งาน",
-    "newEmail": "Email ใหม่"
+    "newEmail": "Email ใหม่",
+    "resetPass": "The system will send the password reset email to the user’s email address ",
+    "confirmResetPass": "Are you sure you want to reset the password for {{name}} ?",
+    "titleConfirmResetPass": "Confirm Password Reset"
   },
   "audit": {
     "auditLog": "Audit Log",
     "selectAction": "เลือกการกระทำ",
     "device": "ชนิดอุปกรณ์",
-    "geolocation": "ตำแหน่งที่ใช้งาน"
+    "geolocation": "ตำแหน่งที่ใช้งาน",
+    "searchLog": "Search to discover the results of your input.",
+    "found": "Found",
+    "activityResult": "activity results",
+    "oldValue": "Old Value"
+  },
+  "roleSection": {
+    "rolePermission": "Role & Permission",
+    "createRole": "Create Role",
+    "editRole": " Edit Role",
+    "confirmDeleteRole": "Confirm Delete Role",
+    "deleteRoleDetail": "Are you sure you want to delete Role Manager?",
+    "deleteRoleDetail2": "This action can only be performed for roles that do not have any members assigned.",
+    "createRoleSuccess": "Create Role Success",
+    "createRoleFailed": "Create role failed",
+    "updateRoleSuccess": "Update Role Success",
+    "updateRoleFailed": "Update role failed",
+    "roleName": "Role Name"
   }
 }

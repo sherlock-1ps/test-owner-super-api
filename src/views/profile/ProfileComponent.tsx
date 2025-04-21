@@ -29,9 +29,11 @@ import {
   useSearchAuditLogOwnerMutationOption
 } from '@/queryOptions/auditlog/auditLogQueryOptions'
 import { useHasPermission } from '@/hooks/useHasPermission'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 const ProfileComponent = ({ data }: { data?: Data }) => {
   const { showDialog } = useDialog()
+  const { dictionary } = useDictionary()
   const profileData = useAuthStore(state => state.profile)
   // const { hasPermission } = useHasPermission()
   const [page, setPage] = useState(1)
@@ -70,7 +72,7 @@ const ProfileComponent = ({ data }: { data?: Data }) => {
                   onClick={() => setCurrentTab('profile')}
                   startIcon={<i className='tabler-user' />}
                 >
-                  My Profile
+                  {dictionary?.myProfile}
                 </Button>
 
                 <Button
@@ -85,20 +87,20 @@ const ProfileComponent = ({ data }: { data?: Data }) => {
 
               {currentTab === 'profile' ? (
                 <Grid item xs={12} sm className='flex flex-col gap-8'>
-                  <Typography variant='h4'>My Profile</Typography>
+                  <Typography variant='h4'>{dictionary?.myProfile}</Typography>
                   <Divider />
-                  <Typography variant='h5'>Account Detail</Typography>
+                  <Typography variant='h5'>{dictionary?.accountDetail}</Typography>
 
                   <div className='flex gap-9 justify-stretch'>
                     <div className='flex flex-col gap-1'>
-                      <Typography>Username</Typography>
+                      <Typography>{dictionary?.username}</Typography>
                       <Typography variant='h6'>{profileData?.username}</Typography>
                     </div>
                   </div>
 
                   <div className='flex gap-9 justify-stretch'>
                     <div className='flex flex-col gap-1'>
-                      <Typography>Role</Typography>
+                      <Typography>{dictionary?.role}</Typography>
                       <Typography variant='h6'>{profileData?.role?.role_name}</Typography>
                     </div>
                   </div>
@@ -114,14 +116,14 @@ const ProfileComponent = ({ data }: { data?: Data }) => {
                       })
                     }}
                   >
-                    Change Password
+                    {dictionary?.changePass}
                   </Button>
                 </Grid>
               ) : (
                 <Grid item xs={12} sm={9} className='flex flex-col gap-8'>
                   <Typography variant='h4'>Login Log</Typography>
                   <Divider />
-                  {isPending && <Typography variant='h6'>Loading...</Typography>}
+                  {isPending && <Typography variant='h6'>{dictionary?.loading}...</Typography>}
 
                   {loginLogData?.code == 'SUCCESS' && (
                     <ProifileLogTable

@@ -131,9 +131,9 @@ const ProviderNameComponent = () => {
                 <div>
                   <CustomTextField
                     value={search}
-                    label='Game Name'
+                    label={dictionary?.gameName}
                     onChange={e => setSearch(e.target.value)}
-                    placeholder='Search game'
+                    placeholder={dictionary?.searchGame}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position='end'>

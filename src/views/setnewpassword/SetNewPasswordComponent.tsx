@@ -33,6 +33,7 @@ import Logo from '@components/layout/shared/Logo'
 import { getLocalizedUrl } from '@/utils/i18n'
 import { useSetPasswordMutationOption } from '@/queryOptions/login/loginQueryOptions'
 import { useAuthStore } from '@/store/authStore'
+import { useDictionary } from '@/contexts/DictionaryContext'
 
 // Styles
 const ResetPasswordIllustration = styled('img')(({ theme }) => ({
@@ -54,24 +55,10 @@ const MaskImg = styled('img')({
   zIndex: -1
 })
 
-// Schema
-const schema = z
-  .object({
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Confirm password must be at least 6 characters')
-  })
-  .refine(data => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword']
-  })
-
-type FormData = z.infer<typeof schema>
-
-// Component
 const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' }) => {
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
-
+  const { dictionary } = useDictionary()
   const router = useRouter()
   const { lang: locale } = useParams()
   const theme = useTheme()
@@ -81,6 +68,17 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
   const { settings } = useSettings()
   const { mutate, isPending } = useSetPasswordMutationOption()
 
+  const schema = z
+    .object({
+      password: z.string().min(6, dictionary?.validatePassAtLeast),
+      confirmPassword: z.string().min(6, dictionary?.validateConfirmPassAtLeast)
+    })
+    .refine(data => data.password === data.confirmPassword, {
+      message: dictionary?.validateMismatchPass,
+      path: ['confirmPassword']
+    })
+
+  type FormData = z.infer<typeof schema>
   const {
     control,
     handleSubmit,
@@ -110,11 +108,11 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
       {
         onSuccess: () => {
           useAuthStore.getState().clearTokens()
-          toast.success('Password updated successfully', { autoClose: 3000 })
+          toast.success(dictionary['login']?.successSetPassword, { autoClose: 3000 })
           router.push(getLocalizedUrl('/login', locale as string))
         },
         onError: () => {
-          toast.error('Failed to update password', { autoClose: 3000 })
+          toast.error(dictionary['login']?.failedSetPassword, { autoClose: 3000 })
         }
       }
     )
@@ -142,11 +140,8 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
         </Link>
         <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-11 sm:mbs-14 md:mbs-0'>
           <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>Set New Password</Typography>
-            <Typography>
-              You have successfully logged in using the temporary password. Please set a new password to secure your
-              account.
-            </Typography>
+            <Typography variant='h4'>{dictionary['login']?.setNewPassword}</Typography>
+            <Typography>{dictionary['login']?.detailResetPass}</Typography>
           </div>
 
           <form noValidate onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
@@ -157,7 +152,7 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
                 <CustomTextField
                   {...field}
                   fullWidth
-                  label='New Password'
+                  label={dictionary['login']?.newPassword}
                   placeholder='············'
                   type={isPasswordShown ? 'text' : 'password'}
                   error={!!errors.password}
@@ -182,7 +177,7 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
                 <CustomTextField
                   {...field}
                   fullWidth
-                  label='Confirm Password'
+                  label={dictionary['login']?.confirmPassword}
                   placeholder='············'
                   type={isConfirmPasswordShown ? 'text' : 'password'}
                   error={!!errors.confirmPassword}
@@ -205,7 +200,7 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
             />
 
             <Button fullWidth variant='contained' type='submit' disabled={isPending}>
-              {isPending ? 'Loading...' : 'Save and Login'}
+              {isPending ? `${dictionary?.loading}...` : dictionary['login']?.saveLogin}
             </Button>
 
             <Typography className='flex justify-center items-center' color='primary'>
@@ -215,7 +210,7 @@ const SetNewPasswordComponent = ({ mode = 'light' }: { mode: 'light' | 'dark' })
                   rtlIconClass='tabler-chevron-right'
                   className='text-xl'
                 />
-                <span>Back to login</span>
+                <span>{dictionary?.backToLogin}</span>
               </Link>
             </Typography>
           </form>
