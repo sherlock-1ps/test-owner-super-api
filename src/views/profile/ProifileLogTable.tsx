@@ -67,6 +67,7 @@ import {
   useUpdateStatusAccountOperatorMutationOption
 } from '@/queryOptions/account/accountQueryOptions'
 import { toast } from 'react-toastify'
+import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -118,7 +119,7 @@ const ProifileLogTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
     () => [
       columnHelper.accessor('created_at', {
         header: dictionary?.dateTime,
-        cell: ({ row }) => <Typography variant='h6'>{row.original.created_at}</Typography>
+        cell: ({ row }) => <Typography variant='h6'>{FormatShowDate(row.original.created_at)}</Typography>
       }),
 
       columnHelper.accessor('action', {
