@@ -555,15 +555,12 @@ const CreateProviderComponent = () => {
                     helperText={errors.currency?.message}
                     disabled={pendingCurrency}
                   >
-                    {currencyList?.code === 'SUCCESS'
-                      ? [
-                          ...currencyList?.data?.currencies_code?.map((item: any, idx: number) => (
-                            <MenuItem value={item} key={idx} className='capitalize'>
-                              {item}
-                            </MenuItem>
-                          ))
-                        ]
-                      : []}
+                    {currencyList?.code === 'SUCCESS' &&
+                      currencyList.data.map((item: any, idx: number) => (
+                        <MenuItem value={item.currency_code} key={idx} className='capitalize'>
+                          {item.currency_code}
+                        </MenuItem>
+                      ))}
                   </CustomTextField>
                 )}
               />
@@ -596,15 +593,12 @@ const CreateProviderComponent = () => {
                     helperText={errors.country?.message}
                     disabled={pendingCountry}
                   >
-                    {countryList?.code === 'SUCCESS'
-                      ? [
-                          ...countryList?.data?.country?.map((item: any, idx: number) => (
-                            <MenuItem value={item} key={idx} className='capitalize'>
-                              {item}
-                            </MenuItem>
-                          ))
-                        ]
-                      : []}
+                    {countryList?.code === 'SUCCESS' &&
+                      countryList.data.map((item: any) => (
+                        <MenuItem value={item.country_code} key={item.country_code} className='capitalize'>
+                          {item.country_name} ({item.country_code})
+                        </MenuItem>
+                      ))}
                   </CustomTextField>
                 )}
               />
@@ -638,15 +632,12 @@ const CreateProviderComponent = () => {
                     helperText={errors.timezone?.message}
                     disabled={pendingTimezone}
                   >
-                    {timezoneList?.code === 'SUCCESS'
-                      ? [
-                          ...timezoneList?.data?.timezone?.map((item: any, idx: number) => (
-                            <MenuItem value={item} key={idx} className='capitalize'>
-                              {item}
-                            </MenuItem>
-                          ))
-                        ]
-                      : []}
+                    {timezoneList?.code === 'SUCCESS' &&
+                      timezoneList.data.map((item: any, idx: number) => (
+                        <MenuItem value={item.timezone} key={idx} className='capitalize'>
+                          {item.timezone}
+                        </MenuItem>
+                      ))}
                   </CustomTextField>
                 )}
               />

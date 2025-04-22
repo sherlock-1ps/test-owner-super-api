@@ -181,10 +181,9 @@ const AddProviderComponent = () => {
                         {loadingCurrencyProviders ? (
                           <MenuItem disabled>{dictionary?.loading ?? 'Loading'}...</MenuItem>
                         ) : (
-                          currencyProviders?.code === 'SUCCESS' &&
-                          currencyProviders.data.currencies_code.map((item: string, idx: number) => (
-                            <MenuItem key={idx} value={item} className='capitalize'>
-                              {item}
+                          currencyProviders.data.map((item: any, idx: number) => (
+                            <MenuItem value={item.currency_code} key={idx} className='capitalize'>
+                              {item.currency_code}
                             </MenuItem>
                           ))
                         )}
@@ -253,11 +252,6 @@ const AddProviderComponent = () => {
               <Grid item xs={12} className='flex gap-2 justify-end'>
                 <Button variant='outlined' color='primary' onClick={() => router.back()}>
                   {dictionary?.cancel ?? 'Cancel'}
-                </Button>
-                <Button variant='contained' color='primary' type='submit' disabled={isPending}>
-                  {isPending
-                    ? `${dictionary?.loading ?? 'Loading'}...`
-                    : (dictionary['provider']?.addNewProvider ?? 'Add New Provider')}
                 </Button>
 
                 {hasPermission('create-owner-4') && (

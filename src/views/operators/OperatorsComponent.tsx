@@ -111,27 +111,20 @@ const OperatorsComponent = () => {
                 select
                 fullWidth
                 value={currency}
-                defaultValue={'all'}
                 label={dictionary['operator']?.selectCurrency}
                 onChange={e => setCurrency(e.target.value)}
                 disabled={pendingCurrency}
               >
-                {currencyList?.code === 'SUCCESS'
-                  ? [
-                      <MenuItem value='all' key='all' className='capitalize'>
-                        All
-                      </MenuItem>,
-                      ...currencyList?.data?.currencies_code?.map((item: any, idx: number) => (
-                        <MenuItem value={item} key={idx} className='capitalize'>
-                          {item}
-                        </MenuItem>
-                      ))
-                    ]
-                  : [
-                      <MenuItem value='all' key='all'>
-                        All
-                      </MenuItem>
-                    ]}
+                <MenuItem value='all' key='all' className='capitalize'>
+                  All
+                </MenuItem>
+
+                {currencyList?.code === 'SUCCESS' &&
+                  currencyList.data.map((item: any, idx: number) => (
+                    <MenuItem value={item.currency_code} key={idx} className='capitalize'>
+                      {item.currency_code}
+                    </MenuItem>
+                  ))}
               </CustomTextField>
             </Grid>
             <Grid item xs={12} sm>
@@ -139,27 +132,20 @@ const OperatorsComponent = () => {
                 select
                 fullWidth
                 value={timezone}
-                defaultValue={'all'}
                 label={dictionary['operator']?.selectTimezone}
                 onChange={e => setTimezone(e.target.value)}
                 disabled={pendingTimezone}
               >
-                {timezoneList?.code === 'SUCCESS'
-                  ? [
-                      <MenuItem value='all' key='all' className='capitalize'>
-                        All
-                      </MenuItem>,
-                      ...timezoneList?.data?.timezone?.map((item: any, idx: number) => (
-                        <MenuItem value={item} key={idx} className='capitalize'>
-                          {item}
-                        </MenuItem>
-                      ))
-                    ]
-                  : [
-                      <MenuItem value='all' key='all'>
-                        All
-                      </MenuItem>
-                    ]}
+                <MenuItem value='all' key='all' className='capitalize'>
+                  All
+                </MenuItem>
+
+                {timezoneList?.code === 'SUCCESS' &&
+                  timezoneList.data.map((item: any, idx: number) => (
+                    <MenuItem value={item.timezone} key={idx} className='capitalize'>
+                      {item.timezone}
+                    </MenuItem>
+                  ))}
               </CustomTextField>
             </Grid>
             <Grid item xs={12} sm>
@@ -167,27 +153,20 @@ const OperatorsComponent = () => {
                 select
                 fullWidth
                 value={country}
-                defaultValue={'all'}
                 label={dictionary['operator']?.selectCountry ?? 'Select Country'}
                 onChange={e => setCountry(e.target.value)}
                 disabled={pendingCountry}
               >
-                {countryList?.code === 'SUCCESS'
-                  ? [
-                      <MenuItem value='all' key='all' className='capitalize'>
-                        All
-                      </MenuItem>,
-                      ...countryList?.data?.country?.map((item: any, idx: number) => (
-                        <MenuItem value={item} key={idx} className='capitalize'>
-                          {item}
-                        </MenuItem>
-                      ))
-                    ]
-                  : [
-                      <MenuItem value='all' key='all'>
-                        All
-                      </MenuItem>
-                    ]}
+                <MenuItem value='all' key='all' className='capitalize'>
+                  All
+                </MenuItem>
+
+                {countryList?.code === 'SUCCESS' &&
+                  countryList.data.map((item: any) => (
+                    <MenuItem value={item.country_code} key={item.country_code} className='capitalize'>
+                      {item.country_name} ({item.country_code})
+                    </MenuItem>
+                  ))}
               </CustomTextField>
             </Grid>
             <Button variant='contained' disabled={pendingSearchOperatorData} onClick={handleSearch}>
