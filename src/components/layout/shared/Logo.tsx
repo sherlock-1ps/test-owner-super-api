@@ -71,7 +71,7 @@ const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
 
   return (
     <div className='flex items-center'>
-      <img src={'/images/logoLogin.png'} alt={`logo_mockup`} width={'32px'} />
+      <img src={'/images/xplayLogo.png'} alt={`logo_mockup`} width={'123px'} />
       {/* <VuexyLogo className='text-2xl text-primary' /> */}
       <LogoText
         color={color}
@@ -82,7 +82,6 @@ const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
         isBreakpointReached={isBreakpointReached}
       >
         {/* {themeConfig.templateName} */}
-        SuperAPI
       </LogoText>
     </div>
   )

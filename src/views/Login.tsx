@@ -87,17 +87,6 @@ type ErrorType = {
   message: string[]
 }
 
-type FormData = InferInput<typeof schema>
-
-const schema = object({
-  username: pipe(string(), nonEmpty('This field is required')),
-  password: pipe(
-    string(),
-    nonEmpty('This field is required'),
-    minLength(5, 'Password must be at least 5 characters long')
-  )
-})
-
 const Login = ({ mode }: { mode: SystemMode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
@@ -131,6 +120,17 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const authBackground = useImageVariant(mode, lightImg, darkImg)
   const [isLoading, setIsLoading] = useState(false)
 
+  type FormData = InferInput<typeof schema>
+
+  const schema = object({
+    username: pipe(string(), nonEmpty(dictionary?.fieldRequired)),
+    password: pipe(
+      string(),
+      nonEmpty(dictionary?.fieldRequired),
+      minLength(6, dictionary?.validatePassAtLeast ?? 'Password must be at least 6 characters long')
+    )
+  })
+
   const {
     control,
     handleSubmit,
@@ -138,7 +138,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   } = useForm<FormData>({
     resolver: valibotResolver(schema),
     defaultValues: {
-      username: 'owneradmin',
+      username: 'owneruser',
       password: '123456'
     }
   })
@@ -172,14 +172,14 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       }
     } else {
       if (res?.code == 'INVALID_PASSWORD') {
-        toast.error('Invalid password!', { autoClose: 3000 })
-        setErrorState({ message: ['Invalid password'] })
+        toast.error(dictionary?.invalidPass, { autoClose: 3000 })
+        setErrorState({ message: [dictionary?.invalidPass] })
       } else if (res?.code == 'UNKNOWN') {
-        toast.error('Internal Server Error!', { autoClose: 3000 })
-        setErrorState({ message: ['Internal Server Error, please try again!'] })
+        toast.error(dictionary?.internalError, { autoClose: 3000 })
+        setErrorState({ message: [dictionary?.internalError] })
       } else if (res?.code == 'USER_NOT_FOUND') {
-        toast.error('User not found!', { autoClose: 3000 })
-        setErrorState({ message: ['User not found!'] })
+        toast.error(dictionary?.userNotFound, { autoClose: 3000 })
+        setErrorState({ message: [dictionary?.userNotFound] })
       }
     }
 
@@ -217,7 +217,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
             </div>
             <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
               <Typography variant='body2' color='primary'>
-                {dictionary?.username ?? 'Username'}: <span className='font-medium'>owneradmin</span> / Pass:{' '}
+                {dictionary?.username ?? 'Username'}: <span className='font-medium'>owneruser</span> / Pass:{' '}
                 <span className='font-medium'>123456</span>
               </Typography>
             </Alert>

@@ -80,6 +80,7 @@ type FormDataType = {
   timezone: string
   contract: string
   provider: any
+  credentialUrl: string
 }
 
 const CreateProviderComponent = () => {
@@ -132,7 +133,8 @@ const CreateProviderComponent = () => {
     timezone: operatorDraftData?.timezone || '',
     contract: operatorDraftData?.contract || '',
     description: '',
-    provider: {}
+    provider: {},
+    credentialUrl: ''
   })
 
   const schema = z
@@ -149,6 +151,7 @@ const CreateProviderComponent = () => {
       country: z.string().min(1, dictionary['operator']?.countryRequired),
       timezone: z.string().min(1, dictionary['operator']?.timezoneRequired),
       contract: z.string().optional(),
+      credentialUrl: z.string().optional(),
       credential:
         activeStep >= 1 ? z.string().min(6, dictionary['operator']?.credentialRequired) : z.string().optional(),
       description: activeStep >= 1 ? z.string().optional() : z.string().optional(),
@@ -383,6 +386,8 @@ const CreateProviderComponent = () => {
         credential_prefix: data.credential,
         currency_code: data.currency,
         ...(data.description && { description: data.description }),
+        ...(data.credentialUrl && { callback_url: data.credentialUrl }),
+
         credential_provider: resultProvider
       }
 
@@ -710,6 +715,16 @@ const CreateProviderComponent = () => {
               <CustomTextField fullWidth label='Description (Optional)' placeholder='' {...register('description')} />
             </Grid>
             <Grid item xs={12}>
+              <CustomTextField
+                fullWidth
+                label={'Credential Callback URL'}
+                placeholder=''
+                {...register('credentialUrl')}
+                error={!!errors.credentialUrl}
+                helperText={errors.credentialUrl?.message}
+              />
+            </Grid>
+            <Grid item xs={12}>
               <Grid container spacing={4} alignItems='center'>
                 {/* Instruction Text */}
                 <Grid item xs={12} md={4}>
@@ -792,6 +807,15 @@ const CreateProviderComponent = () => {
                 <Typography color={'text.primary'}>{formValues?.operatorName}</Typography>
               </div>
             </Grid>
+            {formValues?.credentialUrl && (
+              <Grid item xs={12} className='flex gap-16'>
+                <div className='flex flex-col'>
+                  <Typography>Credential Callback URL</Typography>
+                  <Typography color={'text.primary'}>{formValues?.credentialUrl}</Typography>
+                </div>
+              </Grid>
+            )}
+
             <Grid item xs={12} className='flex gap-16'>
               <div className='flex flex-col'>
                 <Typography>{dictionary?.email}</Typography>
