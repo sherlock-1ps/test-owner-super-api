@@ -180,6 +180,9 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       } else if (res?.code == 'USER_NOT_FOUND') {
         toast.error(dictionary?.userNotFound, { autoClose: 3000 })
         setErrorState({ message: [dictionary?.userNotFound] })
+      } else if (res?.code == 'OWNER_NOT_FOUND') {
+        toast.error(dictionary?.userNotFound, { autoClose: 3000 })
+        setErrorState({ message: [dictionary?.userNotFound] })
       }
     }
 
