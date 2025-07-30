@@ -197,7 +197,7 @@ const ProviderListTable = ({ data, page, pageSize, setPage, setPageSize, handleR
               <Switch
                 checked={row.original.is_enable}
                 onChange={
-                  hasPermission('edit-view-4')
+                  hasPermission('edit-owner-4')
                     ? () => {
                         showDialog({
                           id: 'alertDialogConfirmResetPasswordCreateOperator',
