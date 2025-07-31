@@ -75,7 +75,7 @@ const InvoiceListComponent = () => {
       }
       if (status != 'all') request.invoice_status = status
       if (payment != 'all') request.invoice_payment = payment
-      if (invoiceId) request.invoice_id = invoiceId
+      if (invoiceId) request.invoice_id = Number(invoiceId)
       if (invoiceNumber) request.invoice_no = invoiceNumber
       if (prefix) request.credential_prefix = prefix
       // if (operatorPrefix) request.operator_prefix = operatorPrefix
