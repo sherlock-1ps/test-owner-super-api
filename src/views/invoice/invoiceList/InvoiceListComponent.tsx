@@ -87,6 +87,12 @@ const InvoiceListComponent = () => {
     }
   }
 
+  const handleResetInvoice = () => {
+    setInvoiceId('')
+    setInvoiceNumber('')
+    setPrefix('')
+  }
+
   const handleDownloadInvoice = () => {}
 
   return (
@@ -211,7 +217,7 @@ const InvoiceListComponent = () => {
                 </Button>
               </Grid>
               <Grid item xs={3}>
-                <Button variant='outlined' fullWidth>
+                <Button variant='outlined' fullWidth onClick={handleResetInvoice}>
                   Reset
                 </Button>
               </Grid>

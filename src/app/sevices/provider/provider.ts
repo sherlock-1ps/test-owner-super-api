@@ -191,7 +191,7 @@ export const updateThumbtailGame = async (payload: UpdateThumbnailGameProviderPa
 export const updateGameNameProvider = async (payload: UpdateGameNameProviderPayload) => {
   try {
 
-    const response = await Axios.post("/provider/game/update/name", payload);
+    const response = await Axios.patch("/provider/game/update/name", payload);
 
     return response.data;
   } catch (error) {

@@ -66,7 +66,7 @@ type OperatorType = {
   operator_name: string
   email: string
   currency_code: string
-  country: string
+  country_code: string
   timezone: string
   is_enable: boolean
   role_name: string
@@ -166,11 +166,11 @@ const OperatorsListTable = ({ data, page, pageSize, setPage, setPageSize }: any)
         header: dictionary?.timezone,
         cell: ({ row }) => <Typography variant='h6'>{row.original.timezone}</Typography>
       }),
-      columnHelper.accessor('country', {
+      columnHelper.accessor('country_code', {
         header: dictionary?.country,
         cell: ({ row }) => (
           <Typography variant='h6' className='uppercase'>
-            {row.original.country}
+            {row.original.country_code}
           </Typography>
         )
       }),
