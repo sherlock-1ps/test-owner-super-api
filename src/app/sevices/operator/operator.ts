@@ -171,6 +171,8 @@ export const deleteOperator = async (payload: DeleteOperatorPayload) => {
 };
 
 export const deleteDraftOperator = async (payload: DeleteDraftOperatorPayload) => {
+  console.log("eee", payload);
+
   try {
 
     const response = await Axios.delete("/operator/credential/draft/delete", {
@@ -239,7 +241,7 @@ export const confirmCreateOperator = async (payload: OperatorCredentialPayload) 
 
 export const updateOperatorCredential = async (payload: CreateOperatorPayload) => {
   try {
-    const response = await Axios.post("/operator/credential/draft/update", payload);
+    const response = await Axios.patch("/operator/credential/draft/update", payload);
 
     return response.data;
 

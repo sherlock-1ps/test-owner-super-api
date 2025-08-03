@@ -71,7 +71,7 @@ const RoleComponent = () => {
                   router.push(`/${locale}/role/managerole`)
                 }}
               >
-                {dictionary?.createRole}
+                {dictionary['roleSection']?.createRole}
               </Button>
             )}
           </Grid>

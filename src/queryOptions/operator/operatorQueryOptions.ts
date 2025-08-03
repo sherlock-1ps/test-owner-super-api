@@ -290,15 +290,19 @@ export const useFetchAddProviderListQueryOption = () => {
       console.error("Error search add provider :", error);
     },
 
+
   });
 };
 
 export const useAddProviderMutationOption = () => {
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addProviderList,
     onError: (error) => {
       console.error("Error add provider:", error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["credentialProviderList"] });
     },
 
   });

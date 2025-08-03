@@ -192,7 +192,7 @@ const PermissionList = () => {
           {dictionary?.cancel}
         </Button>
         <Button type='submit' variant='contained'>
-          {dictionary?.createRole}
+          {dictionary['roleSection']?.createRole}
         </Button>
       </Grid>
     </>

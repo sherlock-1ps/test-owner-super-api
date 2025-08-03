@@ -7,6 +7,8 @@ import { useDialog } from '@/hooks/useDialog'
 import CustomTextField from '@/@core/components/mui/TextField'
 import { useState } from 'react'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useChangeEmailAccountOperatorMutationOption } from '@/queryOptions/account/accountQueryOptions'
+import { toast } from 'react-toastify'
 
 interface confirmProps {
   id: string
@@ -20,10 +22,31 @@ const ChangeEmailOperatorDialog = ({ id, onClick, data }: confirmProps) => {
 
   const [inputEmail, setInputEmail] = useState('')
 
+  const { mutateAsync, isPending } = useChangeEmailAccountOperatorMutationOption()
+
+  const handleChangeEmail = async () => {
+    try {
+      const response = await mutateAsync({
+        operator_user_id: data?.operator_user_id,
+        email: inputEmail
+      })
+
+      if (response.code === 'SUCCESS') {
+        toast.success('change email success', { autoClose: 3000 })
+        closeDialog(id)
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('change email failed', { autoClose: 3000 })
+    }
+  }
+
   return (
     <Grid container className='flex flex-col gap-2' spacing={2}>
       <Grid item xs={12}>
-        <Typography variant='h5'>{dictionary['account']?.operatorEmailChange?.replace('{{name}}', data)}</Typography>
+        <Typography variant='h5'>
+          {dictionary['account']?.operatorEmailChange?.replace('{{name}}', data?.operator_prefix)}
+        </Typography>
       </Grid>
       <Divider />
       <Grid item xs={12}>
@@ -54,9 +77,9 @@ const ChangeEmailOperatorDialog = ({ id, onClick, data }: confirmProps) => {
         <Button
           variant='contained'
           onClick={() => {
-            closeDialog(id), onClick()
+            handleChangeEmail()
           }}
-          disabled={!inputEmail}
+          disabled={!inputEmail || isPending}
         >
           {dictionary?.confirm}
         </Button>

@@ -94,8 +94,8 @@ const SelectProviderListTable = ({ dataTable, category, updateMain }: any) => {
   const { showDialog } = useDialog()
   // States
   const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({})
-  const [data, setData] = useState(...[dataTable])
-  const [dataModify, setDataModify] = useState<ProviderCredentialType[]>(...[dataTable])
+  const [data, setData] = useState(dataTable)
+  const [dataModify, setDataModify] = useState<ProviderCredentialType[]>(dataTable)
   const [globalFilter, setGlobalFilter] = useState('')
   const { dictionary } = useDictionary()
 

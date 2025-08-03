@@ -178,21 +178,21 @@ export const searchAccountOperator = async ({
 
 export const updateStatusAccountOperator = async ({
   is_enable,
-  operator_id,
+  operator_user_id,
 }: {
   is_enable: boolean
-  operator_id: string
+  operator_user_id: string
 }) => {
   try {
-    const response = await Axios.patch("/", {
-      operator_id,
+    const response = await Axios.patch("/operator/user/update/status", {
+      operator_user_id,
       is_enable
     })
 
     return response.data
   } catch (error) {
     console.error("Error update status account operator:", error)
-    axiosErrorHandler(error, '/')
+    axiosErrorHandler(error, '/operator/user/update/status')
     throw error
   }
 }
@@ -217,23 +217,23 @@ export const resetPasswordAccountOperator = async ({
 }
 
 export const changeEmailAccountOperator = async ({
-  current_password,
-  new_password
+  operator_user_id,
+  email
 }: {
-  current_password
+  operator_user_id
   : string,
-  new_password: string
+  email: string
 }) => {
   try {
-    const response = await Axios.patch("/", {
-      current_password,
-      new_password
+    const response = await Axios.patch("/operator/user/update/email", {
+      operator_user_id,
+      email
     })
 
     return response.data
   } catch (error) {
     console.error("Error change email account operator:", error)
-    axiosErrorHandler(error, '/')
+    axiosErrorHandler(error, '/operator/user/update/email')
     throw error
   }
 }

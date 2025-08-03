@@ -81,7 +81,7 @@ declare module '@tanstack/table-core' {
 }
 
 type OperatorType = {
-  operator_id: string
+  operator_user_id: string
   operator_prefix: string
   operator_name: string
   email: string
@@ -126,7 +126,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
 
   const handleUpdateStatus = (operator: string, status: boolean) => {
     mutate({
-      operator_id: operator,
+      operator_user_id: operator,
       is_enable: status
     })
   }
@@ -172,7 +172,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
           return (
             <div className='flex gap-1 items-center'>
               <Switch
-                checked={true}
+                checked={row.original.is_enable}
                 onChange={
                   hasPermission('edit-owner-10')
                     ? () => {
@@ -190,7 +190,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
                                 `Change this ${row.original.operator_name} operator status?`
                               }
                               onClick={() => {
-                                handleUpdateStatus(row.original.operator_id, !row.original.is_enable)
+                                handleUpdateStatus(row.original.operator_user_id, !row.original.is_enable)
                               }}
                             />
                           ),
@@ -228,7 +228,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
                     component: (
                       <ChangeEmailOperatorDialog
                         id='ChangeEmailOperatorDialog'
-                        data={row.original.operator_name}
+                        data={row.original}
                         onClick={() => {}}
                       />
                     ),

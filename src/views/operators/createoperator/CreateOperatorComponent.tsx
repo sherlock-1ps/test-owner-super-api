@@ -103,7 +103,8 @@ const CreateProviderComponent = () => {
     inputValue: ''
   })
   const [dataModify, setDataModify] = useState<DataModifyProviderType>({})
-
+  const [isAll, setIsAll] = useState(false)
+  const [isPass, setIsPass] = useState(false)
   const { data: currencyList, isPending: pendingCurrency } = useFetchCurrencyOperatorQueryOption()
 
   const { data: timezoneList, isPending: pendingTimezone } = useFetchTimezoneOperatorQueryOption()
@@ -178,9 +179,9 @@ const CreateProviderComponent = () => {
 
   const handleClickShowPassword = () => setIsShowPassword(show => ({ ...show, isPasswordShown: !show.isPasswordShown }))
 
-  console.log('operatorDraftData', operatorDraftData)
+  // console.log('operatorDraftData', operatorDraftData)
 
-  console.log('dataModify', dataModify)
+  // console.log('dataModify', dataModify)
 
   console.log('formValues', formValues)
 
@@ -244,6 +245,7 @@ const CreateProviderComponent = () => {
     //   setValue(field as keyof typeof formValues, formValues[field as keyof typeof formValues])
     // })
     setActiveStep(prevActiveStep => prevActiveStep - 1)
+    setIsPass(true)
   }
 
   const handleDeleteDraft = async (prefix: string) => {
@@ -266,7 +268,7 @@ const CreateProviderComponent = () => {
 
       if (!isValid) return
       setFormValues(getValues())
-      if (operatorDraftData) {
+      if (operatorDraftData || isPass) {
         await handleUpdateOperatorCredential(data)
       } else {
         await handleCreateOperatorCrendential(data)
@@ -753,7 +755,12 @@ const CreateProviderComponent = () => {
 
                 {/* Apply Button */}
                 <Grid item xs={6} sm={1} md={1} alignSelf={'end'}>
-                  <Button fullWidth variant='contained' disabled={!stateSetPercent.inputValue}>
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    disabled={!stateSetPercent.inputValue}
+                    onClick={handleSetAllPercent}
+                  >
                     {dictionary?.apply}
                   </Button>
                 </Grid>
@@ -776,6 +783,7 @@ const CreateProviderComponent = () => {
               ))} */}
 
             {formValues?.provider &&
+              !isAll &&
               Object.entries(formValues.provider).map(([categoryKey, providers]) => (
                 <Grid item xs={12} sm={12} key={categoryKey}>
                   <Typography variant='h6' className='capitalize'>
@@ -894,7 +902,7 @@ const CreateProviderComponent = () => {
     }
   }
 
-  console.log('dataModify', dataModify)
+  // console.log('dataModify', dataModify)
 
   const renderTitle = (activeStep: number) => {
     switch (activeStep) {
@@ -909,6 +917,64 @@ const CreateProviderComponent = () => {
       default:
         return dictionary['operator']?.createOperator
     }
+  }
+
+  const handleSetAllPercent = () => {
+    setIsAll(true)
+
+    if (stateSetPercent?.isHolder) {
+      setFormValues(prev => {
+        const typedProvider = prev.provider as Record<string, Array<any>>
+
+        const updatedProvider = Object.fromEntries(
+          Object.entries(typedProvider).map(([category, providers]) => [
+            category,
+            providers.map(provider => {
+              const inputValue = Number(stateSetPercent.inputValue)
+              const maxAllowed = provider.percent_holder
+
+              return {
+                ...provider,
+                selectShare: maxAllowed - inputValue < 0 ? 0 : maxAllowed - inputValue
+              }
+            })
+          ])
+        )
+
+        return {
+          ...prev,
+          provider: updatedProvider
+        }
+      })
+    } else {
+      setFormValues(prev => {
+        const typedProvider = prev.provider as Record<string, Array<any>>
+
+        const updatedProvider = Object.fromEntries(
+          Object.entries(typedProvider).map(([category, providers]) => [
+            category,
+            providers.map(provider => {
+              const inputValue = Number(stateSetPercent.inputValue)
+              const maxAllowed = provider.percent_holder
+
+              return {
+                ...provider,
+                selectShare: inputValue > maxAllowed ? maxAllowed : inputValue
+              }
+            })
+          ])
+        )
+
+        return {
+          ...prev,
+          provider: updatedProvider
+        }
+      })
+    }
+
+    setTimeout(() => {
+      setIsAll(false)
+    }, 600)
   }
 
   return (
@@ -976,7 +1042,7 @@ const CreateProviderComponent = () => {
                               title={'Are you sure to Discard'}
                               content1={`Discard this Create Operator?`}
                               onClick={() => {
-                                handleDeleteDraft(operatorDraftData?.operator_prefix)
+                                handleDeleteDraft(formValues?.prefix)
                               }}
                             />
                           ),

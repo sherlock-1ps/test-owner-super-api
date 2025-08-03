@@ -119,11 +119,14 @@ export const useSearchAccountOperatorMutationOption = () => {
 };
 
 export const useUpdateStatusAccountOperatorMutationOption = () => {
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateStatusAccountOperator,
     onError: (error) => {
       console.error("Error update status account Operator:", error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["accountOperator"] });
     },
 
   });
