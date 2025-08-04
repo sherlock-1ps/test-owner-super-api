@@ -121,7 +121,7 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
 
   const { mutate, isPending: pendingUpdate, error } = useUpdateStatusAccountOperatorMutationOption()
 
-  const { mutate: callResetPassword } = useResetPasswordAccountOperatorMutationOption()
+  const { mutateAsync: callResetPassword } = useResetPasswordAccountOperatorMutationOption()
   const { mutate: callChangeEmail } = useChangeEmailAccountOperatorMutationOption()
 
   const handleUpdateStatus = (operator: string, status: boolean) => {
@@ -131,8 +131,21 @@ const AccountOperatorTable = ({ data, page, pageSize, setPage, setPageSize }: an
     })
   }
 
-  const handleResetPassword = (email: string) => {
-    callResetPassword({ email })
+  const handleResetPassword = async (email: string) => {
+    try {
+      const response = await callResetPassword({ email })
+
+      if (response?.code === 'SUCCESS') {
+        toast.success('reset password success', { autoClose: 3000 })
+      }
+    } catch (error: any) {
+      console.log('error', error)
+
+      const errorMessage =
+        error?.response?.data?.message || error?.response?.data?.code?.message || 'Something went wrong'
+
+      toast.error(errorMessage, { autoClose: 3000 })
+    }
   }
   const handleChangeEmail = (email: string) => {}
 

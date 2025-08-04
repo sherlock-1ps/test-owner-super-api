@@ -211,8 +211,8 @@ export const resetPasswordAccountOperator = async ({
     return response.data
   } catch (error) {
     console.error("Error reset password account operator:", error)
-    axiosErrorHandler(error, '/operator/password/reset')
-    throw error
+    const e = axiosErrorHandler(error, '/operator/password/reset')
+    throw e
   }
 }
 
