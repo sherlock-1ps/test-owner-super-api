@@ -74,7 +74,7 @@ const SettingSmtpCreateComponent = () => {
     try {
       const result = await mutateAsync({
         host: data.host,
-        port: data.host,
+        port: data.port,
         smtp_username: data.smtp_username,
         password: data.password,
         sender_name: data.sender_name,
