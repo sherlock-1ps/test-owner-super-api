@@ -58,6 +58,7 @@
   "internalError": "Internal Server Error",
   "userNotFound": "User not found",
   "errorFetch": "Error fetching",
+  "myProfile": "My Profile",
   "errorSearch": "Error searching",
   "gameName": "Game Name",
   "searchGame": "Search game",
@@ -73,6 +74,7 @@
   "action": "Action",
   "dateRange": "Date Range",
   "menu": "Menu",
+  "changePass": "Change Password",
   "login": {
     "pleaseLogin": "Please login to your account.",
     "enterUsername": "Enter your username",
