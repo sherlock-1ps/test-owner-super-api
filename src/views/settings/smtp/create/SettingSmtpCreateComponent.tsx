@@ -91,8 +91,6 @@ const SettingSmtpCreateComponent = () => {
     }
   }
 
-  console.log('smtpData', smtpData)
-
   const handleEditSmtp = async (data: SmtpFormValues) => {
     try {
       const result = await callEdit({

@@ -126,9 +126,13 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdat
 
   const { mutate, isPending } = useUpdateStatusAccountOwnerMutationOption(onUpdateStatus)
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = async (row: any) => {
     try {
-      const result = await resetPasswordAccountOwner()
+      const request = {
+        username: row?.username
+      }
+
+      const result = await resetPasswordAccountOwner(request)
       if (result?.code == 'SUCCESS') {
         toast.success(dictionary['account']?.resetSuccess, { autoClose: 3000 })
       }
@@ -245,7 +249,7 @@ const AccountOwnerTable = ({ data, page, pageSize, setPage, setPageSize, onUpdat
                         }
                         content2={dictionary['account']?.resetPasswordDetail}
                         onClick={() => {
-                          handleResetPassword()
+                          handleResetPassword(row.original)
                         }}
                       />
                     ),

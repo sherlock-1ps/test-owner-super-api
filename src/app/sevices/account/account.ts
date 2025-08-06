@@ -92,9 +92,9 @@ export const changeRoleAccountOwner = async ({ owner_id, role_id }: { owner_id: 
 
 };
 
-export const resetPasswordAccount = async () => {
+export const resetPasswordAccount = async (payload: any) => {
   try {
-    const response = await Axios.patch("/owner/password/reset");
+    const response = await Axios.patch("/owner/password/reset", payload);
 
     return response.data;
 
