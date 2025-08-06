@@ -77,7 +77,7 @@ const InvoiceListComponent = () => {
       if (payment != 'all') request.invoice_payment = payment
       if (invoiceId) request.invoice_id = Number(invoiceId)
       if (invoiceNumber) request.invoice_no = invoiceNumber
-      if (prefix) request.credential_prefix = prefix
+      if (prefix) request.prefix = prefix
       // if (operatorPrefix) request.operator_prefix = operatorPrefix
 
       const response = await searchList(request)
