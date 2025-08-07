@@ -23,13 +23,13 @@ const HtmlEditor = ({ handleEditorChange }: { handleEditorChange: (value: string
         theme='snow'
         modules={{
           toolbar: [
-            [{ header: '1' }, { header: '2' }],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            ['bold', 'italic', 'underline'],
-            [{ align: [] }],
-            ['link', 'image'],
-            [{ color: [] }, { background: [] }],
-            ['clean']
+            [{ header: '1' }, { header: '2' }]
+            // [{ list: 'ordered' }, { list: 'bullet' }],
+            // ['bold', 'italic', 'underline'],
+            // [{ align: [] }],
+            // ['link', 'image'],
+            // [{ color: [] }, { background: [] }],
+            // ['clean']
           ]
         }}
         formats={[
