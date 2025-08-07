@@ -10,7 +10,7 @@ import { Button, Card, CardContent, Divider, Grid, Typography } from '@mui/mater
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useDialog } from '@/hooks/useDialog'
 import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
-import { useCreateFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
+import { useCreateFaqMutationOption, useUpdateFaqInfoMutationOption } from '@/queryOptions/faq/faqQueryOptions'
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
 
@@ -35,6 +35,8 @@ const FaqManageComponent = () => {
   console.log(faqData)
 
   const { mutateAsync: createFaq, isPending: pendingCreateFaq } = useCreateFaqMutationOption()
+
+  const { mutateAsync: updateInfoFaq, isPending: pendingUpdateInfoFaq } = useUpdateFaqInfoMutationOption()
 
   const {
     register,

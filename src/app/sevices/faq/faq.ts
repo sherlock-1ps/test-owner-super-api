@@ -75,6 +75,21 @@ export const createFaq = async ({ title, body }: { body: string, title: string }
 
 };
 
+export const updateFaq = async (payload: any) => {
+  try {
+    const response = await Axios.post("/faq/update", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error update faq:", error);
+
+    axiosErrorHandler(error, '/faq/update')
+    throw error;
+  }
+
+};
+
 export const deleteFaq = async ({ faq_id }: { faq_id: string }) => {
   try {
     const response = await Axios.delete('/faq/delete', {

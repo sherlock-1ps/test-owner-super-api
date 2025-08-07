@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { createFaq, deleteFaq, fetchFaq, searchFaq, updateStatusFaq } from "@/app/sevices/faq/faq";
+import { createFaq, deleteFaq, fetchFaq, searchFaq, updateFaq, updateStatusFaq } from "@/app/sevices/faq/faq";
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -42,6 +42,17 @@ export const useCreateFaqMutationOption = () => {
     mutationFn: createFaq,
     onError: (error) => {
       console.error("Error create faq:", error);
+    },
+
+  });
+};
+
+export const useUpdateFaqInfoMutationOption = () => {
+
+  return useMutation({
+    mutationFn: updateFaq,
+    onError: (error) => {
+      console.error("Error update info faq:", error);
     },
 
   });
