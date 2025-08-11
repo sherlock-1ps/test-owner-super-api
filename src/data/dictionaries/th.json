@@ -319,9 +319,13 @@
     "confirmDeleteFaq": "คุณต้องการลบคำถามที่พบบ่อย {{name}} ใช่หรือไม่",
     "editFaq": "แก้ไขคำถามที่พบบ่อย",
     "createSuccessFaq": "การสร้างคำถามที่พบบ่อยสำเร็จ",
+    "updateSuccessFaq": "อัพเดทคำถามที่พบบ่อยสำเร็จ",
     "createErrorFaq": "การสร้างคำถามที่พบบ่อยล้มเหลว",
+    "updateErrorFaq": "อัพเดทคำถามที่พบบ่อยล้มเหลว",
     "addFaqDialog": "คุณต้องการที่จะเพิ่มคำถามที่พบบ่อย ใช่หรือไม่",
-    "confirmAddFaq": "เพิ่มคำถามที่พบบ่อยใช่หรือไม่"
+    "confirmAddFaq": "เพิ่มคำถามที่พบบ่อยใช่หรือไม่",
+    "updateFaqDialog": "คุณต้องการที่จะอัพเดทคำถามที่พบบ่อย ใช่หรือไม่",
+    "confirmUpdateFaq": "อัพเดทคำถามที่พบบ่อยใช่หรือไม่"
   },
   "account": {
     "ownerList": "รายชื่อบัญชี Owner ",
@@ -368,5 +372,29 @@
     "updateRoleSuccess": "อัปเดตบทบาทเรียบร้อยแล้ว",
     "updateRoleFailed": "อัปเดตบทบาทไม่สำเร็จ",
     "roleName": "ชื่อบทบาท"
+  },
+  "invoice": {
+    "invoice": "ใบแจ้งหนี้",
+    "titleInvoice": "รายการใบแจ้งหนี้",
+    "invoiceID": "รายการใบแจ้งหนี้",
+    "publicInvoice": "ส่งใบแจ้งหนี้ขึ้นระบบ",
+    "invoiceDate": "วันที่แจ้งหนี้",
+    "invoiceTo": "แจ้งหนี้ถึง",
+    "salesPerson": "พนักงานขาย",
+    "aeSuperAPIService": "AE super api service",
+    "thanksForYourBusiness": "ขอบคุณสำหรับการใช้บริการ",
+    "paymentInstructions": "รายการการชำระเงิน",
+    "step1": "ขั้นตอนที่ 1 คุณสามารถชำระค่าบริการด้วย USDT หรือ เงินบาทผ่านการโอนเงินผ่านบัญชีธนาคาร",
+    "networkChain": "Network Chain",
+    "receivingWallet": "กระเป๋ารับเงิน",
+    "bank": "ธนาคาร",
+    "kBank": "ธนาคารกสิกรไทย",
+    "bankAccount": "เลขบัญชี",
+    "step2": "ขั้นตอนที่ 2 อัพโหลดใบชำระเงินหรือลิงค์ยืนยันการจ่ายเงิน",
+    "uploadPaymentSlip": "อัพโหลดใบชำระเงิน",
+    "invoiceNumber": "ใบแจ้งหนี้เลขที่",
+    "searchInvoiceID": "ค้นหารายการใบแจ้งหนี้",
+    "searchInvoiceNumber": "ค้นหารายการใบแจ้งหนี้เลขที่",
+    "searchInput": "ค้นหาเพื่อแสดงผลลัพธ์ตามข้อมูลที่คุณกรอก"
   }
 }

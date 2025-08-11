@@ -1,9 +1,10 @@
 'use client'
 
 // React Imports
+import { useState } from 'react'
 
 // MUI Imports
-import React, { useState } from 'react'
+import React from 'react'
 
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
@@ -16,165 +17,88 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '
 import { CardContent } from '@mui/material'
 
 import styles from '@core/styles/table.module.css'
+import { rankItem } from '@tanstack/match-sorter-utils'
+import type { FilterFn } from '@tanstack/react-table'
 
-interface currencyData {
-  id: number
-  currency: string
-  name: string
-  offsetDeposit: string
-  offsetWithdraw: string
-  icon: string
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  const itemRank = rankItem(row.getValue(columnId), value)
+  addMeta?.({ itemRank })
+
+  return itemRank.passed
+}
+
+type ProviderSummary = {
+  provider: string
+  provider_name: string
+  provider_image: string
+  currency_code: string
+  turnover: number
+  winloss: number
+  exchange_rate: number
+  royalty_fee: number
+  total_payment: number
 }
 
 // Column Definitions
-const columnHelper = createColumnHelper<currencyData>()
-
-const dataMockup: currencyData[] = [
-  {
-    id: 1,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  },
-  {
-    id: 2,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '6%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  },
-  {
-    id: 3,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  },
-  {
-    id: 4,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '6%',
-    icon: 'usa'
-  },
-  {
-    id: 5,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '8%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  },
-  {
-    id: 6,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  },
-  {
-    id: 7,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '9%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  },
-  {
-    id: 8,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '9%',
-    icon: 'usa'
-  },
-  {
-    id: 9,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '2%',
-    icon: 'usa'
-  },
-  {
-    id: 10,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  },
-  {
-    id: 11,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  }
-]
+const columnHelper = createColumnHelper<ProviderSummary>()
 
 const columns = [
-  columnHelper.accessor('id', {
+  columnHelper.accessor('provider_name', {
     header: 'Provider',
     cell: info => {
       const row = info.row.original
 
       return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img
-            src={`/images/setting-website/currency/${row.icon}Icon.png`}
-            alt={row.name}
-            style={{ width: '24px', height: '24px', borderRadius: '8px' }}
-          />
-          <span>{row.name}</span>
+          <img src={row.provider_image} alt='provider' style={{ width: '24px', height: '24px', borderRadius: '8px' }} />
+          <span>{row.provider_name}</span>
         </div>
       )
     }
   }),
-  columnHelper.accessor('name', {
+  columnHelper.accessor('currency_code', {
+    header: 'Currency',
+    cell: info => <span>{info.getValue()}</span>
+  }),
+  columnHelper.accessor('winloss', {
     header: 'Net Win/Loss (THB)',
-    cell: info => {
-      const row = info.row.original
-
-      return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span>{row.name}</span>
-        </div>
-      )
-    }
+    cell: info => <span>{info.getValue().toLocaleString()}</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
-    header: 'API Royalty Fee',
-    cell: info => info.getValue()
+  columnHelper.accessor('royalty_fee', {
+    header: 'API Fee',
+    cell: info => <span>{info.getValue().toLocaleString()}%</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
+  columnHelper.accessor('exchange_rate', {
     header: 'Exchange Rate',
-    cell: info => info.getValue()
+    cell: info => <span>{info.getValue()}%</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
-    header: 'Total payment',
-    cell: info => info.getValue()
+  columnHelper.accessor('turnover', {
+    header: 'Gross Subtotal (USDT)',
+    cell: info => <span>{info.getValue().toLocaleString()}</span>
+  }),
+  // columnHelper.accessor('discount', {
+  //   header: 'Discount (USDT)',
+  //   cell: info => <span>{info.getValue()?.toLocaleString?.() ?? '-'}</span>
+  // }),
+  columnHelper.accessor('total_payment', {
+    header: 'Net SubTotal (USDT)',
+    cell: info => <span>{info.getValue().toLocaleString()}</span>
   })
 ]
+type Props = {
+  list: any[]
+}
 
-const InvoiceProviderTable: React.FC = () => {
+const InvoiceProviderTable: React.FC<Props> = ({ list }: any) => {
   // State
-  const [data] = useState(dataMockup)
+  const resultList = list
 
-  // Table Hook
   const table = useReactTable({
-    data,
+    data: resultList,
     columns,
     getCoreRowModel: getCoreRowModel(),
     filterFns: {
-      fuzzy: () => false
+      fuzzy: fuzzyFilter
     }
   })
 

@@ -35,7 +35,12 @@ const InvoiceListComponent = () => {
   const [invoiceId, setInvoiceId] = useState('')
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [prefix, setPrefix] = useState('')
-  const { mutateAsync: searchList, data: invoiceLists, isPending: pendingSearchList } = useSearchInvoiceMutationOption()
+  const {
+    mutateAsync: searchList,
+    data: invoiceLists,
+    isPending: pendingSearchList,
+    reset
+  } = useSearchInvoiceMutationOption()
   const { mutateAsync: callDownloadInvoice, isPending: pendingDownloadInvoice } = useDownloadInvoiceMutationOption()
 
   const handleOnChange = (dates: any) => {
@@ -91,6 +96,7 @@ const InvoiceListComponent = () => {
     setInvoiceId('')
     setInvoiceNumber('')
     setPrefix('')
+    reset()
   }
 
   const handleDownloadInvoice = () => {}
@@ -235,9 +241,9 @@ const InvoiceListComponent = () => {
                   ? `Found ${invoiceLists?.data?.list?.length} invoice results`
                   : 'Search to discover the results of your input.'}
               </Typography>
-              <Button variant='contained' disabled={pendingDownloadInvoice}>
+              {/* <Button variant='contained' disabled={pendingDownloadInvoice}>
                 Download Selected as PDF
-              </Button>
+              </Button> */}
             </Grid>
             <Grid item xs={12}>
               <Divider />

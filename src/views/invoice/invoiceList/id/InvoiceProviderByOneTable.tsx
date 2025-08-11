@@ -1,108 +1,93 @@
 'use client'
 
-// React Imports
+import React from 'react'
 
 // MUI Imports
-import React, { useState } from 'react'
-
 import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import IconButton from '@mui/material/IconButton'
+import CardContent from '@mui/material/CardContent'
 
 // Third-party Imports
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
 // Style Imports
-import { CardContent } from '@mui/material'
-
 import styles from '@core/styles/table.module.css'
+import { rankItem } from '@tanstack/match-sorter-utils'
+import type { FilterFn } from '@tanstack/react-table'
 
-interface currencyData {
-  id: number
-  currency: string
-  name: string
-  offsetDeposit: string
-  offsetWithdraw: string
-  icon: string
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  const itemRank = rankItem(row.getValue(columnId), value)
+  addMeta?.({ itemRank })
+
+  return itemRank.passed
 }
 
-// Column Definitions
-const columnHelper = createColumnHelper<currencyData>()
+type ProviderSummary = {
+  provider: string
+  provider_name: string
+  provider_image: string
+  currency_code: string
+  turnover: number
+  winloss: number
+  exchange_rate: number
+  royalty_fee: number
+  total_payment: number
+}
 
-const dataMockup: currencyData[] = [
-  {
-    id: 1,
-    currency: 'usd',
-    name: 'ดอลล่าร์สหรัฐ',
-    offsetDeposit: '5%',
-    offsetWithdraw: '5%',
-    icon: 'usa'
-  }
-]
+const columnHelper = createColumnHelper<ProviderSummary>()
 
 const columns = [
-  columnHelper.accessor('id', {
+  columnHelper.accessor('provider', {
     header: 'Provider',
     cell: info => {
       const row = info.row.original
 
       return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img
-            src={`/images/setting-website/currency/${row.icon}Icon.png`}
-            alt={row.name}
-            style={{ width: '24px', height: '24px', borderRadius: '8px' }}
-          />
-          <span>{row.name}</span>
+          <img src={row.provider_image} alt='provider' style={{ width: '24px', height: '24px', borderRadius: '8px' }} />
+          <span>{row.provider_name}</span>
         </div>
       )
     }
   }),
-  columnHelper.accessor('name', {
+  columnHelper.accessor('currency_code', {
     header: 'Currency',
-    cell: info => {
-      const row = info.row.original
-
-      return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span>{row.name}</span>
-        </div>
-      )
-    }
+    cell: info => <span>{info.getValue()}</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
+  columnHelper.accessor('turnover', {
     header: 'Turnover (THB)',
-    cell: info => info.getValue()
+    cell: info => <span>{info.getValue().toLocaleString()}</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
+  columnHelper.accessor('winloss', {
     header: 'Net Win/Loss (THB)',
-    cell: info => info.getValue()
+    cell: info => <span>{info.getValue().toLocaleString()}</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
+  columnHelper.accessor('royalty_fee', {
     header: 'API Royalty Fee',
-    cell: info => info.getValue()
+    cell: info => <span>{info.getValue().toLocaleString()}%</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
+  columnHelper.accessor('exchange_rate', {
     header: 'Exchange Rate',
-    cell: info => info.getValue()
+    cell: info => <span>{info.getValue()}%</span>
   }),
-  columnHelper.accessor('offsetWithdraw', {
-    header: 'Total payment (THB)',
-    cell: info => info.getValue()
+  columnHelper.accessor('total_payment', {
+    header: 'Total Payment (THB)',
+    cell: info => <span>{info.getValue().toLocaleString()}</span>
   })
 ]
 
-const InvoiceProviderByOneTable: React.FC = () => {
-  // State
-  const [data] = useState(dataMockup)
+type Props = {
+  list: ProviderSummary
+}
 
-  // Table Hook
+const InvoiceProviderByOneTable: React.FC<Props> = ({ list }) => {
+  const resultList = [list]
+
   const table = useReactTable({
-    data,
+    data: resultList,
     columns,
     getCoreRowModel: getCoreRowModel(),
     filterFns: {
-      fuzzy: () => false
+      fuzzy: fuzzyFilter
     }
   })
 
@@ -124,13 +109,11 @@ const InvoiceProviderByOneTable: React.FC = () => {
             </thead>
             <tbody>
               {table.getRowModel().rows.map(row => (
-                <React.Fragment key={row.id}>
-                  <tr>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                  </tr>
-                </React.Fragment>
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
               ))}
             </tbody>
           </table>

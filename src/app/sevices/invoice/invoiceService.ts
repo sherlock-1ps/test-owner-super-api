@@ -38,6 +38,22 @@ export const searchInvoice = async (payload: any) => {
 
 };
 
+export const getInvoice = async (payload: any) => {
+  try {
+    const response = await Axios.post("/invoice/get", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error get invoice:", error);
+
+    axiosErrorHandler(error, '/invoice/get')
+    throw error;
+
+  }
+
+};
+
 export const downloadInvoice = async ({ invoice_id }: any) => {
   try {
     const response = await Axios.post("/invoice/downloadPdf", { invoice_id });

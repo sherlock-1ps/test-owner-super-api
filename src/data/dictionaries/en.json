@@ -320,9 +320,13 @@
     "confirmDeleteFaq": "Are you sure you want to delete the FAQ titled {{name}}?",
     "editFaq": "Edit FAQ",
     "createSuccessFaq": "FAQ created successfully!",
+    "updateSuccessFaq": "FAQ updated successfully!",
     "createErrorFaq": "Failed to create FAQ!",
+    "updateErrorFaq": "Failed to update FAQ!",
     "addFaqDialog": "Do you want to add this faq?",
-    "confirmAddFaq": "add this faq question ?"
+    "confirmAddFaq": "add this faq question ?",
+    "updateFaqDialog": "Do you want to update this faq?",
+    "confirmUpdateFaq": "update this faq question ?"
   },
   "account": {
     "ownerList": "Owner Account List",
@@ -365,5 +369,29 @@
     "updateRoleSuccess": "Update Role Success",
     "updateRoleFailed": "Update role failed",
     "roleName": "Role Name"
+  },
+  "invoice": {
+    "invoice": "Invoice",
+    "titleInvoice": "Invoice List",
+    "invoiceID": "Invoice ID",
+    "publicInvoice": "Public Invoice",
+    "invoiceDate": "Invoice Date",
+    "invoiceTo": "Invoice To",
+    "salesPerson": "Salesperson",
+    "aeSuperAPIService": "AE SUPER API SERVICE",
+    "thanksForYourBusiness": "Thanks for your busines",
+    "paymentInstructions": "Payment Instructions",
+    "step1": "Step 1: You can make a payment USDT via network chain \/ THB via Bank Transfer",
+    "networkChain": "Network Chain",
+    "receivingWallet": "Receiving Wallet",
+    "bank": "Bank",
+    "kBank": "KBank",
+    "bankAccount": "Bank Account",
+    "step2": "Step 2: Upload Slip or Link of payment to website",
+    "uploadPaymentSlip": "Upload Payment Slip",
+    "invoiceNumber": "Invoice Number",
+    "searchInvoiceID": "search invoice id",
+    "searchInvoiceNumber": "search invoice number",
+    "searchInput": "Search to discover the results of your input."
   }
 }

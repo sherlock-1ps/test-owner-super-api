@@ -74,6 +74,25 @@ const FaqManageComponent = () => {
     }
   }
 
+  const handleUpdateFaq = async (data: any) => {
+    try {
+      const response = await updateInfoFaq({
+        faq_id: faqData?.faq_id,
+        title: data.question,
+        body: data.answer
+      })
+
+      if (response?.code) {
+        toast.success(dictionary['faq']?.updateSuccessFaq, { autoClose: 3000 })
+        reset()
+        router.back()
+      }
+    } catch (error) {
+      toast.error(dictionary['faq']?.updateErrorFaq, { autoClose: 3000 })
+      console.error('Error update FAQ:', error)
+    }
+  }
+
   const onSubmit = (data: FaqFormValues) => {
     console.log('Form Submitted:', data)
 
@@ -82,10 +101,14 @@ const FaqManageComponent = () => {
       component: (
         <ConfirmAlert
           id='alertDialogConfirmManageFaq'
-          title={dictionary['faq']?.addFaqDialog}
-          content1={dictionary['faq']?.confirmAddFaq}
+          title={faqData ? dictionary['faq']?.updateFaqDialog : dictionary['faq']?.addFaqDialog}
+          content1={faqData ? dictionary['faq']?.confirmUpdateFaq : dictionary['faq']?.confirmAddFaq}
           onClick={() => {
-            handleCreateFaqApi(data)
+            if (faqData) {
+              handleUpdateFaq(data)
+            } else {
+              handleCreateFaqApi(data)
+            }
           }}
         />
       ),

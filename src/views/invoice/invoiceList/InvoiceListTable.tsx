@@ -206,21 +206,17 @@ const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
           />
         )
       }),
-      columnHelper.accessor('created_at', {
+      columnHelper.accessor('due_date', {
         header: 'Create Date',
         cell: ({ row }) => {
           return (
             <div className='flex gap-1 items-center'>
-              <Typography>{FormatShowDate(row.original.created_at)}</Typography>
+              <Typography>{FormatShowDate(row.original.due_date)}</Typography>
             </div>
           )
         }
       }),
-      columnHelper.display({
-        id: 'id',
-        header: 'No',
-        cell: ({ row }) => <Typography variant='h6'>{row.index + 1}</Typography>
-      }),
+
       columnHelper.display({
         id: 'createTime',
         header: '',
@@ -235,7 +231,7 @@ const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                     <Link
                       href={{
                         pathname: `/${locale}/invoice/invoicelist/id`,
-                        query: { invoiceId: '7784547' }
+                        query: { invoiceId: row.original.invoice_id }
                       }}
                       className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
                       onClick={e => e.stopPropagation()}
@@ -243,18 +239,6 @@ const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
                       View Invoice
                     </Link>
                   )
-                },
-                {
-                  text: 'Change Logo',
-                  menuItemProps: {
-                    className: 'flex items-center gap-2 text-textSecondary',
-                    onClick: () =>
-                      showDialog({
-                        id: 'ChangeProviderLogoDialog',
-                        component: <ChangeProviderLogoDialog id='ChangeProviderLogoDialog' onClick={() => {}} />,
-                        size: 'sm'
-                      })
-                  }
                 }
               ]}
             />
