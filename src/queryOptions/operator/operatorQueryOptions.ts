@@ -1,4 +1,4 @@
-import { addProviderList, confirmCreateOperator, createOperator, deleteDraftOperator, deleteOperator, fetchAddProviderList, fetchCredentialList, fetchCredentialProviderList, fetchDraftOperator, fetchGameCredentialProviderList, fetchOperator, fetchOperatorCountry, fetchOperatorCurrency, fetchOperatorProfile, fetchOperatorTimezone, resetPasswordOperator, searchCredentialList, searchCredentialProviderList, searchGameCredentialProviderList, searchOperator, updateGameStatus, updateOperatorCredential, updateStatusCredentialProviderList, updateStatusCrendential, updateStatusOperator } from "@/app/sevices/operator/operator";
+import { addProviderList, confirmCreateOperator, createOperator, deleteDraftOperator, deleteOperator, fetchAddProviderList, fetchCredentialList, fetchCredentialProviderList, fetchDraftOperator, fetchGameCredentialProviderList, fetchOperator, fetchOperatorCountry, fetchOperatorCurrency, fetchOperatorProfile, fetchOperatorTimezone, getTokenCredential, resetPasswordOperator, searchCredentialList, searchCredentialProviderList, searchGameCredentialProviderList, searchOperator, updateGameStatus, updateOperatorCredential, updateStatusCredentialProviderList, updateStatusCrendential, updateStatusOperator } from "@/app/sevices/operator/operator";
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -103,6 +103,18 @@ export const useResetPasswordOperatorMutationOption = () => {
 
   });
 };
+
+export function useFetchTokenQueryOption({
+  payload,
+}: {
+  payload: any
+}) {
+  return useQuery({
+    queryKey: ["credentialToken"],
+    queryFn: () => getTokenCredential(payload),
+  });
+}
+
 
 export const useDeleteDraftOperatorMutationOption = () => {
   const queryClient = useQueryClient();

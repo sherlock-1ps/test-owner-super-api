@@ -156,6 +156,23 @@ export const resetPasswordOperator = async (payload: ResetPasswordOperatorPayloa
   }
 };
 
+export const getTokenCredential = async (payload: any) => {
+
+  try {
+    const response = await Axios.post("/operator/credential/getToken", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error fetch token:", error);
+
+    const e = axiosErrorHandler(error, '/operator/credential/getToken')
+    throw e;
+
+  }
+
+};
+
 export const deleteOperator = async (payload: DeleteOperatorPayload) => {
   try {
 

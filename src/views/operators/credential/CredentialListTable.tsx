@@ -47,6 +47,7 @@ import { useDictionary } from '@/contexts/DictionaryContext'
 import CustomAvatar from '@/@core/components/mui/Avatar'
 import { useHasPermission } from '@/hooks/useHasPermission'
 import { FormatShowDate } from '@/utils/formatShowDate'
+import InfotokenDialog from './InfotokenDialog'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -234,17 +235,16 @@ const CredentialListTable = ({ data, page, pageSize, setPage, setPageSize, handl
                 iconClassName='text-textSecondary'
                 options={[
                   {
-                    text: 'Get Tokens & Secret Key',
+                    text: 'Get Tokens ',
                     menuItemProps: {
                       className: 'flex items-center gap-2 text-textSecondary',
-                      onClick: () => {}
-                      // showDialog({
-                      //   id: 'alertDialogConfirmResetPasswordCreateOperator',
-                      //   component: (
-
-                      //   ),
-                      //   size: 'sm'
-                      // })
+                      onClick: () => {
+                        showDialog({
+                          id: 'InfoTokenCredentialDialog',
+                          component: <InfotokenDialog id='InfoTokenCredentialDialog' prefix={row.original} />,
+                          size: 'sm'
+                        })
+                      }
                     }
                   },
                   {
