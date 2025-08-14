@@ -70,3 +70,83 @@ export const downloadInvoice = async ({ invoice_id }: any) => {
 
 
 };
+
+export const verifyInvoice = async ({ invoice_id }: any) => {
+  try {
+    const response = await Axios.post("/invoice/unpaid/verify", { invoice_id });
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error verify invoice:", error);
+
+    axiosErrorHandler(error, '/invoice/unpaid/verify')
+    throw error;
+
+  }
+
+};
+
+export const reCalInvoice = async (payload: any) => {
+  try {
+    const response = await Axios.post("/invoice/draft/reCalculate", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error renew invoice:", error);
+
+    axiosErrorHandler(error, '/invoice/draft/reCalculate')
+    throw error;
+
+  }
+
+};
+
+export const publicInvoice = async (payload: any) => {
+  try {
+    const response = await Axios.post("/invoice/draft/public", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error public invoice:", error);
+
+    axiosErrorHandler(error, '/invoice/draft/public')
+    throw error;
+
+  }
+
+};
+
+export const voidInvoice = async (payload: any) => {
+  try {
+    const response = await Axios.post("/invoice/unpaid/void", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error void invoice:", error);
+
+    axiosErrorHandler(error, '/invoice/unpaid/void')
+    throw error;
+
+  }
+
+};
+
+export const rejectDraftInvoice = async (payload: any) => {
+  try {
+    const response = await Axios.post("/invoice/draft/reject", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error reject invoice:", error);
+
+    axiosErrorHandler(error, '/invoice/draft/reject')
+    throw error;
+
+  }
+
+};

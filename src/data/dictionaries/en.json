@@ -75,6 +75,8 @@
   "dateRange": "Date Range",
   "menu": "Menu",
   "changePass": "Change Password",
+  "totalDue": "All",
+  "dateDue": "Due Date",
   "login": {
     "pleaseLogin": "Please login to your account.",
     "enterUsername": "Enter your username",
@@ -392,6 +394,8 @@
     "invoiceNumber": "Invoice Number",
     "searchInvoiceID": "search invoice id",
     "searchInvoiceNumber": "search invoice number",
-    "searchInput": "Search to discover the results of your input."
+    "searchInput": "Search to discover the results of your input.",
+    "credential": "Credential",
+    "operator": "Operator"
   }
 }

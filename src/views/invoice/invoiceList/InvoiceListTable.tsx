@@ -60,6 +60,16 @@ import { useDialog } from '@/hooks/useDialog'
 import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import { FormatShowDate } from '@/utils/formatShowDate'
+import {
+  useDownloadInvoiceMutationOption,
+  usePublicInvoiceMutationOption,
+  useRecalculateMutationOption,
+  useRejectInvoiceMutationOption,
+  useVerifyInvoiceMutationOption,
+  useVoidInvoiceMutationOption
+} from '@/queryOptions/invoice/invoiceQueryOptions'
+import { toast } from 'react-toastify'
+import VerifyPaymentDialog from './VerifyPaymentDialog'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -126,7 +136,7 @@ type InvoiceType = {
 // Column Definitions
 const columnHelper = createColumnHelper<InvoiceType>()
 
-const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
+const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize, onSearch, maxSize }: any) => {
   const { showDialog } = useDialog()
   // States
 
@@ -135,24 +145,119 @@ const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
   const [filteredData, setFilteredData] = useState(data)
   const [globalFilter, setGlobalFilter] = useState('')
 
+  const { mutateAsync: callRenewCalculate, isPending: pendingRenew } = useRecalculateMutationOption()
+  const { mutateAsync: callRejectInvoice, isPending: pendingReject } = useRejectInvoiceMutationOption()
+  const { mutateAsync: callPublicInvoice, isPending: pendingPublic } = usePublicInvoiceMutationOption()
+  const { mutateAsync: callVoidInvoice, isPending: pendingVoid } = useVoidInvoiceMutationOption()
+  const { mutateAsync: callDownloadInvoice, isPending: pendingDownload } = useDownloadInvoiceMutationOption()
+  const { mutateAsync: callVerifyInvoice, isPending: pendingVerify } = useVerifyInvoiceMutationOption()
+
   // Hooks
   const { lang: locale } = useParams()
 
+  const handleCallReCalculate = async (id: any) => {
+    try {
+      const request = {
+        invoice_id: id
+      }
+      const response = await callRenewCalculate(request)
+      if (response?.code == 'SUCCESS') {
+        toast.success('Renew Calculate success!', { autoClose: 3000 })
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('Renew Calculate failed!', { autoClose: 3000 })
+    }
+  }
+
+  const handleCallRejectInvoice = async (id: any) => {
+    try {
+      const request = {
+        invoice_id: id
+      }
+      const response = await callRejectInvoice(request)
+
+      if (response?.code == 'SUCCESS') {
+        toast.success('Reject Invoice success!', { autoClose: 3000 })
+        onSearch()
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('Reject Invoice failed!', { autoClose: 3000 })
+    }
+  }
+
+  const handleCallPublicInvoice = async (id: any) => {
+    try {
+      const request = {
+        invoice_id: id
+      }
+      const response = await callPublicInvoice(request)
+
+      if (response?.code == 'SUCCESS') {
+        toast.success('Public Invoice success!', { autoClose: 3000 })
+        onSearch()
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('public Invoice failed!', { autoClose: 3000 })
+    }
+  }
+
+  const handleCallVoidInvoice = async (id: any) => {
+    try {
+      const request = {
+        invoice_id: id
+      }
+      const response = await callVoidInvoice(request)
+
+      if (response?.code == 'SUCCESS') {
+        toast.success('Void Invoice success!', { autoClose: 3000 })
+        onSearch()
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('Void Invoice failed!', { autoClose: 3000 })
+    }
+  }
+
+  const handleCallDownloadInvoice = async (id: any) => {
+    try {
+      const request = {
+        invoice_id: [id]
+      }
+      const response = await callDownloadInvoice(request)
+
+      if (response?.code == 'SUCCESS') {
+        toast.success('Download Invoice success!', { autoClose: 3000 })
+        const link = document.createElement('a')
+        link.href = response?.data?.url_download
+        link.setAttribute('download', '')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    } catch (error) {
+      console.log('error', error)
+      toast.error('Download Invoice failed!', { autoClose: 3000 })
+    }
+  }
+
   const columns = useMemo<ColumnDef<InvoiceTypeWithAction, any>[]>(
     () => [
-      {
-        id: 'select',
-        header: () => null,
-        cell: ({ row }) =>
-          row.original.invoice_status !== 'draft' && row.original.invoice_status !== 'reject' ? (
-            <Checkbox
-              checked={row.getIsSelected()}
-              disabled={!row.getCanSelect()}
-              indeterminate={row.getIsSomeSelected()}
-              onChange={row.getToggleSelectedHandler()}
-            />
-          ) : null
-      },
+      // {
+      //   id: 'select',
+      //   header: () => null,
+      //   cell: ({ row }) =>
+      //     row.original.invoice_status !== 'draft' && row.original.invoice_status !== 'reject' ? (
+      //       <Checkbox
+      //         checked={row.getIsSelected()}
+      //         disabled={!row.getCanSelect()}
+      //         indeterminate={row.getIsSomeSelected()}
+      //         onChange={row.getToggleSelectedHandler()}
+      //       />
+      //     ) : null
+      // },
       columnHelper.accessor('invoice_id', {
         header: 'id',
         cell: ({ row }) => <Typography variant='h6'>{row.original.invoice_id}</Typography>
@@ -225,22 +330,272 @@ const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
             <OptionMenu
               iconButtonProps={{ size: 'medium' }}
               iconClassName='text-textSecondary'
-              options={[
-                {
-                  text: (
-                    <Link
-                      href={{
-                        pathname: `/${locale}/invoice/invoicelist/id`,
-                        query: { invoiceId: row.original.invoice_id }
-                      }}
-                      className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
-                      onClick={e => e.stopPropagation()}
-                    >
-                      View Invoice
-                    </Link>
-                  )
+              options={(() => {
+                const paymentStatus = row.original.invoice_status
+                const paymentType = row.original.invoice_payment
+
+                switch (paymentStatus) {
+                  case 'draft':
+                    return [
+                      {
+                        text: (
+                          <div
+                            className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                            onClick={() => {
+                              showDialog({
+                                id: 'alertConfirmRenew',
+                                component: (
+                                  <ConfirmAlert
+                                    id='alertConfirmRenew'
+                                    title={'Confirm Renew Invoice Calculation'}
+                                    content1={`Are you sure you want to renew the calculation for this invoice?`}
+                                    onClick={() => {
+                                      handleCallReCalculate(row.original.invoice_id)
+                                    }}
+                                  />
+                                ),
+                                size: 'sm'
+                              })
+                            }}
+                          >
+                            Renew Calculate
+                          </div>
+                        )
+                      },
+
+                      {
+                        text: (
+                          <div
+                            className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                            onClick={() => {
+                              showDialog({
+                                id: 'alertConfirmPublic',
+                                component: (
+                                  <ConfirmAlert
+                                    id='alertConfirmPublic'
+                                    title={'Confirm Public Invoice Calculation'}
+                                    content1={`Are you sure you want to public this invoice?`}
+                                    onClick={() => {
+                                      handleCallPublicInvoice(row.original.invoice_id)
+                                    }}
+                                  />
+                                ),
+                                size: 'sm'
+                              })
+                            }}
+                          >
+                            Public Invoice
+                          </div>
+                        )
+                      },
+                      {
+                        text: (
+                          <Link
+                            href={{
+                              pathname: `/${locale}/invoice/invoicelist/id`,
+                              query: { invoiceId: row.original.invoice_id }
+                            }}
+                            className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                            onClick={e => e.stopPropagation()}
+                          >
+                            View Invoice
+                          </Link>
+                        )
+                      },
+                      {
+                        text: (
+                          <div
+                            className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                            onClick={() => {
+                              showDialog({
+                                id: 'alertConfirmReject',
+                                component: (
+                                  <ConfirmAlert
+                                    id='alertConfirmReject'
+                                    title={'Confirm Reject Invoice'}
+                                    content1={`Are you sure you want to Reject this invoice?`}
+                                    onClick={() => {
+                                      handleCallRejectInvoice(row.original.invoice_id)
+                                    }}
+                                  />
+                                ),
+                                size: 'sm'
+                              })
+                            }}
+                          >
+                            Reject
+                          </div>
+                        )
+                      }
+                    ]
+                  case 'reject':
+                    return [
+                      {
+                        text: (
+                          <Link
+                            href={{
+                              pathname: `/${locale}/invoice/invoicelist/id`,
+                              query: { invoiceId: row.original.invoice_id }
+                            }}
+                            className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                            onClick={e => e.stopPropagation()}
+                          >
+                            View Invoice
+                          </Link>
+                        )
+                      }
+                    ]
+                  case 'void':
+                    return [
+                      {
+                        text: (
+                          <Link
+                            href={{
+                              pathname: `/${locale}/invoice/invoicelist/id`,
+                              query: { invoiceId: row.original.invoice_id }
+                            }}
+                            className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                            onClick={e => e.stopPropagation()}
+                          >
+                            View Invoice
+                          </Link>
+                        )
+                      }
+                    ]
+                  case 'public':
+                    if (paymentType == 'unpaid') {
+                      return [
+                        {
+                          text: (
+                            <div
+                              className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                              onClick={() => {
+                                showDialog({
+                                  id: 'alertConfirmVerify',
+                                  component: (
+                                    <VerifyPaymentDialog id='alertConfirmVerify' invoiceId={row.original.invoice_id} />
+                                  ),
+                                  size: 'sm'
+                                })
+                              }}
+                            >
+                              Verify Payment
+                            </div>
+                          )
+                        },
+                        {
+                          text: (
+                            <div
+                              className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                              onClick={() => {
+                                showDialog({
+                                  id: 'alertConfirmVoid',
+                                  component: (
+                                    <ConfirmAlert
+                                      id='alertConfirmVoid'
+                                      title={'Confirm Void Invoice'}
+                                      content1={`Are you sure you want to void this invoice?`}
+                                      onClick={() => {
+                                        handleCallVoidInvoice(row.original.invoice_id)
+                                      }}
+                                    />
+                                  ),
+                                  size: 'sm'
+                                })
+                              }}
+                            >
+                              Void Invoice
+                            </div>
+                          )
+                        },
+                        {
+                          text: (
+                            <Link
+                              href={{
+                                pathname: `/${locale}/invoice/invoicelist/id`,
+                                query: { invoiceId: row.original.invoice_id }
+                              }}
+                              className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                              onClick={e => e.stopPropagation()}
+                            >
+                              View Invoice
+                            </Link>
+                          )
+                        },
+                        {
+                          text: (
+                            <div
+                              className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                              onClick={() => {
+                                showDialog({
+                                  id: 'alertConfirmDownload',
+                                  component: (
+                                    <ConfirmAlert
+                                      id='alertConfirmDownload'
+                                      title={'Confirm Download Invoice Calculation'}
+                                      content1={`Are you sure you want to download this invoice?`}
+                                      onClick={() => {
+                                        handleCallDownloadInvoice(row.original.invoice_id)
+                                      }}
+                                    />
+                                  ),
+                                  size: 'sm'
+                                })
+                              }}
+                            >
+                              Download PDF
+                            </div>
+                          )
+                        }
+                      ]
+                    } else {
+                      return [
+                        {
+                          text: (
+                            <Link
+                              href={{
+                                pathname: `/${locale}/invoice/invoicelist/id`,
+                                query: { invoiceId: row.original.invoice_id }
+                              }}
+                              className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                              onClick={e => e.stopPropagation()}
+                            >
+                              View Invoice
+                            </Link>
+                          )
+                        },
+                        {
+                          text: (
+                            <div
+                              className='text-secondary no-underline transition-transform duration-300 ease-in-out hover:scale-105'
+                              onClick={() => {
+                                showDialog({
+                                  id: 'alertConfirmDownload',
+                                  component: (
+                                    <ConfirmAlert
+                                      id='alertConfirmDownload'
+                                      title={'Confirm Download Invoice Calculation'}
+                                      content1={`Are you sure you want to download this invoice?`}
+                                      onClick={() => {
+                                        handleCallDownloadInvoice(row.original.invoice_id)
+                                      }}
+                                    />
+                                  ),
+                                  size: 'sm'
+                                })
+                              }}
+                            >
+                              Download PDF
+                            </div>
+                          )
+                        }
+                      ]
+                    }
+
+                  default:
+                    return []
                 }
-              ]}
+              })()}
             />
           </div>
         ),
@@ -350,7 +705,7 @@ const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize }: any) =
 
       <TablePaginationComponent
         table={table}
-        count={data.max_page}
+        count={maxSize}
         page={page}
         pageSize={pageSize}
         onPageChange={setPage}

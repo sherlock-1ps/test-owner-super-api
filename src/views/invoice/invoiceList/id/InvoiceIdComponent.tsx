@@ -41,8 +41,6 @@ const InvoiceIdComponent = () => {
     }
   }
 
-  console.log('invoiceDetail', invoiceDetail)
-
   const handleDownloadInvoice = async (id: any) => {
     try {
       const request = {
@@ -209,13 +207,13 @@ const InvoiceIdComponent = () => {
               <div>
                 <div className='flex gap-2 items-center'>
                   <Typography variant='h6' color={'text.secondary'}>
-                    {dictionary['credential']?.credential}:
+                    {dictionary['invoice']?.credential}:
                   </Typography>
                   <Typography variant='h6'>{invoiceDetail?.data?.invoice?.credential_prefix}</Typography>
                 </div>
                 <div className='flex gap-2 items-center'>
                   <Typography variant='h6' color={'text.secondary'}>
-                    {dictionary['operator']?.operator}:
+                    {dictionary['invoice']?.operator}:
                   </Typography>
                   <Typography variant='h6'>{invoiceDetail?.data?.invoice?.operator_prefix}</Typography>
                 </div>
@@ -239,32 +237,46 @@ const InvoiceIdComponent = () => {
                   <Typography variant='h6' color={'text.secondary'}>
                     Total
                   </Typography>
-                  <Typography variant='h6'>700,000.00 (THB)</Typography>
+                  <Typography variant='h6'>
+                    {' '}
+                    {invoiceDetail?.data?.invoice?.total_payment} ({invoiceDetail?.data?.invoice?.currency_code})
+                  </Typography>
                 </div>
                 <div className='flex gap-2 items-center justify-between w-full'>
                   <Typography variant='h6' color={'text.secondary'}>
-                    FxRate(2%)
+                    FxRate({invoiceDetail?.data?.invoice?.fx_rate}%)
                   </Typography>
-                  <Typography variant='h6'>0 (THB)</Typography>
+                  <Typography variant='h6'>
+                    {invoiceDetail?.data?.invoice?.fx_amount} ({invoiceDetail?.data?.invoice?.currency_code})
+                  </Typography>
                 </div>
                 <div className='flex gap-2 items-center justify-between w-full'>
                   <Typography variant='h6' color={'text.secondary'}>
                     Add-on Discount:
                   </Typography>
-                  <Typography variant='h6'>--</Typography>
+                  <Typography variant='h6'>
+                    {invoiceDetail?.data?.invoice?.discount == 0
+                      ? '--'
+                      : invoiceDetail?.data?.invoice?.discount?.toLocaleString()}
+                  </Typography>
                 </div>
                 <Divider />
                 <div className='flex gap-2 items-center justify-between w-full'>
                   <Typography variant='h6' color={'text.secondary'}>
                     Grand Total
                   </Typography>
-                  <Typography variant='h6'>700,000.00 (THB)</Typography>
+                  <Typography variant='h6'>
+                    {invoiceDetail?.data?.invoice?.net_amount?.toLocaleString()} (
+                    {invoiceDetail?.data?.invoice?.currency_code})
+                  </Typography>
                 </div>
                 <div className='flex gap-2 items-center justify-between w-full'>
                   <Typography variant='h6' color={'text.secondary'}>
-                    ExRate(x32.49)
+                    ExRate(x{invoiceDetail?.data?.invoice?.exchange_rate})
                   </Typography>
-                  <Typography variant='h6'>20,600.00 (USDT)</Typography>
+                  <Typography variant='h6'>
+                    {invoiceDetail?.data?.invoice?.convert_amount?.toLocaleString()} (USDT)
+                  </Typography>
                 </div>
               </div>
             </div>
@@ -397,43 +409,45 @@ const InvoiceIdComponent = () => {
         </CardContent>
       </Card>
 
-      {invoiceDetail?.data?.invoice_provider?.map((item: any, index: number) => {
-        return (
-          <Card className='min-w-[1136px]  relative' key={index}>
-            <CardContent>
-              <div className='flex flex-col gap-6'>
-                <div className='flex gap-6'>
-                  <img alt='providerImg' />
-                  <div className='flex flex-col'>
-                    <Typography variant='h4'>{item.provider_name}</Typography>
-                    <Typography variant='h6' color={'text.secondary'}>
-                      {item.provider}
-                    </Typography>
+      {invoiceDetail?.data?.invoice_provider &&
+        invoiceDetail?.data?.invoice_provider?.map((item: any, index: number) => {
+          return (
+            <Card className='min-w-[1136px]  relative' key={index}>
+              <CardContent>
+                <div className='flex flex-col gap-6'>
+                  <div className='flex gap-6'>
+                    <img alt='providerImg' />
+                    <div className='flex flex-col'>
+                      <Typography variant='h4'>{item.provider_name}</Typography>
+                      <Typography variant='h6' color={'text.secondary'}>
+                        {item.provider}
+                      </Typography>
+                    </div>
+                  </div>
+                  <Divider />
+
+                  <div className='w-full'>
+                    <InvoiceProviderByOneTable list={item} />
                   </div>
                 </div>
-                <Divider />
-                <div className='w-full'>
-                  <InvoiceProviderByOneTable list={item} />
-                </div>
-              </div>
-              {invoiceDetail?.data?.invoice?.invoice_status !== 'public' && (
-                <div
-                  className=' absolute   top-[27%] right-[50%] '
-                  style={{
-                    transform: 'rotate(-21.263deg) translate(50%, 50%)',
-                    transformOrigin: 'center',
-                    opacity: 0.1
-                  }}
-                >
-                  <Typography className='font-bold text-[130px] text-success'>
-                    {invoiceDetail?.data?.invoice?.invoice_status}
-                  </Typography>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )
-      })}
+                {invoiceDetail?.data?.invoice?.invoice_status !== 'public' && (
+                  <div
+                    className=' absolute   top-[27%] right-[50%] '
+                    style={{
+                      transform: 'rotate(-21.263deg) translate(50%, 50%)',
+                      transformOrigin: 'center',
+                      opacity: 0.1
+                    }}
+                  >
+                    <Typography className='font-bold text-[130px] text-success'>
+                      {invoiceDetail?.data?.invoice?.invoice_status}
+                    </Typography>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )
+        })}
     </div>
   )
 }

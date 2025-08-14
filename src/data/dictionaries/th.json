@@ -73,6 +73,8 @@
   "accountDetail": "รายละเอียดบัญชี",
   "changePass": "เปลี่ยนรหัสผ่าน",
   "logout": "ออกจากระบบ",
+  "totalDue": "ทั้งหมด",
+  "dateDue": "วันที่ต้องชำระ",
   "login": {
     "pleaseLogin": "โปรดกรอกเพื่อเข้าสู่ระบบ",
     "enterUsername": "กรอกชื่ิอบัญชีผู้ใช้",
@@ -395,6 +397,8 @@
     "invoiceNumber": "ใบแจ้งหนี้เลขที่",
     "searchInvoiceID": "ค้นหารายการใบแจ้งหนี้",
     "searchInvoiceNumber": "ค้นหารายการใบแจ้งหนี้เลขที่",
-    "searchInput": "ค้นหาเพื่อแสดงผลลัพธ์ตามข้อมูลที่คุณกรอก"
+    "searchInput": "ค้นหาเพื่อแสดงผลลัพธ์ตามข้อมูลที่คุณกรอก",
+    "credential": "Credential",
+    "operator": "Operator"
   }
 }

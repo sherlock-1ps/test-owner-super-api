@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 // MUI Imports
 'use client'
 
@@ -8,7 +10,7 @@ import { format, addDays, subDays } from 'date-fns'
 
 import Typography from '@mui/material/Typography'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
-import { forwardRef, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 import InvoiceListTable from './InvoiceListTable'
 import {
   useDownloadInvoiceMutationOption,
@@ -24,6 +26,7 @@ type CustomInputProps = TextFieldProps & {
 }
 
 const InvoiceListComponent = () => {
+  const firstRun = useRef(true)
   const [startCreateDate, setStartCreateDate] = useState<Date | null | undefined>(subDays(new Date(), 100))
   const [endCreateDate, setEndCreateDate] = useState<Date | null | undefined>(new Date())
   const [startDueDate, setStartDueDate] = useState<Date | null | undefined>(subDays(new Date(), 100))
@@ -68,11 +71,11 @@ const InvoiceListComponent = () => {
     return <CustomTextField fullWidth inputRef={ref} {...rest} label={label} value={value} />
   })
 
-  const handleSearchInvoice = async () => {
+  const handleSearchInvoice = async (pageChange: any, pageSizeChange: any) => {
     try {
       const request: any = {
-        page: 1,
-        limit: 100
+        page: pageChange || page,
+        limit: pageSizeChange || pageSize
         // start_date: startCreateDate ? startCreateDate.toISOString() : undefined,
         // end_date: endCreateDate ? endCreateDate.toISOString() : undefined,
         // start_due_date: startDueDate ? startDueDate.toISOString() : undefined,
@@ -99,7 +102,13 @@ const InvoiceListComponent = () => {
     reset()
   }
 
-  const handleDownloadInvoice = () => {}
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false
+      return
+    }
+    handleSearchInvoice(page, pageSize)
+  }, [page, pageSize])
 
   return (
     <div className='flex flex-col gap-6'>
@@ -215,7 +224,7 @@ const InvoiceListComponent = () => {
                   variant='contained'
                   fullWidth
                   onClick={() => {
-                    handleSearchInvoice()
+                    handleSearchInvoice(null, null)
                   }}
                   disabled={pendingSearchList}
                 >
@@ -256,6 +265,8 @@ const InvoiceListComponent = () => {
                 pageSize={pageSize}
                 setPage={setPage}
                 setPageSize={setPageSize}
+                maxSize={invoiceLists?.data?.max_page}
+                onSearch={handleSearchInvoice}
               />
             </Grid>
           </Grid>

@@ -94,7 +94,7 @@ const InvoiceProviderTable: React.FC<Props> = ({ list }: any) => {
   const resultList = list
 
   const table = useReactTable({
-    data: resultList,
+    data: resultList || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     filterFns: {
@@ -119,7 +119,7 @@ const InvoiceProviderTable: React.FC<Props> = ({ list }: any) => {
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map(row => (
+              {table?.getRowModel()?.rows?.map(row => (
                 <React.Fragment key={row.id}>
                   <tr>
                     {row.getVisibleCells().map(cell => (

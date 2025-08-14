@@ -1,4 +1,4 @@
-import { downloadInvoice, fetchInvoice, getInvoice, searchInvoice } from "@/app/sevices/invoice/invoiceService";
+import { downloadInvoice, fetchInvoice, getInvoice, publicInvoice, reCalInvoice, rejectDraftInvoice, searchInvoice, verifyInvoice, voidInvoice } from "@/app/sevices/invoice/invoiceService";
 import { addProviderList, confirmCreateOperator, createOperator, deleteDraftOperator, deleteOperator, fetchAddProviderList, fetchCredentialList, fetchCredentialProviderList, fetchDraftOperator, fetchGameCredentialProviderList, fetchOperator, fetchOperatorCountry, fetchOperatorCurrency, fetchOperatorProfile, fetchOperatorTimezone, resetPasswordOperator, searchCredentialList, searchCredentialProviderList, searchGameCredentialProviderList, searchOperator, updateGameStatus, updateOperatorCredential, updateStatusCredentialProviderList, updateStatusCrendential, updateStatusOperator } from "@/app/sevices/operator/operator";
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -30,9 +30,21 @@ export const useDownloadInvoiceMutationOption = () => {
       console.error("Error download invoice:", error);
     },
 
+  });
+};
+
+export const useVerifyInvoiceMutationOption = () => {
+
+  return useMutation({
+    mutationFn: verifyInvoice,
+    onError: (error) => {
+      console.error("Error verify invoice:", error);
+    },
 
   });
 };
+
+
 
 export const useGetInvoiceMutationOption = () => {
 
@@ -41,6 +53,50 @@ export const useGetInvoiceMutationOption = () => {
     onError: (error) => {
       console.error("Error get invoice:", error);
     },
+
+  });
+};
+
+export const useRecalculateMutationOption = () => {
+
+  return useMutation({
+    mutationFn: reCalInvoice,
+    onError: (error) => {
+      console.error("Error renew calculate:", error);
+    },
+
+  });
+};
+
+export const usePublicInvoiceMutationOption = () => {
+  return useMutation({
+    mutationFn: publicInvoice,
+    onError: (error) => {
+      console.error("Error public invoice:", error);
+    }
+
+  });
+};
+
+export const useVoidInvoiceMutationOption = () => {
+  return useMutation({
+    mutationFn: voidInvoice,
+    onError: (error) => {
+      console.error("Error void invoice:", error);
+    }
+
+  });
+};
+
+
+
+
+export const useRejectInvoiceMutationOption = () => {
+  return useMutation({
+    mutationFn: rejectDraftInvoice,
+    onError: (error) => {
+      console.error("Error reject invoice:", error);
+    }
 
   });
 };
