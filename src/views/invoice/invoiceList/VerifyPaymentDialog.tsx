@@ -37,50 +37,14 @@ const VerifyPaymentDialog = ({ id, data, invoiceId }: confirmProps) => {
     }
   }
 
-  const handleAddUrl = () => {
-    if (urlLink.trim() !== '') {
-      setUrlList(prev => [...prev, { link_slip: urlLink.trim() }])
-      setUrlLink('')
-    }
-  }
-
-  const handleAddImage = (image: any) => {
-    setFileImg((prev: any) => [...prev, { image_slip: image[0] }])
-  }
-
-  const handleRemoveFile = (index: number) => {
-    const updated = fileImg.filter((_: any, i: any) => i !== index)
-    setFileImg(updated)
-  }
-
   const handleRemoveUrl = (url: string) => {
     setUrlList(prev => prev.filter(item => item.link_slip !== url))
-  }
-
-  const handleUpload = async () => {
-    if ((fileImg?.length ?? 0) > 0 || urlList.length > 0) {
-      const upload_slip: { image_slip?: File; link_slip?: string }[] = []
-
-      fileImg.forEach((img: any) => {
-        upload_slip.push(img)
-      })
-
-      urlList.forEach((url: any) => {
-        upload_slip.push(url)
-      })
-
-      const request = {
-        invoice_id: invoiceId,
-        upload_slip: upload_slip
-      }
-    } else {
-      toast.error('Please upload a file or add at least one URL')
-    }
   }
 
   const handleCallGetInvoice = async () => {
     try {
       const response = await callGetInvoice({ invoice_id: Number(invoiceId) })
+
       if (response?.code == 'SUCCESS') {
         if (response?.data?.invoice_image_slip.length > 0) {
           setFileImg(
@@ -152,8 +116,8 @@ const VerifyPaymentDialog = ({ id, data, invoiceId }: confirmProps) => {
         <Button variant='outlined' onClick={() => closeDialog(id)}>
           Cancel
         </Button>
-        <Button disabled={!fileImg && urlList.length == 0} variant='contained' onClick={handleUpload}>
-          Upload
+        <Button disabled={!fileImg && urlList.length == 0} variant='contained' onClick={handleCallVerifyInvoice}>
+          Confirm
         </Button>
       </Grid>
     </Grid>
