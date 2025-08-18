@@ -145,12 +145,12 @@ export const updateStatusOperator = async (payload: UpdateStatusOperatorPayload)
 export const resetPasswordOperator = async (payload: ResetPasswordOperatorPayload) => {
   try {
 
-    const response = await Axios.post("/operator/resetPassword", payload);
+    const response = await Axios.post("/operator/password/reset", payload);
 
     return response.data;
   } catch (error) {
     console.error("Error reset password operator:", error);
-    axiosErrorHandler(error, "/operator/resetPassword");
+    axiosErrorHandler(error, "/operator/password/reset");
 
     throw error;
   }
