@@ -49,6 +49,13 @@ const AddNewProviderDialog = ({ id, onClick, credential }: AddNewProviderType) =
         credential_percent: Number(p.selectShare) || 0
       }))
 
+    const hasEmptyPercent = resultProvider.some(p => p.credential_percent === 0)
+    if (hasEmptyPercent || resultProvider.length == 0) {
+      console.warn('Some provider has empty credential_percent')
+      toast.error('Should have value credential', { autoClose: 3000 })
+      return
+    }
+
     handleAddProviderApi(resultProvider)
   }
 
