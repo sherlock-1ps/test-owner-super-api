@@ -71,17 +71,17 @@ export const downloadInvoice = async ({ invoice_id }: any) => {
 
 };
 
-export const verifyInvoice = async ({ invoice_id }: any) => {
+export const verifyInvoice = async (payload: any) => {
   try {
-    const response = await Axios.post("/invoice/unpaid/verify", { invoice_id });
+    const response = await Axios.post("/invoice/unpaid/verify", payload);
 
     return response.data;
 
   } catch (error) {
     console.error("Error verify invoice:", error);
 
-    axiosErrorHandler(error, '/invoice/unpaid/verify')
-    throw error;
+    const e = axiosErrorHandler(error, '/invoice/unpaid/verify')
+    throw e;
 
   }
 

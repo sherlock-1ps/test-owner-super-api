@@ -11,9 +11,10 @@ interface confirmProps {
   id: string
   data?: any
   invoiceId: any
+  onSearch?: any
 }
 
-const VerifyPaymentDialog = ({ id, data, invoiceId }: confirmProps) => {
+const VerifyPaymentDialog = ({ id, data, invoiceId, onSearch }: confirmProps) => {
   const { closeDialog } = useDialog()
   const [fileImg, setFileImg] = useState<any>(null)
   const [urlLink, setUrlLink] = useState('')
@@ -30,15 +31,13 @@ const VerifyPaymentDialog = ({ id, data, invoiceId }: confirmProps) => {
 
       if (response?.code == 'SUCCESS') {
         toast.success('Verify Invoice success!', { autoClose: 3000 })
+        closeDialog(id)
+        onSearch()
       }
     } catch (error) {
       console.log('error', error)
       toast.error('Verify Invoice failed!', { autoClose: 3000 })
     }
-  }
-
-  const handleRemoveUrl = (url: string) => {
-    setUrlList(prev => prev.filter(item => item.link_slip !== url))
   }
 
   const handleCallGetInvoice = async () => {
@@ -83,7 +82,20 @@ const VerifyPaymentDialog = ({ id, data, invoiceId }: confirmProps) => {
           <Typography variant='h6'>Please review the payment details provided by the user.</Typography>
         </Grid>
 
-        <Grid item xs={12} sm></Grid>
+        {fileImg?.length > 0 && fileImg.length > 0 && (
+          <Grid item xs={12} sm className='flex flex-wrap gap-2 overflow-auto'>
+            {fileImg.map((img: any, index: any) => {
+              return (
+                <img
+                  key={index}
+                  src={img.image_slip}
+                  alt={`uploaded-${index}`}
+                  className='w-40 h-40 object-contain rounded'
+                />
+              )
+            })}
+          </Grid>
+        )}
 
         <Grid item xs={12}>
           <Typography variant='h6' className='text-center'>
@@ -91,22 +103,12 @@ const VerifyPaymentDialog = ({ id, data, invoiceId }: confirmProps) => {
           </Typography>
         </Grid>
 
-        <Grid item xs={12}>
-          <div className='flex gap-2'>
-            <CustomTextField
-              fullWidth
-              label='URL Link'
-              placeholder='ex. http://URLImage.com'
-              value={urlLink}
-              onChange={e => setUrlLink(e.target.value)}
-            />
-          </div>
-        </Grid>
-
-        {urlList.length > 0 && (
+        {urlList?.length > 0 && (
           <Grid item xs={12} className='flex flex-wrap gap-2'>
             {urlList.map((url, index) => (
-              <Chip key={index} label={url?.link_slip} onDelete={() => handleRemoveUrl(url?.link_slip)} />
+              <Typography variant='body2' key={index} className='bg-slate-100 rounded-md px-2'>
+                {url?.link_slip}
+              </Typography>
             ))}
           </Grid>
         )}
@@ -116,7 +118,13 @@ const VerifyPaymentDialog = ({ id, data, invoiceId }: confirmProps) => {
         <Button variant='outlined' onClick={() => closeDialog(id)}>
           Cancel
         </Button>
-        <Button disabled={!fileImg && urlList.length == 0} variant='contained' onClick={handleCallVerifyInvoice}>
+        <Button
+          disabled={!fileImg && urlList.length == 0}
+          variant='contained'
+          onClick={() => {
+            handleCallVerifyInvoice(invoiceId)
+          }}
+        >
           Confirm
         </Button>
       </Grid>

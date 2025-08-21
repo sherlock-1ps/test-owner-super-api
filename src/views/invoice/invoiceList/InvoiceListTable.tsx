@@ -473,7 +473,11 @@ const InvoiceListTable = ({ data, page, pageSize, setPage, setPageSize, onSearch
                                 showDialog({
                                   id: 'alertConfirmVerify',
                                   component: (
-                                    <VerifyPaymentDialog id='alertConfirmVerify' invoiceId={row.original.invoice_id} />
+                                    <VerifyPaymentDialog
+                                      id='alertConfirmVerify'
+                                      invoiceId={row.original.invoice_id}
+                                      onSearch={onSearch}
+                                    />
                                   ),
                                   size: 'sm'
                                 })
