@@ -96,7 +96,7 @@ const SettingSmtpCreateComponent = () => {
       const result = await callEdit({
         smtp_id: smtpData?.smtp_id,
         host: data.host,
-        port: data.host,
+        port: data.port,
         smtp_username: data.smtp_username,
         password: data.password,
         sender_name: data.sender_name,
