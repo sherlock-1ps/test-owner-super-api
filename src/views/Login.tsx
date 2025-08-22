@@ -218,12 +218,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
               <Typography variant='h4'>{`${themeConfig.templateName}!`}</Typography>
               <Typography>{dictionary['login']?.pleaseLogin ?? 'Please login to your account.'}</Typography>
             </div>
-            <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
-              <Typography variant='body2' color='primary'>
-                {dictionary?.username ?? 'Username'}: <span className='font-medium'>owneruser</span> / Pass:{' '}
-                <span className='font-medium'>123456</span>
-              </Typography>
-            </Alert>
+
             <form
               noValidate
               autoComplete='off'
