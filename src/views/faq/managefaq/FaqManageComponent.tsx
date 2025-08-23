@@ -10,7 +10,11 @@ import { Button, Card, CardContent, Divider, Grid, Typography } from '@mui/mater
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useDialog } from '@/hooks/useDialog'
 import ConfirmAlert from '@/components/dialogs/alerts/ConfirmAlert'
-import { useCreateFaqMutationOption, useUpdateFaqInfoMutationOption } from '@/queryOptions/faq/faqQueryOptions'
+import {
+  useCreateFaqMutationOption,
+  useFaqIdMutationOption,
+  useUpdateFaqInfoMutationOption
+} from '@/queryOptions/faq/faqQueryOptions'
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
 
@@ -29,13 +33,11 @@ const FaqManageComponent = () => {
   const { showDialog } = useDialog()
   const searchParams = useSearchParams()
   const data = searchParams.get('data')
+  const { mutateAsync: callGetFaqId } = useFaqIdMutationOption()
 
   const faqData = data ? JSON.parse(decodeURIComponent(data as string)) : null
-
   console.log(faqData)
-
   const { mutateAsync: createFaq, isPending: pendingCreateFaq } = useCreateFaqMutationOption()
-
   const { mutateAsync: updateInfoFaq, isPending: pendingUpdateInfoFaq } = useUpdateFaqInfoMutationOption()
 
   const {

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { createFaq, deleteFaq, fetchFaq, searchFaq, updateFaq, updateStatusFaq } from "@/app/sevices/faq/faq";
+import { createFaq, deleteFaq, fetchFaq, fetchFaqId, searchFaq, updateFaq, updateStatusFaq } from "@/app/sevices/faq/faq";
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -9,6 +9,20 @@ export function fetchFaqQueryOption(page: number, pageSize: number) {
     queryFn: () => fetchFaq({ page, pageSize }),
   });
 }
+
+
+export const useFaqIdMutationOption = () => {
+
+  return useMutation({
+    mutationFn: fetchFaqId,
+    onError: (error) => {
+      console.error("Error get faq id:", error);
+    }
+
+
+  });
+};
+
 
 export const useUpdateFaqMutationOption = () => {
   const queryClient = useQueryClient();

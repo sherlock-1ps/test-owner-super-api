@@ -19,6 +19,21 @@ export const fetchFaq = async ({ page, pageSize }: { page: number; pageSize: num
 
 };
 
+export const fetchFaqId = async (payload: any) => {
+  try {
+    const response = await Axios.post("/faq/get", payload);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error fetching faq by id:", error);
+
+    const e = axiosErrorHandler(error, '/faq/get')
+    throw e;
+  }
+
+};
+
 export const searchFaq = async ({ page, pageSize, title }: { page: number; pageSize: number, title: string }) => {
   try {
     const response = await Axios.post("/faq/search", {

@@ -62,7 +62,11 @@ import { Switch } from '@mui/material'
 import ChangeProviderLogoDialog from '@/components/dialogs/provider/ChangeProviderLogoDialog'
 import RenameAccountDialog from '@/components/dialogs/account/RenameAccountDialog'
 import { useDictionary } from '@/contexts/DictionaryContext'
-import { useDeleteFaqMutationOption, useUpdateFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
+import {
+  useDeleteFaqMutationOption,
+  useFaqIdMutationOption,
+  useUpdateFaqMutationOption
+} from '@/queryOptions/faq/faqQueryOptions'
 import { FormatShowDate } from '@/utils/formatShowDate'
 
 declare module '@tanstack/table-core' {
@@ -106,7 +110,6 @@ const FaqTable = ({ data, page, pageSize, setPage, setPageSize }: any) => {
 
   // Hooks
   const { lang: locale } = useParams()
-
   const { mutate, isPending: pendingUpdateStatus } = useUpdateFaqMutationOption()
   const { mutate: deleteFaq } = useDeleteFaqMutationOption()
 

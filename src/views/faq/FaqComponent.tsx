@@ -10,7 +10,11 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import FaqTable from './FaqTable'
-import { fetchFaqQueryOption, useSearchFaqMutationOption } from '@/queryOptions/faq/faqQueryOptions'
+import {
+  fetchFaqQueryOption,
+  useFaqIdMutationOption,
+  useSearchFaqMutationOption
+} from '@/queryOptions/faq/faqQueryOptions'
 import { useDictionary } from '@/contexts/DictionaryContext'
 
 const FaqComponent = () => {
@@ -23,8 +27,8 @@ const FaqComponent = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-
   const { data: faqData, isPending: pendingFaqData } = fetchFaqQueryOption(page, pageSize)
+
   const { mutate, data: searchFaqData, reset } = useSearchFaqMutationOption()
 
   const handleSearch = async (username: any) => {
