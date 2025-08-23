@@ -255,7 +255,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         <MenuItem href={`/${locale}/profile`} icon={<i className='tabler-user-square-rounded' />}>
           {dictionary['navigation'].userProfile}
         </MenuItem> */}
-        {process.env.NEXT_PUBLIC_ENVIRONMENT == 'prod' ? null : (
+        {process.env.NEXT_PUBLIC_HIDE_TEMPLATE_MENU == 'true' ? null : (
           <>
             <MenuSection label={dictionary['navigation'].appsPages}>
               <SubMenu
