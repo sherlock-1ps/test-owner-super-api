@@ -17,6 +17,7 @@ import {
 } from '@/queryOptions/faq/faqQueryOptions'
 import { toast } from 'react-toastify'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import { useEffect } from 'react'
 
 const HtmlEditor = dynamic(() => import('@/components/lib/htmlEditor'), { ssr: false })
 
@@ -33,10 +34,9 @@ const FaqManageComponent = () => {
   const { showDialog } = useDialog()
   const searchParams = useSearchParams()
   const data = searchParams.get('data')
-  const { mutateAsync: callGetFaqId } = useFaqIdMutationOption()
+  const { mutateAsync: callGetFaqId, data: dataEdit } = useFaqIdMutationOption()
 
   const faqData = data ? JSON.parse(decodeURIComponent(data as string)) : null
-  console.log(faqData)
   const { mutateAsync: createFaq, isPending: pendingCreateFaq } = useCreateFaqMutationOption()
   const { mutateAsync: updateInfoFaq, isPending: pendingUpdateInfoFaq } = useUpdateFaqInfoMutationOption()
 
@@ -53,6 +53,20 @@ const FaqManageComponent = () => {
       answer: ''
     }
   })
+
+  useEffect(() => {
+    if (faqData) {
+      handleCallFaq()
+    }
+  }, [])
+
+  const handleCallFaq = async () => {
+    const request = {
+      faq_id: faqData?.faq_id
+    }
+
+    const response = await callGetFaqId(request)
+  }
 
   const handleEditorChange = (value: any) => {
     setValue('answer', value)
@@ -144,7 +158,7 @@ const FaqManageComponent = () => {
               {pendingCreateFaq ? (
                 <p>{dictionary?.loading}...</p>
               ) : (
-                <HtmlEditor handleEditorChange={handleEditorChange} />
+                <HtmlEditor handleEditorChange={handleEditorChange} dataEdit={dataEdit?.data?.answer} />
               )}
 
               {errors.answer && <Typography color='error'>{errors.answer.message}</Typography>}

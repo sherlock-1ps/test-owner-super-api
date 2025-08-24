@@ -92,7 +92,7 @@ export const createFaq = async ({ title, body }: { body: string, title: string }
 
 export const updateFaq = async (payload: any) => {
   try {
-    const response = await Axios.post("/faq/update", payload);
+    const response = await Axios.patch("/faq/update", payload);
 
     return response.data;
 

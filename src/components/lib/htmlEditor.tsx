@@ -1,10 +1,16 @@
 'use client'
 import { Typography } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
-const HtmlEditor = ({ handleEditorChange }: { handleEditorChange: (value: string) => void }) => {
+const HtmlEditor = ({
+  handleEditorChange,
+  dataEdit
+}: {
+  handleEditorChange: (value: string) => void
+  dataEdit: any
+}) => {
   const [editorHtml, setEditorHtml] = useState('')
 
   const handleChange = (value: string) => {
@@ -13,6 +19,13 @@ const HtmlEditor = ({ handleEditorChange }: { handleEditorChange: (value: string
     setEditorHtml(normalizedValue)
     handleEditorChange(normalizedValue)
   }
+
+  useEffect(() => {
+    if (dataEdit) {
+      setEditorHtml(dataEdit)
+      handleEditorChange(dataEdit)
+    }
+  }, [dataEdit])
 
   return (
     <div>
