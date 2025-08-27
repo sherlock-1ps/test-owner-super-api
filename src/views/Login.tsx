@@ -156,6 +156,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     setIsLoading(true)
     const res = await signIn(data)
+    console.log('res', res)
 
     if (res?.code == 'SUCCESS') {
       useAuthStore.getState().setTokens(res.data.token, res.data.refresh_token)

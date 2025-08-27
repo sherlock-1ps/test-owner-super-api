@@ -144,11 +144,14 @@ export const useResetPasswordAccountOperatorMutationOption = () => {
 };
 
 export const useChangeEmailAccountOperatorMutationOption = () => {
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: changeEmailAccountOperator,
     onError: (error) => {
       console.error("Error chnage Email account Operator:", error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["accountOperator"] });
     },
 
   });
