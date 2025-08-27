@@ -1,4 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { fetchGameProvider, fetchProviderCurrency, fetchProviders, fetchProviderType } from "@/app/sevices/provider/provider";
+import { useQuery } from "@tanstack/react-query";
 
 export default function fetchProviderQueryOption(page: number, pageSize: number) {
   return {
@@ -22,8 +24,11 @@ export function fetchCurrencyProviderQueryOption() {
 }
 
 export function fetchGamesProviderQueryOption(page: number, pageSize: number, provider: string) {
-  return {
+
+  return useQuery({
     queryKey: ['gameProvider', page, pageSize],
     queryFn: () => fetchGameProvider({ page, pageSize, provider_code: provider ?? '' })
-  };
+  });
 }
+
+

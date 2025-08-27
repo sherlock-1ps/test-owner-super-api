@@ -104,7 +104,15 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 // Column Definitions
 const columnHelper = createColumnHelper<Game>()
 
-const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize, handleRefetchSearch }: any) => {
+const ProviderNameTable = ({
+  data = [],
+  page,
+  pageSize,
+  setPage,
+  setPageSize,
+  handleRefetchSearch,
+  onRefetch
+}: any) => {
   const { showDialog } = useDialog()
   const { dictionary } = useDictionary()
   const { hasPermission } = useHasPermission()
@@ -236,7 +244,12 @@ const ProviderNameTable = ({ data = [], page, pageSize, setPage, setPageSize, ha
                     showDialog({
                       id: 'ThumbnailProviderDialog',
                       component: (
-                        <ThumbnailProviderDialog id='ThumbnailProviderDialog' data={row.original} onClick={() => {}} />
+                        <ThumbnailProviderDialog
+                          id='ThumbnailProviderDialog'
+                          data={row.original}
+                          onRefetch={onRefetch}
+                          onClick={() => {}}
+                        />
                       ),
                       size: 'sm'
                     })

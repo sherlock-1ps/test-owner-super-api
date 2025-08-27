@@ -39,8 +39,9 @@ const ProviderNameComponent = () => {
     data: gamesProviderData,
     isPending: pendingGamesProvider,
     error: errorGamesProvider,
+    isFetching,
     refetch
-  } = useQuery(fetchGamesProviderQueryOption(page, pageSize, provider || ''))
+  } = fetchGamesProviderQueryOption(page, pageSize, provider || '')
 
   const {
     mutate,
@@ -168,7 +169,7 @@ const ProviderNameComponent = () => {
               )}
               {isSearchingPending && <Typography> {dictionary?.searching ?? 'Searching'} providers...</Typography>}
               {searchError && <Typography className='text-error'>Error searching: {searchError.message}</Typography>}
-              {gamesProviderData?.code == 'SUCCESS' && (
+              {gamesProviderData?.code == 'SUCCESS' && !isFetching && (
                 <ProviderNameTable
                   data={searchResults?.data || gamesProviderData?.data}
                   page={page}
@@ -176,6 +177,7 @@ const ProviderNameComponent = () => {
                   setPage={setPage}
                   setPageSize={setPageSize}
                   handleRefetchSearch={handleRefetchSearch}
+                  onRefetch={refetch}
                 />
               )}
             </CardContent>

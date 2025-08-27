@@ -17,9 +17,10 @@ interface confirmProps {
   id: string
   onClick: () => void
   data: any
+  onRefetch?: any
 }
 
-const ThumbnailProviderDialog = ({ id, onClick, data }: confirmProps) => {
+const ThumbnailProviderDialog = ({ id, onClick, data, onRefetch }: confirmProps) => {
   const { closeDialog } = useDialog()
   const [fileImg, setFileImg] = useState(null)
   const queryClient = useQueryClient()
@@ -31,7 +32,9 @@ const ThumbnailProviderDialog = ({ id, onClick, data }: confirmProps) => {
       console.error('Error updating game thumbnail:', error)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['gameProvider'] })
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['gameProvider'] })
+      }, 600)
     }
   })
 
@@ -42,6 +45,7 @@ const ThumbnailProviderDialog = ({ id, onClick, data }: confirmProps) => {
         game_code: data.game_code,
         image: fileImg
       })
+
       closeDialog(id)
     } else {
       toast.error(dictionary?.notHaveFileImg, { autoClose: 3000 })
