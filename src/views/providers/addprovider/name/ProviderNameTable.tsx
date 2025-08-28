@@ -166,7 +166,9 @@ const ProviderNameTable = ({
       }),
       columnHelper.accessor('image', {
         header: dictionary?.thumbnail ?? 'Thumbnail',
-        cell: ({ row }) => <img src={row.original.image} width={32} alt='thumbnailGame' className=' rounded' />
+        cell: ({ row }) => (
+          <img src={`${row.original.image}?v=${Date.now()}`} width={32} alt='thumbnailGame' className='rounded' />
+        )
       }),
 
       columnHelper.accessor('is_enable', {
