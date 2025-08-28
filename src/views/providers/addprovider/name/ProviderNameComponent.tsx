@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography'
 import { useParams, useSearchParams } from 'next/navigation'
 import CustomTextField from '@/@core/components/mui/TextField'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ProviderNameTable from './ProviderNameTable'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { searchGameProviders } from '@/app/sevices/provider/provider'
@@ -57,6 +57,8 @@ const ProviderNameComponent = () => {
     setPage(1)
     mutate({ page: 1, pageSize, provider_code: provider ?? '', game_name: search })
   }
+
+  console.log('gamesProviderData', gamesProviderData)
 
   const handleReset = () => {
     setPage(1)
@@ -169,9 +171,9 @@ const ProviderNameComponent = () => {
               )}
               {isSearchingPending && <Typography> {dictionary?.searching ?? 'Searching'} providers...</Typography>}
               {searchError && <Typography className='text-error'>Error searching: {searchError.message}</Typography>}
-              {gamesProviderData?.code == 'SUCCESS' && !isFetching && (
+              {gamesProviderData?.code == 'SUCCESS' && !isFetching && !pendingGamesProvider && (
                 <ProviderNameTable
-                  data={searchResults?.data || gamesProviderData?.data}
+                  data={searchResults?.data || gamesProviderData?.data || []}
                   page={page}
                   pageSize={pageSize}
                   setPage={setPage}

@@ -281,7 +281,7 @@ const ProviderNameTable = ({
   )
 
   const table = useReactTable<Game>({
-    data: data.list,
+    data: data?.list ?? [],
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
