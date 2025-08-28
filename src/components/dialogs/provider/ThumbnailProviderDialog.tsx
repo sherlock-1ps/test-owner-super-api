@@ -32,9 +32,10 @@ const ThumbnailProviderDialog = ({ id, onClick, data, onRefetch }: confirmProps)
       console.error('Error updating game thumbnail:', error)
     },
     onSettled: () => {
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['gameProvider'] })
-      }, 600)
+      onRefetch()
+      // setTimeout(() => {
+      //   queryClient.invalidateQueries({ queryKey: ['gameProvider'] })
+      // }, 600)
     }
   })
 

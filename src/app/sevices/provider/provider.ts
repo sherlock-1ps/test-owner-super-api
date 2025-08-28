@@ -124,23 +124,40 @@ export const fetchGameProvider = async ({ page, pageSize, provider_code }: { pag
 
 };
 
-export const searchGameProviders = async ({ page = 1, pageSize, provider_code, game_name }: { page: number; pageSize: number; provider_code: string; game_name: string }) => {
+export const searchGameProviders = async ({
+  page = 1,
+  pageSize,
+  provider_code,
+  game_name
+}: {
+  page: number
+  pageSize: number
+  provider_code: string
+  game_name: string
+}) => {
   try {
-    const response = await Axios.post("/provider/game/search", {
-      page: page,
-      limit: pageSize,
-      provider_code,
-      game_name
-    });
+    const payload: any = {
+      page,
+      limit: pageSize
+    }
 
-    return response.data;
+    if (provider_code?.trim()) {
+      payload.provider_code = provider_code
+    }
+
+    if (game_name?.trim()) {
+      payload.game_name = game_name
+    }
+
+    const response = await Axios.post("/provider/game/search", payload)
+
+    return response.data
   } catch (error) {
-    console.error("Error searching game providers:", error);
-    axiosErrorHandler(error, "/provider/game/search");
-
-    throw error;
+    console.error("Error searching game providers:", error)
+    axiosErrorHandler(error, "/provider/game/search")
+    throw error
   }
-};
+}
 
 export const updateGameProvider = async (payload: GameProviderUpdatePayload) => {
   try {
