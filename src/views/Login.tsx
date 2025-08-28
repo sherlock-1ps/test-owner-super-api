@@ -184,6 +184,12 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       } else if (res?.code == 'OWNER_NOT_FOUND') {
         toast.error(dictionary?.userNotFound, { autoClose: 3000 })
         setErrorState({ message: [dictionary?.userNotFound] })
+      } else if (res?.code == 'OWNER_IS_ENABLE') {
+        toast.error(res?.message, { autoClose: 3000 })
+        setErrorState({ message: [res?.message] })
+      } else {
+        toast.error(res?.message || 'เกิดข้อผิดพลาด', { autoClose: 3000 })
+        setErrorState({ message: [res?.message] })
       }
     }
 
