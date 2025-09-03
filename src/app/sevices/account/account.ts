@@ -166,12 +166,12 @@ export const searchAccountOperator = async ({
     if (email) payload.email = email
     if (operator_prefix && operator_prefix !== 'all') payload.operator_prefix = operator_prefix
 
-    const response = await Axios.post("/operator/search", payload)
+    const response = await Axios.post("/operator/user/search", payload)
 
     return response.data
   } catch (error) {
     console.error("Error fetching search account operator:", error)
-    axiosErrorHandler(error, '/operator/search')
+    axiosErrorHandler(error, '/operator/user/search')
     throw error
   }
 }

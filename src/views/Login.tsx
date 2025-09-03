@@ -188,7 +188,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         toast.error(res?.message, { autoClose: 3000 })
         setErrorState({ message: [res?.message] })
       } else {
-        toast.error(res?.message || 'เกิดข้อผิดพลาด', { autoClose: 3000 })
+        toast.error(res?.code || 'เกิดข้อผิดพลาด', { autoClose: 3000 })
         setErrorState({ message: [res?.message] })
       }
     }
