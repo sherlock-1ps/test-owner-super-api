@@ -357,7 +357,8 @@
     "auditLog": "Audit Log",
     "selectAction": "Select Action",
     "device": "Device",
-    "geolocation": "Geolocation"
+    "geolocation": "Geolocation",
+    "searchLog": "Search to view results from the data you entered."
   },
   "roleSection": {
     "rolePermission": "Role & Permission",

@@ -179,7 +179,7 @@ const OperatorsComponent = () => {
           {pendingOperatorsData && <p>{dictionary?.loading ?? 'Loading'}....</p>}
           {errorOpeatorsData && <Typography className=' text-error'>{errorOpeatorsData.message}</Typography>}
 
-          {operatorsData?.data?.total && !pendingOperatorsData && !pendingSearchOperatorData && (
+          {operatorsData?.data && !pendingOperatorsData && !pendingSearchOperatorData && (
             <Grid item xs={12}>
               <OperatorsListTable
                 data={searchOperatorsData?.data || operatorsData?.data}

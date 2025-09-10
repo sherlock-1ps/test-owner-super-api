@@ -1,6 +1,7 @@
 "use server"
 
 import Axios from "@/libs/axios/axios"
+import AxiosAuth from "@/libs/axios/axiosAuth"
 import { useAuthStore } from "@/store/authStore"
 import { axiosErrorHandler } from "@/utils/axiosErrorHandler"
 import { removeCookie, setCookie } from "@/utils/cookieHandler"
@@ -8,7 +9,7 @@ import { removeCookie, setCookie } from "@/utils/cookieHandler"
 
 export const signIn = async (credentials: any) => {
   try {
-    const response = await Axios.post('/login', {
+    const response = await AxiosAuth.post('/login', {
       username: credentials.username,
       password: credentials.password,
     })

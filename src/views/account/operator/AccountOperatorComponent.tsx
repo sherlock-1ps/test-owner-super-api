@@ -124,7 +124,7 @@ const AccountOperatorComponent = () => {
           </Grid>
           <Grid item xs={12}>
             {pendingOperatorData && <p>{dictionary?.loading}...</p>}
-            {operatorData?.data?.total && (
+            {operatorData?.data && (
               <AccountOperatorTable
                 data={searchOperatorData?.data || operatorData?.data}
                 page={page}

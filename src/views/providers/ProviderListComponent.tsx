@@ -158,7 +158,7 @@ const ProviderListComponent = () => {
               </Typography>
             )}
 
-            {providersData?.data?.total && !isSearchingPending && !pendingProvider && (
+            {providersData?.data && !isSearchingPending && !pendingProvider && (
               <ProviderListTable
                 data={searchResults?.data || providersData?.data}
                 page={page}

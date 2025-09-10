@@ -378,7 +378,7 @@ const AuditLogComponent = () => {
           <Grid container spacing={6}>
             <Grid item xs={12}>
               <Typography variant='h6'>
-                {ownerDataLog?.data?.total || operatorDataLog?.data?.total
+                {ownerDataLog?.data || operatorDataLog?.data
                   ? `${dictionary['audit']?.found} ${ownerDataLog?.data?.total?.toLocaleString() || operatorDataLog?.data?.total?.toLocaleString()} ${dictionary['audit']?.activityResult}`
                   : dictionary['audit']?.searchLog}
               </Typography>

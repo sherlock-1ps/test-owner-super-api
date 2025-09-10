@@ -1,9 +1,10 @@
 import Axios from "@/libs/axios/axios";
+import AxiosAuth from "@/libs/axios/axiosAuth";
 import { axiosErrorHandler } from "@/utils/axiosErrorHandler";
 
 export const setPasswordAccount = async ({ password }: { password: string }) => {
   try {
-    const response = await Axios.patch("/owner/password/set", {
+    const response = await AxiosAuth.patch("/owner/password/set", {
       password,
     });
 

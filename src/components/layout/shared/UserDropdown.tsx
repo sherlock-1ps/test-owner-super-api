@@ -34,6 +34,7 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import Axios from '@/libs/axios/axios'
 import { useAuthStore } from '@/store/authStore'
 import { useDictionary } from '@/contexts/DictionaryContext'
+import AxiosAuth from '@/libs/axios/axiosAuth'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -77,7 +78,7 @@ const UserDropdown = () => {
 
   const handleUserLogout = async () => {
     try {
-      const response = await Axios.get('/logout')
+      const response = await AxiosAuth.get('/logout')
 
       if (response?.data?.code == 'SUCCESS') {
         useAuthStore.getState().clearTokens()
