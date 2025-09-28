@@ -8,7 +8,7 @@ export const setCookie = (name: string, value: string, maxAge?: number) => {
   const cookieStore = cookies();
   cookieStore.set(name, value, {
     httpOnly: true,
-    secure: process.env.NEXT_PUBLIC_HIDE_TEMPLATE_MENU === "true" || true,
+    secure: true,
     maxAge: maxAge ?? HUNDRED_YEARS_IN_SECONDS,
     path: "/",
   });
@@ -26,7 +26,7 @@ export const removeCookie = (name: string) => {
   const cookieStore = cookies();
   cookieStore.set(name, "", {
     httpOnly: true,
-    secure: process.env.NEXT_PUBLIC_HIDE_TEMPLATE_MENU === "true" || true,
+    secure: true,
     maxAge: -1, // Expire immediately
     path: "/",
   });
