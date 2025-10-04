@@ -49,7 +49,7 @@ const SettingsSmtpComponent = () => {
 
           <Grid item xs={12}>
             {isPending && <p>{dictionary?.loading}....</p>}
-            {data?.data?.total && (
+            {data?.code == 'SUCCESS' && (
               <SettingSmtpTable
                 data={data.data}
                 page={page}
