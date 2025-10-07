@@ -196,9 +196,11 @@ const AddProviderComponent = () => {
                   <CustomTextField
                     fullWidth
                     type='number'
+                    inputProps={{ step: '0.01' }} // ✅ อนุญาตทศนิยม 2 ตำแหน่งขึ้นไป
                     label={`${dictionary?.share ?? 'Share'} %`}
                     {...register('percent_holder', {
-                      required: dictionary['provider']?.shareRequired ?? 'Share Percentage is required'
+                      required: dictionary['provider']?.shareRequired ?? 'Share Percentage is required',
+                      valueAsNumber: true // ✅ แปลงค่าเป็น number ทันที
                     })}
                     error={!!errors.percent_holder}
                     helperText={errors.percent_holder?.message}
